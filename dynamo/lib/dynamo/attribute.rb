@@ -1,16 +1,28 @@
 module Dynamo
+  # The Dynamo::Attribute module is included in ActiveRecord model for CRUD operations
+  # on the dynamics attributes (the dynamos). These ared stored in a table field called 'dynamo'
+  # and accessed with #dynamo and dynamo= methods.
+  #
+  # The dynamo are encoded et decode with a serialization tool than you need to specify seperatly (for instance
+  # Dynamo::Serialization::Marshal).
+  #
+  # The attributes= method filter columns attributes and dynamic attributes in order to store
+  # them apart.
+  #
   module Attribute
 
-    # The Dynamo::Attribute module is included in ActiveRecord model for CRUD operations
-    # on the dynamics attributes (the dynamos). These ared stored in a table field called 'dynamo'
-    # and accessed with #dynamo and dynamo= methods.
-    #
-    # The dynamo are encoded et decode with a serialization tool than you need to specify seperatly (for instance
-    # Dynamo::Serialization::Marshal).
-    #
-    # The attributes= method filter columns attributes and dynamic attributes in order to store
-    # them apart.
-    #
+    def self.included(base)
+      base.class_eval do
+        include InstanceMethods
+        include ::Dynamo::Serialization::Marshal
+        include ::Dynamo::Declaration
+        include ::Dynamo::Dirty
+
+        before_save :encode_dynamo
+
+        alias_method_chain :attributes=,  :dynamo
+      end
+    end
 
     module InstanceMethods
       def dynamo
@@ -37,20 +49,18 @@ module Dynamo
 
       private
 
-        def attributes_with_dynamo=(new_attributes, guard_protected_attributes = true)
-          column_attributes, dynamo_attributes = {}, {}
+        def attributes_with_dynamo=(attributes, guard_protected_attributes = true)
           columns = self.class.column_names
+          properties = {}
 
-          new_attributes.each do |k,v|
-            if columns.include?(k.to_s)
-              column_attributes[k] = v
-            else
-              dynamo_attributes[k] = v
+          attributes.keys.each do |k|
+            if !respond_to?("#{k}=") && !columns.include?(k)
+              properties[k] = attributes.delete(k)
             end
           end
-          self.attributes_without_dynamo=(column_attributes) unless column_attributes.empty?
 
-          merge_dynamo(dynamo_attributes)
+          merge_dynamo(properties)
+          self.attributes_without_dynamo = attributes
         end
 
         def decode_dynamo
@@ -74,15 +84,5 @@ module Dynamo
           end
         end
     end # InstanceMethods
-
-    def self.included(receiver)
-      receiver.send :include, InstanceMethods
-      receiver.send :include, ::Dynamo::Serialization::Marshal
-      receiver.send :include, ::Dynamo::Declaration
-      receiver.send :include, ::Dynamo::Dirty
-      receiver.send :alias_method_chain, :attributes=,  :dynamo
-      receiver.send :before_save, :encode_dynamo
-    end
-
   end # Attribute
 end # Dynamo
