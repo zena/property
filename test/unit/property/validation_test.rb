@@ -84,8 +84,13 @@ class ValidationTest < Test::Unit::TestCase
       assert_equal 'mouse', subject.prop['eat']
     end
 
-    should 'call procs to get default' do
+    should 'call procs to get default if missing' do
       subject = Cat.create
+      assert_kind_of Time, subject.prop['seen_at']
+    end
+
+    should 'call procs to get default if empty' do
+      subject = Cat.new('seen_at' => '')
       assert_kind_of Time, subject.prop['seen_at']
     end
 

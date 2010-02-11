@@ -42,7 +42,7 @@ module Property
       end
 
       def extract_default(default)
-        default.kind_of?(Proc) ? default : type_cast(default)
+        (default.kind_of?(Proc) || default.kind_of?(Symbol)) ? default : type_cast(default)
       end
 
   end # Column

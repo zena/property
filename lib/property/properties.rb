@@ -14,7 +14,7 @@ module Property
     def []=(key, value)
       if column = columns[key]
         if value.blank?
-          if default = column.default
+          if default = column.default_for(@owner)
             super(key, default)
           else
             delete(key)
@@ -56,7 +56,17 @@ module Property
       end
 
       keys_to_validate.each do |key|
-        columns[key].validate(self[key], errors)
+        value  = self[key]
+        column = columns[key]
+        if value.blank?
+          if column.has_default?
+            self[key] = column.default_for(@owner)
+          else
+            delete(key)
+          end
+        else
+          columns[key].validate(self[key], errors)
+        end
       end
 
       bad_keys.empty?
