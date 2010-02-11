@@ -1,10 +1,48 @@
 == DESCRIPTION:
 
-Wrap model attributes into a binary blob. Used with multiple models using STI within rails.
+Wrap model properties into a single database column and declare properties from within the model.
 
 website: http://zenadmin.org/635
 license: MIT
 
-== Pre-alpha
+== Status: Beta
 
-The project is currently in alpha stage. You can have a look at the sample application in 'test/rails_app'.
+The gem works fine, even though it still needs some more features like property definition
+changes detections and migrations.
+
+== Usage
+
+You first need to create a migration to add a 'text' field named 'properties' to
+your model. Something like this:
+
+ class AddPropertyToContact < ActiveRecord::Migration
+   def self.up
+     add_column :contacts, :properties, :text
+   end
+
+   def self.down
+     remove_column :contacts, :properties
+   end
+ end
+
+Once your database is ready, you need to declare the property columns:
+
+ class Contact < ActiveRecord::Base
+   include Property
+   property do |p|
+     p.string  'first_name', 'name', 'phone'
+     p.datetime 'contacted_at', :default => Proc.new {Time.now}
+   end
+  end
+
+You can now read property values with:
+
+  @contact.prop['first_name']
+  @contact.first_name
+
+And set them with:
+
+  @contact.update_attributes('first_name' => 'Mahatma')
+  @contact.prop['name'] = 'Gandhi'
+  @contact.name = 'Gandhi'
+
