@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
      "lib/property/serialization/json.rb",
      "lib/property/serialization/marshal.rb",
      "lib/property/serialization/yaml.rb",
+     "property.gemspec",
      "test/fixtures.rb",
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
@@ -67,14 +68,14 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<shoulda>, [">= 0"])
-      s.add_runtime_dependency(%q<active_record>, [">= 0"])
+      s.add_runtime_dependency(%q<activerecord>, [">= 0"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
-      s.add_dependency(%q<active_record>, [">= 0"])
+      s.add_dependency(%q<activerecord>, [">= 0"])
     end
   else
     s.add_dependency(%q<shoulda>, [">= 0"])
-    s.add_dependency(%q<active_record>, [">= 0"])
+    s.add_dependency(%q<activerecord>, [">= 0"])
   end
 end
 

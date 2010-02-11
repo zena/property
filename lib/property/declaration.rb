@@ -29,7 +29,7 @@ module Property
             raise TypeError.new("Property '#{name}' is already defined.")
           else
             new_column = Property::Column.new(name, default, type, options)
-            own_columns[name] = new_column
+            own_columns[new_column.name] = new_column
             @klass.define_property_methods(new_column) if new_column.should_create_accessors?
           end
         end

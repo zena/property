@@ -89,6 +89,14 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal :string, column.type
     end
 
+    should 'treat symbol keys as strings' do
+      subject.property.string(:weapon)
+      column = subject.property_columns['weapon']
+      assert_equal 'weapon', column.name
+      assert_equal String, column.klass
+      assert_equal :string, column.type
+    end
+
     should 'allow integer columns' do
       subject.property.integer('indestructible')
       column = subject.property_columns['indestructible']
