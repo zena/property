@@ -62,21 +62,42 @@ class ValidationTest < Test::Unit::TestCase
 
   context 'On a class with default property values' do
     Cat = Class.new(ActiveRecord::Base) do
+      attr_accessor :encoding
+
       set_table_name 'dummies'
       include Property::Attribute
       property do |p|
         p.string 'eat', :default => 'mouse'
         p.string 'name'
+        p.datetime 'seen_at', :default => Proc.new { Time.now }
+        p.string 'encoding', :default => :get_encoding
+      end
+
+      def get_encoding
+        @encoding
       end
     end
 
-    should 'insert default values' do
+    should 'insert default literal values' do
       subject = Cat.create
       subject.reload
       assert_equal 'mouse', subject.prop['eat']
     end
 
-    should 'insert accept other values' do
+    should 'call procs to get default' do
+      subject = Cat.create
+      assert_kind_of Time, subject.prop['seen_at']
+    end
+
+    should 'call owner methods to get default' do
+      subject = Cat.new
+      subject.encoding = 'yooupla/boom'
+      assert subject.save
+
+      assert_equal 'yooupla/boom', subject.prop['encoding']
+    end
+
+    should 'accept other values' do
       subject = Cat.create('eat' => 'birds')
       subject.reload
       assert_equal 'birds', subject.prop['eat']

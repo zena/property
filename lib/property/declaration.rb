@@ -18,66 +18,84 @@ module Property
       end
     end
 
-    module ClassMethods
-      class DefinitionProxy
-        def initialize(klass)
-          @klass = klass
-        end
-
-        def column(name, default, type, options)
-          if columns[name.to_s]
-            raise TypeError.new("Property '#{name}' is already defined.")
-          else
-            new_column = Property::Column.new(name, default, type, options)
-            own_columns[new_column.name] = new_column
-            @klass.define_property_methods(new_column) if new_column.should_create_accessors?
-          end
-        end
-
-        # If someday we find the need to insert other native classes directly in the DB, we
-        # could use this:
-        # p.serialize MyClass, xxx, xxx
-        # def serialize(klass, name, options={})
-        #   if @klass.super_property_columns[name.to_s]
-        #     raise TypeError.new("Property '#{name}' is already defined in a superclass.")
-        #   elsif !@klass.validate_property_class(type)
-        #     raise TypeError.new("Custom type '#{type}' cannot be serialized.")
-        #   else
-        #     # Find a way to insert the type (maybe with 'serialize'...)
-        #     # (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, type, options)
-        #   end
-        # end
-
-        # def string(*args)
-        #   options = args.extract_options!
-        #   column_names = args
-        #   default = options.delete(:default)
-        #   column_names.each { |name| column(name, default, 'string', options) }
-        # end
-        %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
-          class_eval <<-EOV
-            def #{column_type}(*args)
-              options = args.extract_options!
-              column_names = args
-              default = options.delete(:default)
-              column_names.each { |name| column(name, default, '#{column_type}', options) }
-            end
-          EOV
-        end
-
-        private
-          def own_columns
-            @klass.own_property_columns ||= {}
-          end
-
-          def columns
-            @klass.property_columns
-          end
-
+    class DefinitionProxy
+      def initialize(klass)
+        @klass = klass
       end
 
-      # Use this class method to declare properties that will be used in your models. Note
-      # that you must provide string keys. Example:
+      def column(name, default, type, options)
+        if columns[name.to_s]
+          raise TypeError.new("Property '#{name}' is already defined.")
+        else
+          add_column(Property::Column.new(name, default, type, options))
+        end
+      end
+
+      def add_column(column)
+        own_columns[column.name] = column
+        @klass.define_property_methods(column) if column.should_create_accessors?
+      end
+
+      # If someday we find the need to insert other native classes directly in the DB, we
+      # could use this:
+      # p.serialize MyClass, xxx, xxx
+      # def serialize(klass, name, options={})
+      #   if @klass.super_property_columns[name.to_s]
+      #     raise TypeError.new("Property '#{name}' is already defined in a superclass.")
+      #   elsif !@klass.validate_property_class(type)
+      #     raise TypeError.new("Custom type '#{type}' cannot be serialized.")
+      #   else
+      #     # Find a way to insert the type (maybe with 'serialize'...)
+      #     # (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, type, options)
+      #   end
+      # end
+
+      # def string(*args)
+      #   options = args.extract_options!
+      #   column_names = args
+      #   default = options.delete(:default)
+      #   column_names.each { |name| column(name, default, 'string', options) }
+      # end
+      %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
+        class_eval <<-EOV
+          def #{column_type}(*args)
+            options = args.extract_options!
+            column_names = args
+            default = options.delete(:default)
+            column_names.each { |name| column(name, default, '#{column_type}', options) }
+          end
+        EOV
+      end
+
+      private
+        def own_columns
+          @klass.own_property_columns ||= {}
+        end
+
+        def columns
+          @klass.property_columns
+        end
+
+    end
+
+    class InstanceDefinitionProxy < DefinitionProxy
+      def initialize(instance)
+        @properties = instance.prop
+      end
+
+      def add_column(column)
+        columns[column.name] = column
+      end
+
+      def columns
+        @properties.columns
+      end
+    end
+
+    module ClassMethods
+
+      # Use this class method to declare properties that will be used in your models.
+      # Example:
       #  property.string 'phone', :default => ''
       #
       # You can also use a block:
@@ -92,6 +110,10 @@ module Property
         proxy
       end
 
+      # @internal.
+      # If you need the list of columns (including instance columns), you should use
+      #   properties.columns
+      #
       # Return the list of all properties defined for the current class, including the properties
       # defined in the parent class.
       def property_columns
@@ -180,19 +202,27 @@ module Property
 
         # Evaluate the definition for an attribute related method
         def evaluate_attribute_property_method(attr_name, method_definition, method_name=attr_name)
-          begin
-            class_eval(method_definition, __FILE__, __LINE__)
-          rescue SyntaxError => err
-            if logger
-              logger.warn "Exception occurred during method compilation."
-              logger.warn "Maybe #{attr_name} is not a valid Ruby identifier?"
-              logger.warn err.message
-            end
-          end
+          class_eval(method_definition, __FILE__, __LINE__)
         end
     end # ClassMethods
 
     module InstanceMethods
+
+      # Use this method to declare properties *for the current* instance.
+      # Example:
+      #  @obj.property.string 'phone', :default => ''
+      #
+      # You can also use a block:
+      #  @obj.property do |p|
+      #    p.string 'phone', 'name', :default => ''
+      #  end
+      def property
+        proxy = @instance_definition_proxy ||= InstanceDefinitionProxy.new(self)
+        if block_given?
+          yield proxy
+        end
+        proxy
+      end
 
       protected
         def properties_validation

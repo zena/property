@@ -4,9 +4,10 @@ require 'property/properties'
 require 'property/column'
 require 'property/declaration'
 require 'property/serialization/json'
+require 'property/core_ext/time'
 
 module Property
-  VERSION = '0.6.0'
+  VERSION = '0.7.0'
 
   def self.included(base)
     base.class_eval do

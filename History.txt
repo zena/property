@@ -1,3 +1,9 @@
+== 0.7.0 2010-02-11
+
+* 2 major enhancement
+  * enabled instance property definitions
+  * Time is now natively parsed by json (no typecast)
+
 == 0.6.0 2010-02-11
 
 * 1 major enhancement

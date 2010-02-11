@@ -54,6 +54,7 @@ class DeclarationTest < Test::Unit::TestCase
 
   context 'Property declaration' do
     Superhero = Class.new(ActiveRecord::Base) do
+      set_table_name :dummies
       include Property
     end
 
@@ -131,6 +132,26 @@ class DeclarationTest < Test::Unit::TestCase
       subject.property.string('rolodex', :indexed => true)
       column = subject.property_columns['rolodex']
       assert column.indexed?
+    end
+
+    context 'in an instance singleton' do
+      setup do
+        @instance = subject.new
+        @instance.property do |p|
+          p.string 'instance_only'
+        end
+      end
+
+      should 'behave like any other property column' do
+        @instance.attributes = {'instance_only' => 'hello'}
+        assert @instance.save
+        @instance = subject.find(@instance.id)
+        assert_equal Hash['instance_only' => 'hello'], @instance.prop
+      end
+
+      should 'not affect instance class' do
+        assert !subject.property_column_names.include?('instance_only')
+      end
     end
   end
 

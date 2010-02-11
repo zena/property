@@ -26,8 +26,24 @@ module Property
       @indexed
     end
 
-    def extract_property_options(options)
-      @indexed = options.delete(:indexed)
+    def default_for(owner)
+      if default.kind_of?(Proc)
+        default.call
+      elsif default.kind_of?(Symbol)
+        owner.send(default)
+      else
+        default
+      end
     end
+
+    private
+      def extract_property_options(options)
+        @indexed = options.delete(:indexed)
+      end
+
+      def extract_default(default)
+        default.kind_of?(Proc) ? default : type_cast(default)
+      end
+
   end # Column
 end # Property

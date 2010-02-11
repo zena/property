@@ -97,11 +97,11 @@ class AttributeTest < Test::Unit::TestCase
     subject { Version.new }
 
     setup do
-      subject.properties={'foo'=>'bar', :tic=>:tac}
+      subject.properties={'foo'=>'bar'}
     end
 
     should 'be accessible with :properties method' do
-      assert_equal Hash['foo'=>'bar', :tic=>:tac], subject.properties
+      assert_equal Hash['foo'=>'bar'], subject.properties
     end
 
     should 'be accessible with native methods' do
@@ -125,6 +125,96 @@ class AttributeTest < Test::Unit::TestCase
       assert_nil subject.properties['foo']
     end
 
+  end
+
+  context 'Retrieving' do
+    context 'a saved string' do
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          set_table_name :dummies
+          property.string 'mystring'
+        end
+
+        obj = klass.create('mystring' => 'some data')
+        klass.find(obj)
+      end
+
+      should 'find a string' do
+        assert_kind_of String, subject.prop['mystring']
+      end
+
+      should 'find same value' do
+        assert_equal 'some data', subject.prop['mystring']
+      end
+    end
+
+    context 'a saved integer' do
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          set_table_name :dummies
+          property.integer 'myinteger'
+        end
+
+        obj = klass.create('myinteger' => 789)
+        klass.find(obj)
+      end
+
+      should 'find an integer' do
+        assert_kind_of Fixnum, subject.prop['myinteger']
+      end
+
+      should 'find same value' do
+        assert_equal 789, subject.prop['myinteger']
+      end
+    end
+
+    context 'a saved float' do
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          set_table_name :dummies
+          property.float 'myfloat'
+        end
+
+        obj = klass.create('myfloat' => 78.9)
+        klass.find(obj)
+      end
+
+      should 'find an float' do
+        assert_kind_of Float, subject.prop['myfloat']
+      end
+
+      should 'find same value' do
+        assert_equal 78.9, subject.prop['myfloat']
+      end
+    end
+
+    context 'a saved datetime' do
+      setup do
+        @now = Time.utc(2010,02,11,17,50,18)
+      end
+
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          set_table_name :dummies
+          property.datetime 'mydatetime'
+        end
+
+        obj = klass.create('mydatetime' => @now)
+        klass.find(obj)
+      end
+
+      should 'find an datetime' do
+        assert_kind_of Time, subject.prop['mydatetime']
+      end
+
+      should 'find same value' do
+        assert_equal @now, subject.prop['mydatetime']
+      end
+    end
   end
 
   context 'Setting attributes' do

@@ -36,8 +36,7 @@ module Property
     end
 
     def validate
-      columns = @owner.class.property_columns
-      column_names = @owner.class.property_column_names
+      column_names = columns.keys
       errors = @owner.errors
       no_errors = true
 
@@ -52,7 +51,7 @@ module Property
       missing_keys.each do |key|
         column = columns[key]
         if column.has_default?
-          self[key] = column.default
+          self[key] = column.default_for(@owner)
         end
       end
 
@@ -63,9 +62,8 @@ module Property
       bad_keys.empty?
     end
 
-    private
-      def columns
-        @columns ||= @owner.class.property_columns
-      end
+    def columns
+      @columns ||= @owner.class.property_columns
+    end
   end
 end
