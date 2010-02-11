@@ -47,11 +47,6 @@ module Property
       super
     end
 
-    def merge!(other_hash)
-      @original_hash ||= self.dup
-      super
-    end
-
     def changed?
       !changes.empty?
     end
@@ -62,7 +57,6 @@ module Property
 
     def changes
       return {} unless @original_hash
-      compact!
       changes = {}
 
       # look for updated value

@@ -50,11 +50,11 @@ module Property
 
       private
         def attributes_with_properties=(attributes, guard_protected_attributes = true)
-          columns = self.class.column_names
+          property_columns = self.class.property_columns
           properties = {}
 
           attributes.keys.each do |k|
-            if !respond_to?("#{k}=") && !columns.include?(k)
+            if property_columns.include?(k)
               properties[k] = attributes.delete(k)
             end
           end
@@ -74,7 +74,6 @@ module Property
 
         def dump_properties
           if @properties
-            @properties.compact!
             if !@properties.empty?
               write_attribute('properties', encode_properties(@properties))
             else

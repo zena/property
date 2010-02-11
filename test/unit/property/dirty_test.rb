@@ -36,7 +36,8 @@ class DirtyTest < Test::Unit::TestCase
 
     context 'with changed properties' do
       setup do
-        subject.properties = {'foo'=>'barre', 'tic'=>'taaac'}
+        subject.properties = {'foo'=>'barre'}
+        subject.properties.delete('tic')
       end
 
       should_behave_nice_after_save('barre')
@@ -58,11 +59,11 @@ class DirtyTest < Test::Unit::TestCase
       end
 
       should 'return property changes with changes' do
-        assert_equal Hash['tic'=>['tac', 'taaac'], 'foo'=>['bar', 'barre']], subject.changes
+        assert_equal Hash['tic'=>['tac', nil], 'foo'=>['bar', 'barre']], subject.changes
       end
 
       should 'return property changes with properties.changes' do
-        assert_equal Hash['tic'=>['tac', 'taaac'], 'foo'=>['bar', 'barre']], subject.properties.changes
+        assert_equal Hash['tic'=>['tac', nil], 'foo'=>['bar', 'barre']], subject.properties.changes
       end
 
       should 'return true on properties.key_changed?' do
@@ -151,6 +152,10 @@ class DirtyTest < Test::Unit::TestCase
 
       should 'return previous value on properties.key_was' do
         assert_equal 'bar', subject.properties.foo_was
+      end
+
+      should 'raise NoMethodError on other missing methods' do
+        assert_raise(NoMethodError) { subject.properties.sleep }
       end
     end
   end

@@ -14,15 +14,15 @@ class ValidationTest < Test::Unit::TestCase
     subject { Pirate.create }
 
     context 'without a property column' do
-      setup do
-        assert !subject.update_attributes('honest' => 'man')
+      should 'raise ActiveRecord::UnknownAttributeError when using attributes=' do
+        assert_raise(ActiveRecord::UnknownAttributeError) do
+          subject.update_attributes('honest' => 'man')
+        end
       end
 
-      should 'render object invalid' do
-        assert subject.invalid?
-      end
-
-      should 'set an error message on the property' do
+      should 'set an error message on the property when set directly' do
+        subject.prop['honest'] = 'man'
+        assert !subject.save
         assert_contains subject.errors.full_messages, 'Honest property is not declared'
         assert_equal subject.errors['honest'], 'property is not declared'
       end

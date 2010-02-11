@@ -59,9 +59,18 @@ class AttributeTest < Test::Unit::TestCase
       end
     end
 
-    should 'with merge! should merge new attributes' do
-      subject.properties.merge!({'b'=>'bravo', 'c'=>'charlie'})
-      assert_equal Hash['foo' => 'bar', 'b' => 'bravo', 'c' => 'charlie'], subject.properties
+    context 'with merge!' do
+      should 'merge new attributes' do
+        subject.properties.merge!({'b'=>'bravo', 'c'=>'charlie'})
+        assert_equal Hash['foo' => 'bar', 'b' => 'bravo', 'c' => 'charlie'], subject.properties
+      end
+    end
+
+    context 'with native ruby methods' do
+      should 'update current value' do
+        subject.foo = 'floppy disk'
+        assert_equal Hash['foo' => 'floppy disk'], subject.properties
+      end
     end
   end
 
@@ -93,6 +102,18 @@ class AttributeTest < Test::Unit::TestCase
 
     should 'be accessible with :properties method' do
       assert_equal Hash['foo'=>'bar', :tic=>:tac], subject.properties
+    end
+
+    should 'be accessible with native methods' do
+      assert_equal 'bar', subject.foo
+    end
+
+    should 'respond true on predicate method' do
+      assert subject.foo?
+    end
+
+    should 'not respond true on predicate method if empty' do
+      assert !subject.comment?
     end
 
     should 'be a kind of Hash' do

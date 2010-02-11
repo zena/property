@@ -8,10 +8,7 @@ module Property
     end
 
     def to_json(*args)
-      {
-        'json_class' => self.class.name,
-        'data' => Hash[self]
-      }.to_json(*args)
+      { 'json_class' => self.class.name, 'data' => Hash[self] }.to_json(*args)
     end
 
     def []=(key, value)
@@ -44,8 +41,9 @@ module Property
       errors = @owner.errors
       no_errors = true
 
-      bad_keys     = keys - column_names
-      missing_keys = column_names - keys
+      bad_keys         = keys - column_names
+      missing_keys     = column_names - keys
+      keys_to_validate = keys - bad_keys
 
       bad_keys.each do |key|
         errors.add("#{key}", 'property is not declared')
@@ -58,21 +56,14 @@ module Property
         end
       end
 
+      keys_to_validate.each do |key|
+        columns[key].validate(self[key], errors)
+      end
+
       bad_keys.empty?
     end
 
-    def compact!
-      #keys.each do |key|
-      #  if self[key].nil?
-      #    delete(key)
-      #  end
-      #end
-    end
-
     private
-      def write_attribute(key, value)
-      end
-
       def columns
         @columns ||= @owner.class.property_columns
       end

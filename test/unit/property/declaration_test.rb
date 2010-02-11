@@ -64,6 +64,23 @@ class DeclarationTest < Test::Unit::TestCase
       assert_kind_of Property::Column, subject.property_columns['weapon']
     end
 
+    should 'create ruby accessors' do
+      subject.property.string('weapon')
+      assert subject.instance_methods.include?('weapon')
+      assert subject.instance_methods.include?('weapon=')
+      assert subject.instance_methods.include?('weapon?')
+    end
+
+    should 'not create accessors for illegal ruby names' do
+      bad_names = ['some.thing', 'puts("yo")', '/var/', 'hello darness']
+      assert_nothing_raised { subject.property.string bad_names }
+      bad_names.each do |bad_name|
+        assert !subject.instance_methods.include?(bad_name)
+        assert !subject.instance_methods.include?("#{bad_name}=")
+        assert !subject.instance_methods.include?("#{bad_name}?")
+      end
+    end
+
     should 'allow string columns' do
       subject.property.string('weapon')
       column = subject.property_columns['weapon']

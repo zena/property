@@ -6,6 +6,7 @@ module Property
   # such as name, type and options. It is also used to typecast from strings to
   # the proper type (date, integer, float, etc).
   class Column < ::ActiveRecord::ConnectionAdapters::Column
+    SAFE_NAMES_REGEXP = %r{\A[a-zA-Z_]+\Z}
 
     def initialize(name, default, type, options={})
       name = name.to_s
@@ -14,14 +15,11 @@ module Property
     end
 
     def validate(value, errors)
-      if !value.kind_of?(klass)
-        if value.nil?
-          default
-        else
-          errors.add("#{name}", "invalid data type. Received #{value.class}, expected #{klass}.")
-          nil
-        end
-      end
+      # Do nothing for the moment
+    end
+
+    def should_create_accessors?
+      name =~ SAFE_NAMES_REGEXP
     end
 
     def indexed?

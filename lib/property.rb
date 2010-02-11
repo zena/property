@@ -6,7 +6,7 @@ require 'property/declaration'
 require 'property/serialization/json'
 
 module Property
-  VERSION = '0.5.0'
+  VERSION = '0.6.0'
 
   def self.included(base)
     base.class_eval do

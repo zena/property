@@ -28,7 +28,9 @@ module Property
           if columns[name.to_s]
             raise TypeError.new("Property '#{name}' is already defined.")
           else
-            own_columns[name] = Property::Column.new(name, default, type, options)
+            new_column = Property::Column.new(name, default, type, options)
+            own_columns[name] = new_column
+            @klass.define_property_methods(new_column) if new_column.should_create_accessors?
           end
         end
 
@@ -107,6 +109,87 @@ module Property
           {}
         end
       end
+
+      def define_property_methods(column)
+        name = column.name
+        unless instance_method_already_implemented?(name)
+          if create_time_zone_conversion_attribute?(name, column)
+            define_read_property_method_for_time_zone_conversion(name)
+          else
+            define_read_property_method(name.to_sym, name, column)
+          end
+        end
+
+        unless instance_method_already_implemented?("#{name}=")
+          if create_time_zone_conversion_attribute?(name, column)
+            define_write_property_method_for_time_zone_conversion(name)
+          else
+            define_write_property_method(name.to_sym)
+          end
+        end
+
+        unless instance_method_already_implemented?("#{name}?")
+          define_question_property_method(name)
+        end
+      end
+
+      private
+        # Define a property reader method.  Cope with nil column.
+        def define_read_property_method(symbol, attr_name, column)
+          # Unlike rails, we do not cast on read
+          evaluate_attribute_property_method attr_name, "def #{symbol}; prop['#{attr_name}']; end"
+        end
+
+        # Defined for all +datetime+ and +timestamp+ attributes when +time_zone_aware_attributes+ are enabled.
+        # This enhanced read method automatically converts the UTC time stored in the database to the time zone stored in Time.zone.
+        def define_read_property_method_for_time_zone_conversion(attr_name)
+          method_body = <<-EOV
+            def #{attr_name}(reload = false)
+              cached = @attributes_cache['#{attr_name}']
+              return cached if cached && !reload
+              time = properties['#{attr_name}']
+              @attributes_cache['#{attr_name}'] = time.acts_like?(:time) ? time.in_time_zone : time
+            end
+          EOV
+          evaluate_attribute_property_method attr_name, method_body
+        end
+
+        # Defines a predicate method <tt>attr_name?</tt>.
+        def define_question_property_method(attr_name)
+          evaluate_attribute_property_method attr_name, "def #{attr_name}?; prop['#{attr_name}']; end", "#{attr_name}?"
+        end
+
+        def define_write_property_method(attr_name)
+          evaluate_attribute_property_method attr_name, "def #{attr_name}=(new_value);prop['#{attr_name}'] = new_value; end", "#{attr_name}="
+        end
+
+        # Defined for all +datetime+ and +timestamp+ attributes when +time_zone_aware_attributes+ are enabled.
+        # This enhanced write method will automatically convert the time passed to it to the zone stored in Time.zone.
+        def define_write_property_method_for_time_zone_conversion(attr_name)
+          method_body = <<-EOV
+            def #{attr_name}=(time)
+              unless time.acts_like?(:time)
+                time = time.is_a?(String) ? Time.zone.parse(time) : time.to_time rescue time
+              end
+              time = time.in_time_zone rescue nil if time
+              prop['#{attr_name}'] = time
+            end
+          EOV
+          evaluate_attribute_property_method attr_name, method_body, "#{attr_name}="
+        end
+
+        # Evaluate the definition for an attribute related method
+        def evaluate_attribute_property_method(attr_name, method_definition, method_name=attr_name)
+          begin
+            class_eval(method_definition, __FILE__, __LINE__)
+          rescue SyntaxError => err
+            if logger
+              logger.warn "Exception occurred during method compilation."
+              logger.warn "Maybe #{attr_name} is not a valid Ruby identifier?"
+              logger.warn err.message
+            end
+          end
+        end
     end # ClassMethods
 
     module InstanceMethods
