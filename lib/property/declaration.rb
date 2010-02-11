@@ -25,10 +25,10 @@ module Property
         end
 
         def column(name, default, type, options)
-          if @klass.super_property_columns[name.to_s]
-            raise TypeError.new("Property '#{name}' is already defined in a superclass.")
+          if columns[name.to_s]
+            raise TypeError.new("Property '#{name}' is already defined.")
           else
-            (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, default, type, options)
+            own_columns[name] = Property::Column.new(name, default, type, options)
           end
         end
 
@@ -62,6 +62,16 @@ module Property
             end
           EOV
         end
+
+        private
+          def own_columns
+            @klass.own_property_columns ||= {}
+          end
+
+          def columns
+            @klass.property_columns
+          end
+
       end
 
       # Use this class method to declare properties that will be used in your models. Note

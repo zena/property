@@ -33,6 +33,22 @@ class DeclarationTest < Test::Unit::TestCase
 
         assert_equal %w{age first_name name}, @klass.property_column_names.sort
       end
+
+      should 'not be allowed to overwrite a property from the parent class' do
+        assert_raise(TypeError) do
+          @klass.class_eval do
+            property.string 'age'
+          end
+        end
+      end
+
+      should 'not be allowed to overwrite a property from the current class' do
+        assert_raise(TypeError) do
+          @klass.class_eval do
+            property.string 'language'
+          end
+        end
+      end
     end
   end
 
@@ -41,52 +57,54 @@ class DeclarationTest < Test::Unit::TestCase
       include Property
     end
 
+    subject { Class.new(Superhero) }
+
     should 'create Property::Column definitions' do
-      Superhero.property.string('weapon')
-      assert_kind_of Property::Column, Superhero.property_columns['weapon']
+      subject.property.string('weapon')
+      assert_kind_of Property::Column, subject.property_columns['weapon']
     end
 
     should 'allow string columns' do
-      Superhero.property.string('weapon')
-      column = Superhero.property_columns['weapon']
+      subject.property.string('weapon')
+      column = subject.property_columns['weapon']
       assert_equal 'weapon', column.name
       assert_equal String, column.klass
       assert_equal :string, column.type
     end
 
     should 'allow integer columns' do
-      Superhero.property.integer('indestructible')
-      column = Superhero.property_columns['indestructible']
+      subject.property.integer('indestructible')
+      column = subject.property_columns['indestructible']
       assert_equal 'indestructible', column.name
       assert_equal Fixnum, column.klass
       assert_equal :integer, column.type
     end
 
     should 'allow float columns' do
-      Superhero.property.float('boat')
-      column = Superhero.property_columns['boat']
+      subject.property.float('boat')
+      column = subject.property_columns['boat']
       assert_equal 'boat', column.name
       assert_equal Float, column.klass
       assert_equal :float, column.type
     end
 
     should 'allow datetime columns' do
-      Superhero.property.datetime('time_weapon')
-      column = Superhero.property_columns['time_weapon']
+      subject.property.datetime('time_weapon')
+      column = subject.property_columns['time_weapon']
       assert_equal 'time_weapon', column.name
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
     end
 
     should 'allow default value option' do
-      Superhero.property.integer('force', :default => 10)
-      column = Superhero.property_columns['force']
+      subject.property.integer('force', :default => 10)
+      column = subject.property_columns['force']
       assert_equal 10, column.default
     end
 
     should 'allow indexed option' do
-      Superhero.property.string('rolodex', :indexed => true)
-      column = Superhero.property_columns['rolodex']
+      subject.property.string('rolodex', :indexed => true)
+      column = subject.property_columns['rolodex']
       assert column.indexed?
     end
   end

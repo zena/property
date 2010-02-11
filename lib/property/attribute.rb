@@ -80,8 +80,6 @@ module Property
             else
               write_attribute('properties', nil)
             end
-          else
-            write_attribute('properties', nil)
           end
           @properties.clear_changes!
           true
