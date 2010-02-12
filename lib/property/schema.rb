@@ -11,9 +11,10 @@ module Property
 
     # Create a new Schema. If a class_name is provided, the schema automatically
     # creates a default Behavior to store definitions.
-    def initialize(class_name = nil)
+    def initialize(class_name, binding)
+      @binding = binding
       if class_name
-        @behavior  = Behavior.new(class_name)
+        @behavior  = Behavior.new(class_name, self)
         @behaviors = [@behavior]
       else
         @behaviors = []
@@ -26,20 +27,19 @@ module Property
     # behaviors included in a class will be dynamically added to the sub-classes (just like
     # Ruby class inheritance, module inclusion works).
     # If you ...
-    def behave_like(behaviors)
-      if behaviors.kind_of?(Class)
-        if behaviors.respond_to?(:schema) && behaviors.schema.kind_of?(Schema)
-          #behaviors.schema.behaviors.each |behavior|
-          #  include_behavior(behavior)
-          #end
-          @behaviors << behaviors.schema.behaviors
+    def behave_like(thing)
+      if thing.kind_of?(Class)
+        if thing.respond_to?(:schema) && thing.schema.kind_of?(Schema)
+          thing.schema.behaviors.each do |behavior|
+            include_behavior behavior
+          end
         else
-          raise "Cannot insert behaviors from #{behaviors} (no 'schema')"
+          raise TypeError.new("expected Behavior or class with schema, found #{thing}")
         end
-      elsif behaviors.kind_of?(Schema)
-        @behaviors << behaviors.behaviors
+      elsif thing.kind_of?(Behavior)
+        include_behavior thing
       else
-        @behaviors << behaviors
+        raise TypeError.new("expected Behavior or class with schema, found #{thing.class}")
       end
     end
 
@@ -48,14 +48,40 @@ module Property
       columns.keys
     end
 
-    # Return all column definitions from all ancestors. This method does not memoize
-    # the result so you should not call it in a loop.
+    # Return column definitions from all included behaviors.
     def columns
-      columns = {}
-      behaviors.flatten.uniq.reverse_each do |behavior|
-        columns.merge!(behavior.columns)
-      end
-      columns
+      @columns ||= {}
     end
+
+    # @internal
+    def add_column(column)
+      raise TypeError.new("Property '#{column.name}' is already defined.") if columns.keys.include?(column.name)
+      add_column_without_check(column)
+    end
+
+    private
+      def add_column_without_check(column)
+        columns[column.name] = column
+        if column.should_create_accessors?
+          @binding.define_property_methods(column)
+        end
+      end
+
+      def include_behavior(behavior)
+        columns = self.columns
+
+        common_keys = behavior.column_names & columns.keys
+        if !common_keys.empty?
+          raise TypeError.new("Cannot include behavior #{behavior.name}. Duplicate definitions: #{common_keys.join(', ')}")
+        end
+
+        behavior.columns.each do |name, column|
+          add_column_without_check(column)
+        end
+
+        self.behaviors << behavior
+
+        behavior.included = true
+      end
   end
 end

@@ -17,21 +17,23 @@ class DeclarationTest < Test::Unit::TestCase
         assert !@klass.superclass.schema.columns.include?('language')
       end
 
-      should 'inherit current definitions from parent' do
+      should 'not allow definitions in parent when sub-classed' do
         class ParentClass < ActiveRecord::Base
           include Property
           property.string 'name'
         end
+
         @klass = Class.new(ParentClass) do
           property.integer 'age'
         end
+
         assert_equal %w{age name}, @klass.schema.column_names.sort
 
-        ParentClass.class_eval do
-          property.string 'first_name'
+        assert_raise(TypeError) do
+          ParentClass.class_eval do
+            property.string 'first_name'
+          end
         end
-
-        assert_equal %w{age first_name name}, @klass.schema.column_names.sort
       end
 
       should 'not be allowed to overwrite a property from the parent class' do
@@ -134,23 +136,30 @@ class DeclarationTest < Test::Unit::TestCase
       assert column.indexed?
     end
 
-    context 'in an instance singleton' do
+    context 'through a Behavior on an instance' do
       setup do
         @instance = subject.new
-        @instance.property do |p|
-          p.string 'instance_only'
+        @poet = Property::Behavior.new('Poet')
+        @poet.property do |p|
+          p.string 'poem'
         end
+
+        @instance.behave_like @poet
       end
 
       should 'behave like any other property column' do
-        @instance.attributes = {'instance_only' => 'hello'}
+        @instance.attributes = {'poem' => 'hello'}
+        @instance.poem = 'shazam'
         assert @instance.save
         @instance = subject.find(@instance.id)
-        assert_equal Hash['instance_only' => 'hello'], @instance.prop
+        assert_equal Hash['poem' => 'shazam'], @instance.prop
       end
 
       should 'not affect instance class' do
-        assert !subject.schema.column_names.include?('instance_only')
+        assert !subject.schema.column_names.include?('poem')
+        assert_raise(NoMethodError) do
+          subject.new.poem = 'not a poet'
+        end
       end
     end
   end

@@ -14,7 +14,7 @@ module Property
 
           def schema
             @schema ||= begin
-              schema = Property::Schema.new(self.to_s)
+              schema = Property::Schema.new(self.to_s, self)
               if superclass.respond_to?(:schema)
                 schema.behave_like superclass
               end
@@ -149,7 +149,8 @@ module Property
 
         def own_schema
           @own_schema ||= begin
-            schema = Property::Schema.new
+            this = class << self; self; end
+            schema = Property::Schema.new(nil, this)
             schema.behave_like self.class
             schema
           end
