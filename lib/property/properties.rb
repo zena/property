@@ -73,7 +73,7 @@ module Property
     end
 
     def columns
-      @columns ||= @owner.class.property_columns
+      @columns ||= @owner.schema.columns
     end
   end
 end

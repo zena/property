@@ -10,89 +10,32 @@ module Property
         include InstanceMethods
 
         class << self
-          attr_accessor :own_property_columns
-          attr_accessor :property_definition_proxy
+          attr_accessor :schema
+
+          def schema
+            @schema ||= begin
+              schema = Property::Schema.new(self.to_s)
+              if superclass.respond_to?(:schema)
+                schema.behave_like superclass
+              end
+              schema
+            end
+          end
         end
 
         validate :properties_validation, :if => :properties
       end
     end
 
-    class DefinitionProxy
-      def initialize(klass)
-        @klass = klass
-      end
-
-      def column(name, default, type, options)
-        if columns[name.to_s]
-          raise TypeError.new("Property '#{name}' is already defined.")
-        else
-          add_column(Property::Column.new(name, default, type, options))
-        end
-      end
-
-      def add_column(column)
-        own_columns[column.name] = column
-        @klass.define_property_methods(column) if column.should_create_accessors?
-      end
-
-      # If someday we find the need to insert other native classes directly in the DB, we
-      # could use this:
-      # p.serialize MyClass, xxx, xxx
-      # def serialize(klass, name, options={})
-      #   if @klass.super_property_columns[name.to_s]
-      #     raise TypeError.new("Property '#{name}' is already defined in a superclass.")
-      #   elsif !@klass.validate_property_class(type)
-      #     raise TypeError.new("Custom type '#{type}' cannot be serialized.")
-      #   else
-      #     # Find a way to insert the type (maybe with 'serialize'...)
-      #     # (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, type, options)
-      #   end
-      # end
-
-      # def string(*args)
-      #   options = args.extract_options!
-      #   column_names = args
-      #   default = options.delete(:default)
-      #   column_names.each { |name| column(name, default, 'string', options) }
-      # end
-      %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
-        class_eval <<-EOV
-          def #{column_type}(*args)
-            options = args.extract_options!
-            column_names = args
-            default = options.delete(:default)
-            column_names.each { |name| column(name, default, '#{column_type}', options) }
-          end
-        EOV
-      end
-
-      private
-        def own_columns
-          @klass.own_property_columns ||= {}
-        end
-
-        def columns
-          @klass.property_columns
-        end
-
-    end
-
-    class InstanceDefinitionProxy < DefinitionProxy
-      def initialize(instance)
-        @properties = instance.prop
-      end
-
-      def add_column(column)
-        columns[column.name] = column
-      end
-
-      def columns
-        @properties.columns
-      end
-    end
-
     module ClassMethods
+
+      # Include a new set of property definitions (Behavior) into the current class schema.
+      # You can also provide a class to simulate multiple inheritance.
+      def behave_like(behavior)
+        schema.behave_like behavior
+        #
+        # define_property_methods(column) if column.should_create_accessors?
+      end
 
       # Use this class method to declare properties that will be used in your models.
       # Example:
@@ -103,33 +46,13 @@ module Property
       #    p.string 'phone', 'name', :default => ''
       #  end
       def property
-        proxy = self.property_definition_proxy ||= DefinitionProxy.new(self)
+        setter = schema.behavior
+
         if block_given?
-          yield proxy
+          yield setter
         end
-        proxy
-      end
 
-      # @internal.
-      # If you need the list of columns (including instance columns), you should use
-      #   properties.columns
-      #
-      # Return the list of all properties defined for the current class, including the properties
-      # defined in the parent class.
-      def property_columns
-        super_property_columns.merge(self.own_property_columns || {})
-      end
-
-      def property_column_names
-        property_columns.keys
-      end
-
-      def super_property_columns
-        if superclass.respond_to?(:property_columns)
-          superclass.property_columns
-        else
-          {}
-        end
+        setter
       end
 
       def define_property_methods(column)
@@ -207,26 +130,29 @@ module Property
     end # ClassMethods
 
     module InstanceMethods
+      # Instance's schema (can be different from the instance's class schema if behaviors have been
+      # added to the instance.
+      def schema
+        @own_schema || self.class.schema
+      end
 
-      # Use this method to declare properties *for the current* instance.
-      # Example:
-      #  @obj.property.string 'phone', :default => ''
-      #
-      # You can also use a block:
-      #  @obj.property do |p|
-      #    p.string 'phone', 'name', :default => ''
-      #  end
-      def property
-        proxy = @instance_definition_proxy ||= InstanceDefinitionProxy.new(self)
-        if block_given?
-          yield proxy
-        end
-        proxy
+      # Include a new set of property definitions (Behavior) into the current instance's schema.
+      # You can also provide a class to simulate multiple inheritance.
+      def behave_like(behavior)
+        own_schema.behave_like behavior
       end
 
       protected
         def properties_validation
           properties.validate
+        end
+
+        def own_schema
+          @own_schema ||= begin
+            schema = Property::Schema.new
+            schema.behave_like self.class
+            schema
+          end
         end
     end # InsanceMethods
   end # Declaration

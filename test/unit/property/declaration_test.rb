@@ -10,11 +10,11 @@ class DeclarationTest < Test::Unit::TestCase
       end
 
       should 'inherit property columsn from parent class' do
-        assert_equal %w{age first_name language last_name}, @klass.property_column_names.sort
+        assert_equal %w{age first_name language last_name}, @klass.schema.column_names.sort
       end
 
       should 'not back-propagate definitions to parent' do
-        assert !@klass.superclass.property_columns.include?('language')
+        assert !@klass.superclass.schema.columns.include?('language')
       end
 
       should 'inherit current definitions from parent' do
@@ -25,13 +25,13 @@ class DeclarationTest < Test::Unit::TestCase
         @klass = Class.new(ParentClass) do
           property.integer 'age'
         end
-        assert_equal %w{age name}, @klass.property_column_names.sort
+        assert_equal %w{age name}, @klass.schema.column_names.sort
 
         ParentClass.class_eval do
           property.string 'first_name'
         end
 
-        assert_equal %w{age first_name name}, @klass.property_column_names.sort
+        assert_equal %w{age first_name name}, @klass.schema.column_names.sort
       end
 
       should 'not be allowed to overwrite a property from the parent class' do
@@ -62,7 +62,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'create Property::Column definitions' do
       subject.property.string('weapon')
-      assert_kind_of Property::Column, subject.property_columns['weapon']
+      assert_kind_of Property::Column, subject.schema.columns['weapon']
     end
 
     should 'create ruby accessors' do
@@ -84,7 +84,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'allow string columns' do
       subject.property.string('weapon')
-      column = subject.property_columns['weapon']
+      column = subject.schema.columns['weapon']
       assert_equal 'weapon', column.name
       assert_equal String, column.klass
       assert_equal :string, column.type
@@ -92,7 +92,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'treat symbol keys as strings' do
       subject.property.string(:weapon)
-      column = subject.property_columns['weapon']
+      column = subject.schema.columns['weapon']
       assert_equal 'weapon', column.name
       assert_equal String, column.klass
       assert_equal :string, column.type
@@ -100,7 +100,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'allow integer columns' do
       subject.property.integer('indestructible')
-      column = subject.property_columns['indestructible']
+      column = subject.schema.columns['indestructible']
       assert_equal 'indestructible', column.name
       assert_equal Fixnum, column.klass
       assert_equal :integer, column.type
@@ -108,7 +108,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'allow float columns' do
       subject.property.float('boat')
-      column = subject.property_columns['boat']
+      column = subject.schema.columns['boat']
       assert_equal 'boat', column.name
       assert_equal Float, column.klass
       assert_equal :float, column.type
@@ -116,7 +116,7 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'allow datetime columns' do
       subject.property.datetime('time_weapon')
-      column = subject.property_columns['time_weapon']
+      column = subject.schema.columns['time_weapon']
       assert_equal 'time_weapon', column.name
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
@@ -124,13 +124,13 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'allow default value option' do
       subject.property.integer('force', :default => 10)
-      column = subject.property_columns['force']
+      column = subject.schema.columns['force']
       assert_equal 10, column.default
     end
 
     should 'allow indexed option' do
       subject.property.string('rolodex', :indexed => true)
-      column = subject.property_columns['rolodex']
+      column = subject.schema.columns['rolodex']
       assert column.indexed?
     end
 
@@ -150,7 +150,7 @@ class DeclarationTest < Test::Unit::TestCase
       end
 
       should 'not affect instance class' do
-        assert !subject.property_column_names.include?('instance_only')
+        assert !subject.schema.column_names.include?('instance_only')
       end
     end
   end
@@ -162,12 +162,12 @@ class DeclarationTest < Test::Unit::TestCase
     end
 
     should 'return empty Hash if no property columsn are declared' do
-      assert_equal Hash[], Dummy.property_columns
+      assert_equal Hash[], Dummy.schema.columns
     end
 
     should 'return list of property columns from class' do
-      assert_kind_of Hash, Employee.property_columns
-      assert_kind_of Property::Column, Employee.property_columns['first_name']
+      assert_kind_of Hash, Employee.schema.columns
+      assert_kind_of Property::Column, Employee.schema.columns['first_name']
     end
   end
 end
