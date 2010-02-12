@@ -3,9 +3,9 @@ module Property
   # by 'including' this behavior in a class or in an instance, you augment the said
   # object with the behavior's property definitions.
   class Behavior
-    attr_accessor :name, :included
+    attr_accessor :name, :included, :accessor_module
 
-    def self.new(name, dependant_schema = nil)
+    def self.new(name)
       obj = super
       if block_given?
         yield obj
@@ -14,9 +14,10 @@ module Property
     end
 
     # Initialize a new behavior with the given name
-    def initialize(name, dependant_schema = nil)
-      @dependant_schema = dependant_schema
-      @name  = name
+    def initialize(name)
+      @name    = name
+      @included_in_schemas = []
+      @accessor_module = Module.new
     end
 
     # List all property definitiosn for the current behavior
@@ -44,20 +45,6 @@ module Property
       self
     end
 
-    # If someday we find the need to insert other native classes directly in the DB, we
-    # could use this:
-    # p.serialize MyClass, xxx, xxx
-    # def serialize(klass, name, options={})
-    #   if @klass.super_schema.columns[name.to_s]
-    #     raise TypeError.new("Property '#{name}' is already defined in a superclass.")
-    #   elsif !@klass.validate_property_class(type)
-    #     raise TypeError.new("Custom type '#{type}' cannot be serialized.")
-    #   else
-    #     # Find a way to insert the type (maybe with 'serialize'...)
-    #     # (@klass.own_schema.columns ||= {})[name] = Property::Column.new(name, type, options)
-    #   end
-    # end
-
     # def string(*args)
     #   options = args.extract_options!
     #   column_names = args
@@ -70,23 +57,110 @@ module Property
           options = args.extract_options!
           column_names = args
           default = options.delete(:default)
-          column_names.each { |name| add_column(name, default, '#{column_type}', options) }
+          column_names.each { |name| add_column(Property::Column.new(name, default, '#{column_type}', options)) }
         end
       EOV
     end
 
-    private
-      def add_column(name, default, type, options)
-        raise TypeError.new("Cannot modify a Behavior that has already been included") if @included
+    # This is used to serialize a non-native DB type. Use:
+    #   p.serialize 'pet', Dog
+    def serialize(name, klass, options = {})
+      Property.validate_property_class(klass)
+      add_column(Property::Column.new(name, nil, klass, options))
+    end
 
-        if columns[name.to_s]
+    # @internal
+    # This is called when the behavior is included in a schema
+    def included(schema)
+      @included_in_schemas << schema
+    end
+
+    private
+
+      def define_property_methods(column)
+        name = column.name
+
+        #if create_time_zone_conversion_attribute?(name, column)
+        #  define_read_property_method_for_time_zone_conversion(name)
+        #else
+        define_read_property_method(name.to_sym, name, column)
+        #end
+
+        #if create_time_zone_conversion_attribute?(name, column)
+        #  define_write_property_method_for_time_zone_conversion(name)
+        #else
+        define_write_property_method(name.to_sym)
+        #end
+
+        define_question_property_method(name)
+      end
+
+      # Define a property reader method.  Cope with nil column.
+      def define_read_property_method(symbol, attr_name, column)
+        # Unlike rails, we do not cast on read
+        evaluate_attribute_property_method attr_name, "def #{symbol}; prop['#{attr_name}']; end"
+      end
+
+      # Defined for all +datetime+ and +timestamp+ attributes when +time_zone_aware_attributes+ are enabled.
+      # This enhanced read method automatically converts the UTC time stored in the database to the time zone stored in Time.zone.
+      # def define_read_property_method_for_time_zone_conversion(attr_name)
+      #   method_body = <<-EOV
+      #     def #{attr_name}(reload = false)
+      #       cached = @attributes_cache['#{attr_name}']
+      #       return cached if cached && !reload
+      #       time = properties['#{attr_name}']
+      #       @attributes_cache['#{attr_name}'] = time.acts_like?(:time) ? time.in_time_zone : time
+      #     end
+      #   EOV
+      #   evaluate_attribute_property_method attr_name, method_body
+      # end
+
+      # Defines a predicate method <tt>attr_name?</tt>.
+      def define_question_property_method(attr_name)
+        evaluate_attribute_property_method attr_name, "def #{attr_name}?; prop['#{attr_name}']; end", "#{attr_name}?"
+      end
+
+      def define_write_property_method(attr_name)
+        evaluate_attribute_property_method attr_name, "def #{attr_name}=(new_value);prop['#{attr_name}'] = new_value; end", "#{attr_name}="
+      end
+
+      # Defined for all +datetime+ and +timestamp+ attributes when +time_zone_aware_attributes+ are enabled.
+      # This enhanced write method will automatically convert the time passed to it to the zone stored in Time.zone.
+      # def define_write_property_method_for_time_zone_conversion(attr_name)
+      #   method_body = <<-EOV
+      #     def #{attr_name}=(time)
+      #       unless time.acts_like?(:time)
+      #         time = time.is_a?(String) ? Time.zone.parse(time) : time.to_time rescue time
+      #       end
+      #       time = time.in_time_zone rescue nil if time
+      #       prop['#{attr_name}'] = time
+      #     end
+      #   EOV
+      #   evaluate_attribute_property_method attr_name, method_body, "#{attr_name}="
+      # end
+
+      # Evaluate the definition for an attribute related method
+      def evaluate_attribute_property_method(attr_name, method_definition, method_name=attr_name)
+        accessor_module.class_eval(method_definition, __FILE__, __LINE__)
+      end
+
+      def add_column(column)
+        name = column.name
+
+        if columns[name]
           raise TypeError.new("Property '#{name}' is already defined.")
         else
-          column = Property::Column.new(name, default, type, options)
-          if @dependant_schema
-            @dependant_schema.add_column(column)
-          end
+          verify_not_defined_in_schemas_using_this_behavior(name)
+          define_property_methods(column) if column.should_create_accessors?
           columns[column.name] = column
+        end
+      end
+
+      def verify_not_defined_in_schemas_using_this_behavior(name)
+        @included_in_schemas.each do |schema|
+          if schema.columns[name]
+            raise TypeError.new("Property '#{name}' is already defined in #{schema.name}.")
+          end
         end
       end
   end

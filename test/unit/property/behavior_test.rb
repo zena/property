@@ -67,6 +67,41 @@ class BehaviorTest < Test::Unit::TestCase
     end
 
     context 'to a class' do
+      setup do
+        @parent = Class.new(ActiveRecord::Base) do
+          set_table_name :dummies
+          include Property
+          property.string 'name'
+        end
+
+        @klass = Class.new(@parent)
+      end
+
+      should 'propagate definitions to child' do
+        @parent.behave_like @poet
+        assert_equal %w{name poem}, @klass.schema.column_names.sort
+      end
+
+      should 'raise an exception if class contains same definitions' do
+        @parent.property.string 'poem'
+        assert_raise(TypeError) { @parent.behave_like @poet }
+      end
+
+      should 'not raise an exception on double inclusion' do
+        @parent.behave_like @poet
+        assert_nothing_raised { @parent.behave_like @poet }
+      end
+
+      should 'add accessor methods to child' do
+        subject = @klass.new
+        assert_raises(NoMethodError) { subject.poem = 'Poe'}
+        @parent.behave_like @poet
+
+        assert_nothing_raised { subject.poem = 'Poe'}
+      end
+    end
+
+    context 'to a parent class' do
     end
 
     context 'to an instance' do

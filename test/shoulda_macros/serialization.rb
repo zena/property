@@ -2,17 +2,6 @@ class Test::Unit::TestCase
 
   def self.should_encode_and_decode_properties
     klass = self.name.gsub(/Test$/,'').constantize
-    context klass do
-      should 'respond to validate_property_class' do
-        assert klass.respond_to? :validate_property_class
-      end
-
-      [Property::Properties, String, Integer, Float].each do |a_class|
-        should "accept to serialize #{a_class}" do
-          assert klass.validate_property_class(a_class)
-        end
-      end
-    end
 
     context "Instance of #{klass}" do
       setup do
@@ -29,7 +18,13 @@ class Test::Unit::TestCase
 
       context 'with Properties' do
         setup do
-          @properties = Property::Properties['foo' => 'bar']
+          @properties = Property::Properties[
+            'string'     => 'bar',
+            'serialized' => Dog.new('Pavlov', 'Freud'),
+            'datetime'   => Time.utc(2010, 02, 12, 21, 31, 25),
+            'float'      => 4.3432,
+            'integer'    => 4
+          ]
         end
 
         should 'encode Properties in string' do

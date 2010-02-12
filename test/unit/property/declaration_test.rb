@@ -9,7 +9,7 @@ class DeclarationTest < Test::Unit::TestCase
         @klass = Developer
       end
 
-      should 'inherit property columsn from parent class' do
+      should 'inherit property columns from parent class' do
         assert_equal %w{age first_name language last_name}, @klass.schema.column_names.sort
       end
 
@@ -17,7 +17,7 @@ class DeclarationTest < Test::Unit::TestCase
         assert !@klass.superclass.schema.columns.include?('language')
       end
 
-      should 'not allow definitions in parent when sub-classed' do
+      should 'inherit new definitions in parent' do
         class ParentClass < ActiveRecord::Base
           include Property
           property.string 'name'
@@ -29,11 +29,11 @@ class DeclarationTest < Test::Unit::TestCase
 
         assert_equal %w{age name}, @klass.schema.column_names.sort
 
-        assert_raise(TypeError) do
-          ParentClass.class_eval do
-            property.string 'first_name'
-          end
+        ParentClass.class_eval do
+          property.string 'first_name'
         end
+
+        assert_equal %w{age first_name name}, @klass.schema.column_names.sort
       end
 
       should 'not be allowed to overwrite a property from the parent class' do
@@ -123,6 +123,25 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
     end
+    
+    should 'allow serialized columns' do
+      Dog = Struct.new(:name, :toy) do
+        def self.json_create(data)
+          Dog.new(data['name'], data['toy'])
+        end
+        def to_json(*args)
+          { 'json_class' => self.class.to_s,
+            'name' => @name, 'toy' => @toy
+          }.to_json(*args)
+        end
+      end
+      
+      subject.property.serialize('pet', Dog)
+      column = subject.schema.columns['pet']
+      assert_equal 'pet', column.name
+      assert_equal Dog, column.klass
+      assert_equal nil, column.type
+    end
 
     should 'allow default value option' do
       subject.property.integer('force', :default => 10)
@@ -177,6 +196,18 @@ class DeclarationTest < Test::Unit::TestCase
     should 'return list of property columns from class' do
       assert_kind_of Hash, Employee.schema.columns
       assert_kind_of Property::Column, Employee.schema.columns['first_name']
+    end
+  end
+
+  context 'On a class with a schema' do
+    subject { Developer }
+
+    should 'raise an exception if we ask to behave like a class without schema' do
+      assert_raise(TypeError) { subject.behave_like String }
+    end
+
+    should 'raise an exception if we ask to behave like an object' do
+      assert_raise(TypeError) { subject.behave_like 'me' }
     end
   end
 end

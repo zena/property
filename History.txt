@@ -1,3 +1,10 @@
+== 0.8.0 2010-02-11
+
+* 3 major enhancements
+  * enabled Behaviors that can be added on an instance
+  * enabled non-DB types
+  * 100% test coverage
+
 == 0.7.0 2010-02-11
 
 * 2 major enhancement

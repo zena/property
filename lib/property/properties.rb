@@ -20,7 +20,7 @@ module Property
             delete(key)
           end
         else
-          super(key, column.type_cast(value.to_s))
+          super(key, column.type_cast(value))
         end
       else
         super
@@ -56,17 +56,7 @@ module Property
       end
 
       keys_to_validate.each do |key|
-        value  = self[key]
-        column = columns[key]
-        if value.blank?
-          if column.has_default?
-            self[key] = column.default_for(@owner)
-          else
-            delete(key)
-          end
-        else
-          columns[key].validate(self[key], errors)
-        end
+        columns[key].validate(self[key], errors)
       end
 
       bad_keys.empty?

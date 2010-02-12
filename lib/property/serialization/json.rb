@@ -5,11 +5,11 @@ module Property
     # provide 'self.create_json' and 'to_json' methods for the classes you want
     # to serialize.
     module JSON
-      module ClassMethods
+      module Validator
         NATIVE_TYPES = [Hash, Array, Integer, Float, String, TrueClass, FalseClass, NilClass]
 
-        # Returns true if the given class can be serialized with JSON
-        def validate_property_class(klass)
+        # Should raise an exception if the type is not serializable.
+        def self.validate(klass)
           if NATIVE_TYPES.include?(klass) ||
              (klass.respond_to?('json_create') && klass.instance_methods.include?('to_json'))
             true
@@ -20,10 +20,10 @@ module Property
       end
 
       def self.included(base)
-        base.extend ClassMethods
+        Property.validators << Validator
       end
 
-      # Encode properties with Marhsal
+      # Encode properties with JSON
       def encode_properties(properties)
         properties.to_json
       end

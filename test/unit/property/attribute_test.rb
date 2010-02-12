@@ -1,6 +1,4 @@
 require 'test_helper'
-require 'fixtures'
-require 'benchmark'
 
 class AttributeTest < Test::Unit::TestCase
 
@@ -213,6 +211,32 @@ class AttributeTest < Test::Unit::TestCase
 
       should 'find same value' do
         assert_equal @now, subject.prop['mydatetime']
+      end
+    end
+
+
+    context 'a saved serialized class' do
+      setup do
+        @dog = Dog.new('Pavlov', 'Freud')
+      end
+
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          set_table_name :dummies
+          property.serialize 'myserialized', Dog
+        end
+
+        obj = klass.create('myserialized' => @dog)
+        klass.find(obj)
+      end
+
+      should 'find class back' do
+        assert_kind_of Dog, subject.prop['myserialized']
+      end
+
+      should 'find same value' do
+        assert_equal @dog, subject.prop['myserialized']
       end
     end
   end

@@ -7,16 +7,6 @@ module Property
     #  * no corruption risk if the version of Marshal changes
     #  * it can be accessed by other languages then ruby
     module Marshal
-      module ClassMethods
-        # Returns true if the given class can be serialized with Marshal
-        def validate_property_class(klass)
-          true
-        end
-      end
-
-      def self.included(base)
-        base.extend ClassMethods
-      end
 
       # Encode properties with Marhsal
       def encode_properties(properties)

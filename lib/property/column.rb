@@ -11,11 +11,16 @@ module Property
     def initialize(name, default, type, options={})
       name = name.to_s
       extract_property_options(options)
+      if type.kind_of?(Class)
+        @klass = type
+      end
       super(name, default, type, options)
     end
 
     def validate(value, errors)
-      # Do nothing for the moment
+      if @klass && !value.kind_of?(@klass)
+        errors.add(name, "cannot cast #{value.class} to #{@klass}")
+      end
     end
 
     def should_create_accessors?
@@ -33,6 +38,21 @@ module Property
         owner.send(default)
       else
         default
+      end
+    end
+
+    def klass
+      @klass || super
+    end
+
+    def type_cast(value)
+      if type == :string
+        value = value.to_s
+        value.blank? ? nil : value
+      elsif @klass
+        value
+      else
+        super
       end
     end
 

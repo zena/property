@@ -6,6 +6,7 @@ require 'shoulda'
 require 'active_record'
 require 'property'
 require 'shoulda_macros/serialization'
+require 'fixtures'
 
 class Test::Unit::TestCase
 

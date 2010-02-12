@@ -24,6 +24,25 @@ class Version < ActiveRecord::Base
   end
 end
 
+# To test custom class serialization
+class Dog
+  attr_accessor :name, :toy
+  def self.json_create(data)
+    Dog.new(data['name'], data['toy'])
+  end
+  def initialize(name, toy)
+    @name, @toy = name, toy
+  end
+  def to_json(*args)
+    { 'json_class' => self.class.to_s,
+      'name' => @name, 'toy' => @toy
+    }.to_json(*args)
+  end
+  def ==(other)
+    other.kind_of?(Dog) && @name == other.name && @toy == other.toy
+  end
+end
+
 begin
   class PropertyMigration < ActiveRecord::Migration
     def self.down

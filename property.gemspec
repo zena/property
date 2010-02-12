@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "0.7.0"
+  s.version = "0.8.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2010-02-11}
+  s.date = %q{2010-02-12}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [
@@ -24,11 +24,13 @@ Gem::Specification.new do |s|
      "generators/property/property_generator.rb",
      "lib/property.rb",
      "lib/property/attribute.rb",
+     "lib/property/behavior.rb",
      "lib/property/column.rb",
      "lib/property/core_ext/time.rb",
      "lib/property/declaration.rb",
      "lib/property/dirty.rb",
      "lib/property/properties.rb",
+     "lib/property/schema.rb",
      "lib/property/serialization/json.rb",
      "lib/property/serialization/marshal.rb",
      "lib/property/serialization/yaml.rb",
@@ -37,6 +39,7 @@ Gem::Specification.new do |s|
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
      "test/unit/property/attribute_test.rb",
+     "test/unit/property/behavior_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/validation_test.rb",
@@ -55,6 +58,7 @@ Gem::Specification.new do |s|
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
      "test/unit/property/attribute_test.rb",
+     "test/unit/property/behavior_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/validation_test.rb",

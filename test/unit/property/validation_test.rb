@@ -9,6 +9,7 @@ class ValidationTest < Test::Unit::TestCase
       include Property
       property.float 'boat'
       property.string 'bird_name'
+      property.serialize 'dog', Dog
     end
 
     subject { Pirate.create }
@@ -38,6 +39,12 @@ class ValidationTest < Test::Unit::TestCase
         assert_kind_of Float, subject.prop['boat']
         assert_kind_of String, subject.prop['bird_name']
         assert_equal '1337', subject.prop['bird_name']
+      end
+
+      should 'show an error for serialized types' do
+        subject.update_attributes('dog' => 'Medor')
+        assert !subject.valid?
+        assert_equal 'cannot cast String to Dog', subject.errors['dog']
       end
     end
 
