@@ -32,6 +32,7 @@ module Property
     end
 
     def default_for(owner)
+      default = self.default
       if default.kind_of?(Proc)
         default.call
       elsif default.kind_of?(Symbol)

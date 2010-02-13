@@ -5,10 +5,10 @@ module Property
   class Behavior
     attr_accessor :name, :included, :accessor_module
 
-    def self.new(name)
+    def self.new(name, &block)
       obj = super
       if block_given?
-        yield obj
+        obj.property(&block)
       end
       obj
     end
@@ -17,7 +17,7 @@ module Property
     def initialize(name)
       @name    = name
       @included_in_schemas = []
-      @accessor_module = Module.new
+      @accessor_module = build_accessor_module
     end
 
     # List all property definitiosn for the current behavior
@@ -40,33 +40,9 @@ module Property
     #  end
     def property
       if block_given?
-        yield self
+        yield accessor_module
       end
-      self
-    end
-
-    # def string(*args)
-    #   options = args.extract_options!
-    #   column_names = args
-    #   default = options.delete(:default)
-    #   column_names.each { |name| column(name, default, 'string', options) }
-    # end
-    %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
-      class_eval <<-EOV
-        def #{column_type}(*args)
-          options = args.extract_options!
-          column_names = args
-          default = options.delete(:default)
-          column_names.each { |name| add_column(Property::Column.new(name, default, '#{column_type}', options)) }
-        end
-      EOV
-    end
-
-    # This is used to serialize a non-native DB type. Use:
-    #   p.serialize 'pet', Dog
-    def serialize(name, klass, options = {})
-      Property.validate_property_class(klass)
-      add_column(Property::Column.new(name, nil, klass, options))
+      accessor_module
     end
 
     # @internal
@@ -75,7 +51,56 @@ module Property
       @included_in_schemas << schema
     end
 
+    # @internal
+    def add_column(column)
+      name = column.name
+
+      if columns[name]
+        raise TypeError.new("Property '#{name}' is already defined.")
+      else
+        verify_not_defined_in_schemas_using_this_behavior(name)
+        define_property_methods(column) if column.should_create_accessors?
+        columns[column.name] = column
+      end
+    end
+
     private
+      def build_accessor_module
+        accessor_module = Module.new
+        accessor_module.class_eval do
+          class << self
+            attr_accessor :behavior
+
+            # def string(*args)
+            #   options = args.extract_options!
+            #   column_names = args
+            #   default = options.delete(:default)
+            #   column_names.each { |name| column(name, default, 'string', options) }
+            # end
+            %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
+              class_eval <<-EOV
+                def #{column_type}(*args)
+                  options = args.extract_options!
+                  column_names = args
+                  default = options.delete(:default)
+                  column_names.each { |name| behavior.add_column(Property::Column.new(name, default, '#{column_type}', options)) }
+                end
+              EOV
+            end
+
+            # This is used to serialize a non-native DB type. Use:
+            #   p.serialize 'pet', Dog
+            def serialize(name, klass, options = {})
+              Property.validate_property_class(klass)
+              behavior.add_column(Property::Column.new(name, nil, klass, options))
+            end
+
+            alias actions class_eval
+          end
+        end
+        accessor_module.behavior = self
+        accessor_module
+      end
 
       def define_property_methods(column)
         name = column.name
@@ -142,18 +167,6 @@ module Property
       # Evaluate the definition for an attribute related method
       def evaluate_attribute_property_method(attr_name, method_definition, method_name=attr_name)
         accessor_module.class_eval(method_definition, __FILE__, __LINE__)
-      end
-
-      def add_column(column)
-        name = column.name
-
-        if columns[name]
-          raise TypeError.new("Property '#{name}' is already defined.")
-        else
-          verify_not_defined_in_schemas_using_this_behavior(name)
-          define_property_methods(column) if column.should_create_accessors?
-          columns[column.name] = column
-        end
       end
 
       def verify_not_defined_in_schemas_using_this_behavior(name)

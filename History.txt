@@ -1,3 +1,8 @@
+== 0.8.1 2010-02-13
+
+* 1 minor enhancement
+  * enabled behavior method definitions
+
 == 0.8.0 2010-02-11
 
 * 3 major enhancements

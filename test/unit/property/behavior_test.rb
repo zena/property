@@ -62,7 +62,13 @@ class BehaviorTest < Test::Unit::TestCase
   context 'Adding a behavior' do
     setup do
       @poet = Property::Behavior.new('Poet') do |p|
-        p.string 'poem'
+        p.string 'poem', :default => :muse
+
+        p.actions do
+          def muse
+            'I am your muse'
+          end
+        end
       end
     end
 
@@ -98,6 +104,21 @@ class BehaviorTest < Test::Unit::TestCase
         @parent.behave_like @poet
 
         assert_nothing_raised { subject.poem = 'Poe'}
+      end
+
+      should 'add behavior methods to child' do
+        subject = @klass.new
+        assert_raises(NoMethodError) { subject.muse }
+        @parent.behave_like @poet
+
+        assert_nothing_raised { subject.muse }
+      end
+
+      should 'use behavior methos for defaults' do
+        subject = @klass.new
+        @parent.behave_like @poet
+        assert subject.save
+        assert_equal 'I am your muse', subject.poem
       end
     end
 

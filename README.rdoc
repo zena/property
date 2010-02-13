@@ -51,19 +51,36 @@ And set them with:
 Properties would not be really fun if you could not add new properties to your instances depending
 on some flags. First define the behaviors:
 
-  @a_picture = Property::Behavior.new do |p|
+  @picture = Property::Behavior.new do |p|
     p.integer :width,  :default => :get_width
     p.integer :height, :default => :get_height
     p.string  'camera'
     p.string  'location'
+
+    p.with do
+      # Define new methods to insert into model
+
+      def get_width
+        image.width
+      end
+
+      def get_height
+        image.height
+      end
+
+      def image
+        raise 'Missing file' unless @file
+        @image ||= ImageBuilder(@file)
+      end
+    end
   end
 
 And then, either when creating new pictures or updating them, you need to include the behavior:
 
-  @model.behave_like @a_picture
+  @model.behave_like @picture
 
-The model now has the picture's properties defined, with accessors like @model.camera and default
-values will be fetched on save.
+The model now has the picture's properties defined, with accessors like @model.camera, methods like
+@model.image, get_with, etc and default values will be fetched on save.
 
 Note that you do not need to include a behavior just to read the data as long as you use the 'prop'
 accessor.

@@ -46,14 +46,8 @@ module Property
       #  property do |p|
       #    p.string 'phone', 'name', :default => ''
       #  end
-      def property
-        setter = schema.behavior
-
-        if block_given?
-          yield setter
-        end
-
-        setter
+      def property(&block)
+        schema.behavior.property(&block)
       end
     end # ClassMethods
 
