@@ -1,7 +1,8 @@
-== 0.8.1 2010-02-13
+== 0.8.1 2010-02-14
 
-* 1 minor enhancement
+* 2 major enhancement
   * enabled behavior method definitions
+  * enabled external storage with 'store_properties_in' method
 
 == 0.8.0 2010-02-11
 

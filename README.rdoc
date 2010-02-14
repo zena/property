@@ -1,8 +1,9 @@
-== DESCRIPTION:
+== Property
 
 Wrap model properties into a single database column and declare properties from within the model.
 
 website: http://zenadmin.org/635
+
 license: MIT
 
 == Status: Beta
@@ -57,7 +58,7 @@ on some flags. First define the behaviors:
     p.string  'camera'
     p.string  'location'
 
-    p.with do
+    p.actions do
       # Define new methods to insert into model
 
       def get_width
@@ -85,3 +86,19 @@ The model now has the picture's properties defined, with accessors like @model.c
 Note that you do not need to include a behavior just to read the data as long as you use the 'prop'
 accessor.
 
+== External storage
+
+You might need to define properties in a model but store them in another model (versioning). In this
+case you can simply use 'store_properties_in' class method:
+
+  class Contact < ActiveRecord::Base
+    include Property
+    store_properties_in :version
+    property do |p|
+      p.string 'name', 'first_name'
+      p.string 'childhood', :default => 'happy'
+    end
+  end
+
+Doing so will not touch the storage class. All property definitions, validations and method
+definitions are executed on the 'Contact' class.

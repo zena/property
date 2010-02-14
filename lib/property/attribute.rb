@@ -13,15 +13,53 @@ module Property
   module Attribute
 
     def self.included(base)
+      base.extend ClassMethods
+
       base.class_eval do
         include InstanceMethods
         include Serialization::JSON
         include Declaration
         include Dirty
 
+        store_properties_in self
+
         before_save :dump_properties
 
         alias_method_chain :attributes=,  :properties
+      end
+    end
+
+    module ClassMethods
+      def store_properties_in(accessor)
+        if accessor.nil? || accessor == self
+          accessor = ''
+        else
+          accessor = "#{accessor}."
+        end
+        load_and_dump_methods =<<-EOF
+          private
+            def load_properties
+              raw_data = #{accessor}read_attribute('properties')
+              prop = raw_data ? decode_properties(raw_data) : Properties.new
+              # We need to set the owner to access property definitions and enable
+              # type casting on write.
+              prop.owner = self
+              prop
+            end
+
+            def dump_properties
+              if @properties
+                if !@properties.empty?
+                  #{accessor}write_attribute('properties', encode_properties(@properties))
+                else
+                  #{accessor}write_attribute('properties', nil)
+                end
+              end
+              @properties.clear_changes!
+              true
+            end
+        EOF
+        class_eval(load_and_dump_methods, __FILE__, __LINE__)
       end
     end
 
@@ -61,27 +99,6 @@ module Property
 
           self.properties = properties
           self.attributes_without_properties = attributes
-        end
-
-        def load_properties
-          raw_data = read_attribute('properties')
-          prop = raw_data ? decode_properties(raw_data) : Properties.new
-          # We need to set the owner to access property definitions and enable
-          # type casting on write.
-          prop.owner = self
-          prop
-        end
-
-        def dump_properties
-          if @properties
-            if !@properties.empty?
-              write_attribute('properties', encode_properties(@properties))
-            else
-              write_attribute('properties', nil)
-            end
-          end
-          @properties.clear_changes!
-          true
         end
     end # InstanceMethods
   end # Attribute

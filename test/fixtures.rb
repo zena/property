@@ -56,6 +56,7 @@ begin
       end
 
       create_table "versions" do |t|
+        t.integer 'employee_id'
         t.string  "properties"
         t.string  "title"
         t.string  "comment"

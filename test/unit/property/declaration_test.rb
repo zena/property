@@ -92,6 +92,14 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal :string, column.type
     end
 
+    should 'allow text columns' do
+      subject.property.text('history')
+      column = subject.schema.columns['history']
+      assert_equal 'history', column.name
+      assert_equal String, column.klass
+      assert_equal :text, column.type
+    end
+
     should 'treat symbol keys as strings' do
       subject.property.string(:weapon)
       column = subject.schema.columns['weapon']
@@ -123,7 +131,7 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
     end
-    
+
     should 'allow serialized columns' do
       Dog = Struct.new(:name, :toy) do
         def self.json_create(data)
@@ -135,7 +143,7 @@ class DeclarationTest < Test::Unit::TestCase
           }.to_json(*args)
         end
       end
-      
+
       subject.property.serialize('pet', Dog)
       column = subject.schema.columns['pet']
       assert_equal 'pet', column.name
@@ -210,4 +218,77 @@ class DeclarationTest < Test::Unit::TestCase
       assert_raise(TypeError) { subject.behave_like 'me' }
     end
   end
+
+  context 'A class with external storage' do
+    class Version < ActiveRecord::Base
+      belongs_to :contact, :class_name => 'DeclarationTest::Contact',
+                 :foreign_key => 'employee_id'
+    end
+
+    Contact = Class.new(ActiveRecord::Base) do
+      set_table_name :employees
+      has_many :versions, :class_name => 'DeclarationTest::Version'
+
+      include Property
+      store_properties_in :version
+
+      property do |p|
+        p.string 'first_name'
+        p.string 'famous', :default => :get_is_famous
+        p.integer 'age'
+
+        p.actions do
+          def get_is_famous
+            'no'
+          end
+        end
+      end
+
+      def version
+        @version ||= begin
+          if new_record?
+            versions.build
+          else
+            Version.first(:conditions => ['employee_id = ?', self.id]) || versions.build
+          end
+        end
+      end
+    end
+
+    setup do
+      @contact = Contact.create('first_name' => 'Martin')
+    end
+
+    subject { @contact }
+
+    should 'store properties in the given instance' do
+      assert_equal Hash["famous"=>"no", "first_name"=>"Martin"], JSON.parse(subject.version['properties'])
+    end
+
+    should 'keep a properties cache in the the main instance' do
+      assert_equal Hash["famous"=>"no", "first_name"=>"Martin"], subject.instance_variable_get(:@properties)
+    end
+
+    should 'behave as if storage was internal' do
+      subject.first_name = 'Hannah'
+      assert_equal 'no', subject.famous
+      assert_equal Hash["first_name"=>["Martin", "Hannah"]], subject.changes
+    end
+  end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
