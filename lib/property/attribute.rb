@@ -48,14 +48,14 @@ module Property
             end
 
             def dump_properties
-              if @properties
+              if @properties && @properties.changed?
                 if !@properties.empty?
                   #{accessor}write_attribute('properties', encode_properties(@properties))
                 else
                   #{accessor}write_attribute('properties', nil)
                 end
+                @properties.clear_changes!
               end
-              @properties.clear_changes!
               true
             end
         EOF

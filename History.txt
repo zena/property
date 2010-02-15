@@ -1,3 +1,8 @@
+== 0.8.2
+
+* 1 minor enhancement
+  * fixed a bug where properties would be dumped even if none changed
+
 == 0.8.1 2010-02-14
 
 * 2 major enhancement
