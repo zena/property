@@ -23,7 +23,7 @@ module Property
 
         store_properties_in self
 
-        before_save :dump_properties
+        after_validation   :dump_properties
 
         alias_method_chain :attributes=,  :properties
       end

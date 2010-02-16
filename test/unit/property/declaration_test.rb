@@ -226,6 +226,8 @@ class DeclarationTest < Test::Unit::TestCase
     end
 
     Contact = Class.new(ActiveRecord::Base) do
+      attr_accessor :assertion
+      before_save :before_save_assertion
       set_table_name :employees
       has_many :versions, :class_name => 'DeclarationTest::Version'
 
@@ -253,6 +255,13 @@ class DeclarationTest < Test::Unit::TestCase
           end
         end
       end
+
+      private
+        def before_save_assertion
+          return true unless @assertion
+          @assertion.call
+          true
+        end
     end
 
     setup do
@@ -273,6 +282,13 @@ class DeclarationTest < Test::Unit::TestCase
       subject.first_name = 'Hannah'
       assert_equal 'no', subject.famous
       assert_equal Hash["first_name"=>["Martin", "Hannah"]], subject.changes
+    end
+
+    should 'dump properties before any before_save triggers' do
+      subject.assertion = Proc.new do
+        assert_match %r{Karl}, subject.version.properties
+      end
+      subject.update_attributes('first_name' => 'Karl')
     end
   end
 end

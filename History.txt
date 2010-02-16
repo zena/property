@@ -1,7 +1,9 @@
-== 0.8.2
+== 0.8.2 2010-02-16
 
-* 1 minor enhancement
+* 2 minor enhancements
   * fixed a bug where properties would be dumped even if none changed
+  * fixed a bug where properties would not be dumped soon enough to mark
+    storage object as dirty
 
 == 0.8.1 2010-02-14
 
