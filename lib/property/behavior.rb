@@ -25,6 +25,19 @@ module Property
       @columns ||= {}
     end
 
+    # Return a list of index definitions in the form [type, key_or_proc]
+    def indexes
+      columns.values.select do |c|
+        c.indexed?
+      end.map do |c|
+        if c.index == true
+          [c.type, c.name]
+        else
+          [c.type, c.index]
+        end
+      end
+    end
+
     # Return true if the Behavior contains the given column (property).
     def has_column?(name)
       column_names.include?(name)

@@ -6,6 +6,8 @@ module Property
   # such as name, type and options. It is also used to typecast from strings to
   # the proper type (date, integer, float, etc).
   class Column < ::ActiveRecord::ConnectionAdapters::Column
+    attr_accessor :index
+
     SAFE_NAMES_REGEXP = %r{\A[a-zA-Z_]+\Z}
 
     def initialize(name, default, type, options={})
@@ -28,7 +30,7 @@ module Property
     end
 
     def indexed?
-      @indexed
+      @index
     end
 
     def default_for(owner)
@@ -59,7 +61,7 @@ module Property
 
     private
       def extract_property_options(options)
-        @indexed = options.delete(:indexed)
+        @index = options.delete(:index) || options.delete(:indexed)
       end
 
       def extract_default(default)

@@ -17,9 +17,6 @@ module Property
 
       base.class_eval do
         include InstanceMethods
-        include Serialization::JSON
-        include Declaration
-        include Dirty
 
         store_properties_in self
 

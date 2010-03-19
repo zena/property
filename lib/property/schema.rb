@@ -73,6 +73,17 @@ module Property
       columns
     end
 
+    # Return a hash with indexed types as keys and index definitions as values.
+    def index_groups
+      index_groups = {}
+      @behaviors.flatten.uniq.each do |b|
+        b.indexes.each do |list|
+          (index_groups[list.first] ||= []) << list.last
+        end
+      end
+      index_groups
+    end
+
     private
       def include_behavior(behavior)
         return if behaviors.include?(behavior)

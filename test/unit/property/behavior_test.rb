@@ -52,10 +52,16 @@ class BehaviorTest < Test::Unit::TestCase
       assert_equal 10, column.default
     end
 
-    should 'allow indexed option' do
-      subject.property.string('rolodex', :indexed => true)
+    should 'allow index option' do
+      subject.property.string('rolodex', :index => true)
       column = subject.columns['rolodex']
-      assert column.indexed?
+      assert column.index?
+    end
+
+    should 'return a list of indexes on indexes' do
+      subject.property.string('rolodex', :index => true)
+      subject.property.integer('foobar', :index => true)
+      assert_equal %w{integer string}, subject.indexes.map {|i| i[0].to_s }.sort
     end
   end # A Behavior
 

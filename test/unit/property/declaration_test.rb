@@ -161,10 +161,10 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal 10, column.default
     end
 
-    should 'allow indexed option' do
-      subject.property.string('rolodex', :indexed => true)
+    should 'allow index option' do
+      subject.property.string('rolodex', :index => true)
       column = subject.schema.columns['rolodex']
-      assert column.indexed?
+      assert column.index?
     end
 
     context 'through a Behavior on an instance' do

@@ -1,8 +1,8 @@
 
 class Employee < ActiveRecord::Base
   include Property
-  property.string 'first_name', :default => '', :indexed => true
-  property.string 'last_name',  :default => '', :indexed => true
+  property.string 'first_name', :default => '', :index => true
+  property.string 'last_name',  :default => '', :index => true
   property.float  'age'
 end
 
@@ -46,25 +46,41 @@ end
 begin
   class PropertyMigration < ActiveRecord::Migration
     def self.down
-      drop_table "employees"
-      drop_table "versions"
+      drop_table 'employees'
+      drop_table 'versions'
+      drop_table 'string_index'
     end
+
     def self.up
-      create_table "employees" do |t|
-        t.string "type"
-        t.text   "properties"
+      create_table 'employees' do |t|
+        t.string 'type'
+        t.text   'properties'
       end
 
-      create_table "versions" do |t|
+      create_table 'versions' do |t|
         t.integer 'employee_id'
-        t.string  "properties"
-        t.string  "title"
-        t.string  "comment"
+        t.string  'properties'
+        t.string  'title'
+        t.string  'comment'
         t.timestamps
       end
 
-      create_table "dummies" do |t|
-        t.text    "properties"
+      create_table 'dummies' do |t|
+        t.text    'properties'
+      end
+
+      # index strings in employees
+      create_table 'i_string_employees' do |t|
+        t.integer 'employee_id'
+        t.string  'key'
+        t.string  'value'
+      end
+
+      # index integer in employees
+      create_table 'i_integer_employees' do |t|
+        t.integer 'employee_id'
+        t.string  'key'
+        t.integer 'value'
       end
     end
   end

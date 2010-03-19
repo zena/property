@@ -5,6 +5,8 @@ require 'property/column'
 require 'property/behavior'
 require 'property/schema'
 require 'property/declaration'
+require 'property/db'
+require 'property/index'
 require 'property/serialization/json'
 require 'property/core_ext/time'
 
@@ -13,7 +15,11 @@ module Property
 
   def self.included(base)
     base.class_eval do
-      include ::Property::Attribute
+      include Attribute
+      include Serialization::JSON
+      include Declaration
+      include Dirty
+      include Index
     end
   end
 

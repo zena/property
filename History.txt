@@ -1,46 +1,49 @@
-== 0.8.3 2010-03-19
+== 0.9.0
+
+* 1 major enhancement
+  * Added index support.
 
 * 1 minor enhancement
-  * added 'has_column?' to schema
+  * Added 'has_column?' to schema.
 
 == 0.8.2 2010-02-16
 
 * 2 minor enhancements
-  * fixed a bug where properties would be dumped even if none changed
-  * fixed a bug where properties would not be dumped soon enough to mark
-    storage object as dirty
+  * Fixed a bug where properties would be dumped even if none changed.
+  * Fixed a bug where properties would not be dumped soon enough to mark
+    storage object as dirty.
 
 == 0.8.1 2010-02-14
 
 * 2 major enhancement
-  * enabled behavior method definitions
-  * enabled external storage with 'store_properties_in' method
+  * Enabled behavior method definitions.
+  * Enabled external storage with 'store_properties_in' method.
 
 == 0.8.0 2010-02-11
 
 * 3 major enhancements
-  * enabled Behaviors that can be added on an instance
-  * enabled non-DB types
-  * 100% test coverage
+  * Enabled Behaviors that can be added on an instance.
+  * Enabled non-DB types.
+  * 100% test coverage.
 
 == 0.7.0 2010-02-11
 
 * 2 major enhancement
-  * enabled instance property definitions
-  * Time is now natively parsed by json (no typecast)
+  * Enabled instance property definitions.
+  * Time is now natively parsed by json (no typecast).
 
 == 0.6.0 2010-02-11
 
 * 1 major enhancement
-  * enabled ruby accessors in model
+  * Enabled ruby accessors in model.
 
 == 0.5.0 2010-02-11
 
 * 2 major enhancement
-  * changed plugin into gem
-  * using Rails columns to handle defaults and type casting
+  * Changed plugin into gem.
+  * Using Rails columns to handle defaults and type casting.
 
 == 0.4.0 2010-02-02
 
 * 1 major enhancement
-  * initial plugin code
+  * Initial plugin code.
