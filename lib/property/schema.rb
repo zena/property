@@ -58,7 +58,7 @@ module Property
     # Return true if the schema has a property with the given name.
     def has_column?(name)
       name = name.to_s
-      @behaviors.each do |behavior|
+      [@behaviors].flatten.each do |behavior|
         return true if behavior.has_column?(name)
       end
       false
