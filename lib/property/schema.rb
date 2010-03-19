@@ -55,6 +55,15 @@ module Property
       columns.keys
     end
 
+    # Return true if the schema has a property with the given name.
+    def has_column?(name)
+      name = name.to_s
+      @behaviors.each do |behavior|
+        return true if behavior.has_column?(name)
+      end
+      false
+    end
+
     # Return column definitions from all included behaviors.
     def columns
       columns = {}

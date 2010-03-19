@@ -12,9 +12,13 @@ class DeclarationTest < Test::Unit::TestCase
       should 'inherit property columns from parent class' do
         assert_equal %w{age first_name language last_name}, @klass.schema.column_names.sort
       end
-
+      
+      should 'see its property columns in schema' do
+        assert @klass.schema.has_column?('language')
+      end
+      
       should 'not back-propagate definitions to parent' do
-        assert !@klass.superclass.schema.columns.include?('language')
+        assert !@klass.superclass.schema.has_column?('language')
       end
 
       should 'inherit new definitions in parent' do

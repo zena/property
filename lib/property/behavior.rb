@@ -25,6 +25,11 @@ module Property
       @columns ||= {}
     end
 
+    # Return true if the Behavior contains the given column (property).
+    def has_column?(name)
+      column_names.include?(name)
+    end
+
     # Return the list of column names.
     def column_names
       columns.keys
