@@ -1,4 +1,4 @@
-== 0.8.3
+== 0.8.3 2010-03-19
 
 * 1 minor enhancement
   * added 'has_column?' to schema
