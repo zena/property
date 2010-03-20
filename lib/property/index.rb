@@ -1,4 +1,5 @@
 require 'versions/after_commit' # we need Versions gem's 'after_commit'
+#def after_commit(&block); yield; end
 
 module Property
 
@@ -57,7 +58,6 @@ module Property
           foreign_values = nil
 
           schema.index_groups.each do |group_name, definitions|
-            old_indexes = get_indexes(group_name)
             cur_indexes = {}
             definitions.each do |key, proc|
               if key
@@ -74,42 +74,51 @@ module Property
               end
             end
 
-            old_keys = old_indexes.keys
-            cur_keys = cur_indexes.keys
-
-            new_keys = cur_keys - old_keys
-            del_keys = old_keys - cur_keys
-            upd_keys = cur_keys & old_keys
-
             after_commit do
-              table_name  = index_table_name(group_name)
 
-              upd_keys.each do |key|
-                value = cur_indexes[key]
-                if value.blank?
-                  del_keys << key
-                else
-                  connection.execute "UPDATE #{table_name} SET value = #{connection.quote(cur_indexes[key])} WHERE #{reader_sql} AND key = #{connection.quote(key)}"
-                end
-              end
+              if group_name.kind_of?(Class)
+                # Use a custom indexer
+                group_name.set_property_index(self, cur_indexes)
+              else
+                # Add key/value pairs to the default tables
+                old_indexes = get_indexes(group_name)
 
-              if !del_keys.empty?
-                connection.execute "DELETE FROM #{table_name} WHERE #{reader_sql} AND key IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
-              end
+                old_keys = old_indexes.keys
+                cur_keys = cur_indexes.keys
 
-              new_keys.reject! {|k| cur_indexes[k].blank? }
-              if !new_keys.empty?
-                # we evaluate this now to have the id on record creation
-                foreign_keys   ||= index_writer.keys
-                foreign_values ||= foreign_keys.map {|k| index_writer[k]}
+                new_keys = cur_keys - old_keys
+                del_keys = old_keys - cur_keys
+                upd_keys = cur_keys & old_keys
 
-                Property::Db.insert_many(
-                  table_name,
-                  foreign_keys + ['key', 'value'],
-                  new_keys.map do |key|
-                    foreign_values + [connection.quote(key), connection.quote(cur_indexes[key])]
+                table_name  = index_table_name(group_name)
+
+                upd_keys.each do |key|
+                  value = cur_indexes[key]
+                  if value.blank?
+                    del_keys << key
+                  else
+                    connection.execute "UPDATE #{table_name} SET value = #{connection.quote(cur_indexes[key])} WHERE #{reader_sql} AND key = #{connection.quote(key)}"
                   end
-                )
+                end
+
+                if !del_keys.empty?
+                  connection.execute "DELETE FROM #{table_name} WHERE #{reader_sql} AND key IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
+                end
+
+                new_keys.reject! {|k| cur_indexes[k].blank? }
+                if !new_keys.empty?
+                  # we evaluate this now to have the id on record creation
+                  foreign_keys   ||= index_writer.keys
+                  foreign_values ||= foreign_keys.map {|k| index_writer[k]}
+
+                  Property::Db.insert_many(
+                    table_name,
+                    foreign_keys + ['key', 'value'],
+                    new_keys.map do |key|
+                      foreign_values + [connection.quote(key), connection.quote(cur_indexes[key])]
+                    end
+                  )
+                end
               end
             end
           end
@@ -122,7 +131,11 @@ module Property
           current_id  = self.id
           schema.index_groups.each do |group_name, definitions|
             after_commit do
-              connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{foreign_key} = #{current_id}"
+              if group_name.kind_of?(Class)
+                group_name.delete_property_index(self)
+              else
+                connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{foreign_key} = #{current_id}"
+              end
             end
           end
         end

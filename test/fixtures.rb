@@ -92,10 +92,18 @@ begin
         t.string  'key'
         t.text    'value'
       end
+
+      # custom or legacy index table
+      create_table 'contacts' do |t|
+        t.integer 'employee_id'
+        t.string 'name'
+        t.string 'other_name'
+      end
     end
   end
 
   ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>':memory:')
+#  ActiveRecord::Base.logger = Logger.new(STDOUT)
   ActiveRecord::Migration.verbose = false
   #PropertyMigration.migrate(:down)
   PropertyMigration.migrate(:up)

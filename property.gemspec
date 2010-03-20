@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "0.9.0"
+  s.version = "0.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
@@ -45,6 +45,7 @@ Gem::Specification.new do |s|
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/index_complex_test.rb",
+     "test/unit/property/index_custom_test.rb",
      "test/unit/property/index_foreign_test.rb",
      "test/unit/property/index_simple_test.rb",
      "test/unit/property/validation_test.rb",
@@ -67,6 +68,7 @@ Gem::Specification.new do |s|
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/index_complex_test.rb",
+     "test/unit/property/index_custom_test.rb",
      "test/unit/property/index_foreign_test.rb",
      "test/unit/property/index_simple_test.rb",
      "test/unit/property/validation_test.rb",

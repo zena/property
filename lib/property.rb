@@ -11,7 +11,7 @@ require 'property/serialization/json'
 require 'property/core_ext/time'
 
 module Property
-  VERSION = '0.9.0'
+  VERSION = '0.9.1'
 
   def self.included(base)
     base.class_eval do
