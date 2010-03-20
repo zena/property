@@ -1,7 +1,4 @@
-#require 'versions/after_commit' # we need Versions gem's 'after_commit'
-def after_commit(&block)
-  yield
-end
+require 'versions/after_commit' # we need Versions gem's 'after_commit'
 
 module Property
 
@@ -13,9 +10,7 @@ module Property
       base.class_eval do
         extend  ClassMethods
         include InstanceMethods
-        # before_save :property_index
-        # before_destroy :property_index_destroy
-        after_save :property_index
+        before_save :property_index
         before_destroy :property_index_destroy
       end
     end
@@ -29,7 +24,11 @@ module Property
         # Retrieve the current indexes for a given group (:string, :text, etc)
         def get_indexes(group_name)
           return {} if new_record?
-          Hash[*Property::Db.fetch_attributes(['key', 'value'], index_table_name(group_name), "#{index_foreign_key} = #{self.id}")]
+          res = {}
+          Property::Db.fetch_attributes(['key', 'value'], index_table_name(group_name), "#{index_foreign_key} = #{self.id}").each do |row|
+            res[row['key']] = row['value']
+          end
+          res
         end
 
         def index_table_name(group_name)
@@ -76,7 +75,7 @@ module Property
               end
 
               if !del_keys.empty?
-                connection.execute "DELETE FROM #{table_name} WHERE #{foreign_key} = #{self.id} AND key IN (#{del_keys.map{|k| connection.quote(key)}.join(',')})"
+                connection.execute "DELETE FROM #{table_name} WHERE #{foreign_key} = #{self.id} AND key IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
               end
 
               new_keys.reject! {|k| cur_indexes[k].blank? }

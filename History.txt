@@ -1,7 +1,8 @@
 == 0.9.0
 
-* 1 major enhancement
-  * Added index support.
+* 2 major enhancement
+  * Added simple index support.
+  * Added complex index support.
 
 * 1 minor enhancement
   * Added 'has_column?' to schema.

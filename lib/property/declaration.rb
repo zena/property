@@ -38,13 +38,18 @@ module Property
         schema.behave_like behavior
       end
 
-      # Use this class method to declare properties that will be used in your models.
+      # Use this class method to declare properties and indexes that will be used in your models.
       # Example:
-      #  property.string 'phone', :default => ''
+      #  property.string 'phone', :default => '', :indexed => true
       #
       # You can also use a block:
       #  property do |p|
       #    p.string 'phone', 'name', :default => ''
+      #    p.index(:string) do |r|
+      #      {
+      #        "name_#{r.lang}" => r.name,
+      #      }
+      #    end
       #  end
       def property(&block)
         schema.behavior.property(&block)

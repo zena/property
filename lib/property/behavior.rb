@@ -17,6 +17,7 @@ module Property
     def initialize(name)
       @name    = name
       @included_in_schemas = []
+      @group_indexes   = []
       @accessor_module = build_accessor_module
     end
 
@@ -35,7 +36,7 @@ module Property
         else
           [c.type, c.index]
         end
-      end
+      end + @group_indexes
     end
 
     # Return true if the Behavior contains the given column (property).
@@ -82,6 +83,11 @@ module Property
       end
     end
 
+    # @internal
+    def add_index(type, proc)
+      @group_indexes << [type, proc]
+    end
+
     private
       def build_accessor_module
         accessor_module = Module.new
@@ -111,6 +117,21 @@ module Property
             def serialize(name, klass, options = {})
               Property.validate_property_class(klass)
               behavior.add_column(Property::Column.new(name, nil, klass, options))
+            end
+
+            # This is used to create complex indexes with the following syntax:
+            #
+            #   p.index(:text) do |r| # r = record
+            #     {
+            #       "high"           => "gender:#{r.gender} age:#{r.age} name:#{r.name}",
+            #       "name_#{r.lang}" => r.name, # multi-lingual index
+            #     }
+            #   end
+            #
+            # The first argument is the type (used to locate the table where the data will be stored) and the block
+            # will be yielded with the record and should return a hash of key => value pairs.
+            def index(type, &block)
+              behavior.add_index(type, block)
             end
 
             alias actions class_eval
