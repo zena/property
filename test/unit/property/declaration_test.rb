@@ -12,11 +12,11 @@ class DeclarationTest < Test::Unit::TestCase
       should 'inherit property columns from parent class' do
         assert_equal %w{age first_name language last_name}, @klass.schema.column_names.sort
       end
-      
+
       should 'see its property columns in schema' do
         assert @klass.schema.has_column?('language')
       end
-      
+
       should 'not back-propagate definitions to parent' do
         assert !@klass.superclass.schema.has_column?('language')
       end
@@ -164,7 +164,7 @@ class DeclarationTest < Test::Unit::TestCase
     should 'allow index option' do
       subject.property.string('rolodex', :index => true)
       column = subject.schema.columns['rolodex']
-      assert column.index?
+      assert column.indexed?
     end
 
     context 'through a Behavior on an instance' do
@@ -229,7 +229,7 @@ class DeclarationTest < Test::Unit::TestCase
                  :foreign_key => 'employee_id'
     end
 
-    Contact = Class.new(ActiveRecord::Base) do
+    class Contact < ActiveRecord::Base
       attr_accessor :assertion
       before_save :before_save_assertion
       set_table_name :employees

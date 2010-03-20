@@ -78,7 +78,7 @@ module Property
       index_groups = {}
       @behaviors.flatten.uniq.each do |b|
         b.indexes.each do |list|
-          (index_groups[list.first] ||= []) << list.last
+          (index_groups[list.first] ||= []) << list[1..-1]
         end
       end
       index_groups

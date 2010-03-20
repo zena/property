@@ -68,11 +68,11 @@ class ValidationTest < Test::Unit::TestCase
   end # When setting a property
 
   context 'On a class with default property values' do
-    Cat = Class.new(ActiveRecord::Base) do
+    class Cat < ActiveRecord::Base
       attr_accessor :encoding
-
       set_table_name 'dummies'
-      include Property::Attribute
+
+      include Property
       property do |p|
         p.string 'eat', :default => 'mouse'
         p.string 'name'

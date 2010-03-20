@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'fixtures'
 
-class IndexTest < ActiveSupport::TestCase
+class IndexSimpleTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
     set_table_name :i_string_employees
   end
@@ -89,6 +89,12 @@ class IndexTest < ActiveSupport::TestCase
       should 'not create index entries for blank values' do
         assert_difference('IndexedIntegerEmp.count', 0) do
           @dog.update_attributes('name' => 'Médor')
+        end
+      end
+      
+      should 'remove blank values' do
+        assert_difference('IndexedStringEmp.count', -1) do
+          @dog.update_attributes('name' => '')
         end
       end
 

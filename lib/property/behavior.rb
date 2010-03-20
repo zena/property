@@ -26,7 +26,7 @@ module Property
       @columns ||= {}
     end
 
-    # Return a list of index definitions in the form [type, key_or_proc]
+    # Return a list of index definitions in the form [type, key, proc_or_nil]
     def indexes
       columns.values.select do |c|
         c.indexed?
@@ -34,7 +34,7 @@ module Property
         if c.index == true
           [c.type, c.name]
         else
-          [c.type, c.index]
+          [c.type, c.name, c.index]
         end
       end + @group_indexes
     end
@@ -85,7 +85,8 @@ module Property
 
     # @internal
     def add_index(type, proc)
-      @group_indexes << [type, proc]
+      #                 type,  key, proc
+      @group_indexes << [type, nil, proc]
     end
 
     private

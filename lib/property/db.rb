@@ -16,20 +16,12 @@ module Property
   module Db
     extend self
 
-    def quote(value)
-      connection.quote(value)
-    end
-
     def adapter
       connection.class.to_s[/ConnectionAdapters::(.*)Adapter/,1].downcase
     end
 
     def execute(*args)
       ActiveRecord::Base.connection.execute(*args)
-    end
-
-    def update(*args)
-      ActiveRecord::Base.connection.update(*args)
     end
 
     def connection

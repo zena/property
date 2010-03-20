@@ -62,6 +62,7 @@ begin
         t.string  'properties'
         t.string  'title'
         t.string  'comment'
+        t.string  'lang'
         t.timestamps
       end
 
@@ -72,6 +73,7 @@ begin
       # index strings in employees
       create_table 'i_string_employees' do |t|
         t.integer 'employee_id'
+        t.integer 'version_id'
         t.string  'key'
         t.string  'value'
       end
@@ -79,6 +81,7 @@ begin
       # index integer in employees
       create_table 'i_integer_employees' do |t|
         t.integer 'employee_id'
+        t.integer 'version_id'
         t.string  'key'
         t.integer 'value'
       end

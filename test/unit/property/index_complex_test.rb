@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'fixtures'
 
-class IndexTest < ActiveSupport::TestCase
+class IndexComplexTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
     set_table_name :i_string_employees
   end
@@ -30,7 +30,8 @@ class IndexTest < ActiveSupport::TestCase
 
     property do |p|
       p.string  'name'
-      p.integer 'age', :indexed => true
+      # only runs if 'age' is not blank
+      p.integer 'age', :index => Proc.new {|r| {'age' => r.age == 0 ? nil : r.age + 10}}
       p.string  'gender'
       p.string  'lang'
 
@@ -82,6 +83,19 @@ class IndexTest < ActiveSupport::TestCase
         assert_equal 'gender:M age:34 name:Juan', high_index.value
         assert_equal 'name_es', name_index.key
         assert_equal 'Juan', name_index.value
+      end
+
+      should 'execute index Proc to build value' do
+        person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
+        int_index = IndexedIntegerEmp.first(:conditions => {:employee_id => person.id})
+        assert_equal 44, int_index.value
+      end
+
+      should 'remove blank values built from proc execution' do
+        person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
+        assert_difference('IndexedIntegerEmp.count', -1) do
+          person.update_attributes('age' => 0)
+        end
       end
     end
 

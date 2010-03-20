@@ -55,7 +55,7 @@ class BehaviorTest < Test::Unit::TestCase
     should 'allow index option' do
       subject.property.string('rolodex', :index => true)
       column = subject.columns['rolodex']
-      assert column.index?
+      assert column.indexed?
     end
 
     should 'return a list of indexes on indexes' do

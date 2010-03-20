@@ -1,8 +1,9 @@
 == 0.9.0
 
-* 2 major enhancement
+* 3 major enhancement
   * Added simple index support.
   * Added complex index support.
+  * Added simple hooks for indexes when properties are stored in a different model.
 
 * 1 minor enhancement
   * Added 'has_column?' to schema.
