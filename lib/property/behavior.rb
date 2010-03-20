@@ -17,7 +17,7 @@ module Property
     def initialize(name)
       @name    = name
       @included_in_schemas = []
-      @group_indexes   = []
+      @group_indices   = []
       @accessor_module = build_accessor_module
     end
 
@@ -27,7 +27,7 @@ module Property
     end
 
     # Return a list of index definitions in the form [type, key, proc_or_nil]
-    def indexes
+    def indices
       columns.values.select do |c|
         c.indexed?
       end.map do |c|
@@ -36,7 +36,7 @@ module Property
         else
           [c.type, c.name, c.index]
         end
-      end + @group_indexes
+      end + @group_indices
     end
 
     # Return true if the Behavior contains the given column (property).
@@ -86,7 +86,7 @@ module Property
     # @internal
     def add_index(type, proc)
       #                 type,  key, proc
-      @group_indexes << [type, nil, proc]
+      @group_indices << [type, nil, proc]
     end
 
     private
@@ -120,7 +120,7 @@ module Property
               behavior.add_column(Property::Column.new(name, nil, klass, options))
             end
 
-            # This is used to create complex indexes with the following syntax:
+            # This is used to create complex indices with the following syntax:
             #
             #   p.index(:text) do |r| # r = record
             #     {

@@ -39,7 +39,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
       assert_kind_of Hash, subject.index_groups
     end
 
-    should 'group indexes by type' do
+    should 'group indices by type' do
       assert_equal %w{integer string}, subject.index_groups.keys.map(&:to_s).sort
     end
   end
@@ -116,7 +116,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
           @dog = Dog.create('name' => 'Pavlov')
         end
 
-        should 'not alter indexes' do
+        should 'not alter indices' do
           assert_difference('IndexedIntegerEmp.count', 0) do
             assert_raises(Exception) do
               @dog.update_attributes('name' => 'raise')

@@ -53,7 +53,7 @@ class IndexComplexTest < ActiveSupport::TestCase
       assert_kind_of Hash, subject.index_groups
     end
 
-    should 'group indexes by type' do
+    should 'group indices by type' do
       assert_equal %w{integer text}, subject.index_groups.keys.map(&:to_s).sort
     end
   end

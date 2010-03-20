@@ -5,11 +5,11 @@ class IndexCustomTest < ActiveSupport::TestCase
   class IndexedContact < ActiveRecord::Base
     set_table_name :contacts
 
-    def self.set_property_index(person, indexes)
+    def self.set_property_index(person, indices)
       if index = first(:conditions => ['employee_id = ?', person.id])
-        index.update_attributes(indexes)
+        index.update_attributes(indices)
       else
-        create(indexes.merge(:employee_id => person.id))
+        create(indices.merge(:employee_id => person.id))
       end
     end
 
@@ -18,7 +18,7 @@ class IndexCustomTest < ActiveSupport::TestCase
     end
   end
 
-  # Index definition class with a legacy table for indexes
+  # Index definition class with a legacy table for indices
   class Person < ActiveRecord::Base
     include Property
     set_table_name :employees
@@ -45,7 +45,7 @@ class IndexCustomTest < ActiveSupport::TestCase
       assert_kind_of Hash, subject.index_groups
     end
 
-    should 'group indexes by type' do
+    should 'group indices by type' do
       assert_equal %w{IndexCustomTest::IndexedContact}, subject.index_groups.keys.map(&:to_s).sort
     end
   end

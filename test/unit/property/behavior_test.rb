@@ -58,10 +58,10 @@ class BehaviorTest < Test::Unit::TestCase
       assert column.indexed?
     end
 
-    should 'return a list of indexes on indexes' do
+    should 'return a list of indices on indices' do
       subject.property.string('rolodex', :index => true)
       subject.property.integer('foobar', :index => true)
-      assert_equal %w{integer string}, subject.indexes.map {|i| i[0].to_s }.sort
+      assert_equal %w{integer string}, subject.indices.map {|i| i[0].to_s }.sort
     end
   end # A Behavior
 
