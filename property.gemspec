@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "0.8.3"
+  s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2010-03-19}
+  s.date = %q{2010-03-20}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [
@@ -27,8 +27,10 @@ Gem::Specification.new do |s|
      "lib/property/behavior.rb",
      "lib/property/column.rb",
      "lib/property/core_ext/time.rb",
+     "lib/property/db.rb",
      "lib/property/declaration.rb",
      "lib/property/dirty.rb",
+     "lib/property/index.rb",
      "lib/property/properties.rb",
      "lib/property/schema.rb",
      "lib/property/serialization/json.rb",
@@ -42,6 +44,9 @@ Gem::Specification.new do |s|
      "test/unit/property/behavior_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
+     "test/unit/property/index_complex_test.rb",
+     "test/unit/property/index_foreign_test.rb",
+     "test/unit/property/index_simple_test.rb",
      "test/unit/property/validation_test.rb",
      "test/unit/serialization/json_test.rb",
      "test/unit/serialization/marshal_test.rb",
@@ -51,7 +56,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{property}
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{model properties wrap into a single database column}
   s.test_files = [
     "test/fixtures.rb",
@@ -61,6 +66,9 @@ Gem::Specification.new do |s|
      "test/unit/property/behavior_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
+     "test/unit/property/index_complex_test.rb",
+     "test/unit/property/index_foreign_test.rb",
+     "test/unit/property/index_simple_test.rb",
      "test/unit/property/validation_test.rb",
      "test/unit/serialization/json_test.rb",
      "test/unit/serialization/marshal_test.rb",

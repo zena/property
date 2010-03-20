@@ -1,4 +1,4 @@
-== 0.9.0
+== 0.9.0 2010-03-20
 
 * 3 major enhancement
   * Added simple index support.
