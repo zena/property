@@ -11,18 +11,25 @@ module Property
   # them apart.
   #
   module Attribute
-
     def self.included(base)
-      base.extend ClassMethods
-
       base.class_eval do
-        include InstanceMethods
-
-        store_properties_in self
-
+        include Base
         after_validation   :dump_properties
-
         alias_method_chain :attributes=,  :properties
+      end
+    end
+
+    # This is just a helper module that includes necessary code for property access, but without
+    # the validation/save hooks.
+    module Base
+      def self.included(base)
+        base.extend ClassMethods
+
+        base.class_eval do
+          include InstanceMethods
+
+          store_properties_in self
+        end
       end
     end
 

@@ -1,6 +1,11 @@
-== 0.9.1 2010-03-20
+== 0.9.2
 
 * 1 major enhancement
+  * Created Property::Base module for inclusion without callbacks.
+
+== 0.9.1 2010-03-20
+
+* 2 major enhancements
   * Added support for custom indexer classes.
   * Removed after_commit dependency (no need for an after_commit).
 

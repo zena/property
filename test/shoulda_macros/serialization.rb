@@ -19,7 +19,7 @@ class Test::Unit::TestCase
       context 'with Properties' do
         setup do
           @properties = Property::Properties[
-            'string'     => 'bar',
+            'string'     => "one\ntwo",
             'serialized' => Dog.new('Pavlov', 'Freud'),
             'datetime'   => Time.utc(2010, 02, 12, 21, 31, 25),
             'float'      => 4.3432,

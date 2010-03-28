@@ -9,9 +9,10 @@ require 'property/db'
 require 'property/index'
 require 'property/serialization/json'
 require 'property/core_ext/time'
+require 'property/base'
 
 module Property
-  VERSION = '0.9.1'
+  VERSION = '0.9.2'
 
   def self.included(base)
     base.class_eval do

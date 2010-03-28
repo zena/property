@@ -3,30 +3,36 @@ module Property
   # Property::Declaration module is used to declare property definitions in a Class. The module
   # also manages property inheritence in sub-classes.
   module Declaration
-
     def self.included(base)
       base.class_eval do
-        extend  ClassMethods
-        include InstanceMethods
-
-        class << self
-          attr_accessor :schema
-
-          def schema
-            @schema ||= make_schema
-          end
-
-          private
-            def make_schema
-              schema = Property::Schema.new(self.to_s, self)
-              if superclass.respond_to?(:schema)
-                schema.behave_like superclass
-              end
-              schema
-            end
-        end
-
+        include Base
         validate :properties_validation, :if => :properties
+      end
+    end
+
+    module Base
+      def self.included(base)
+        base.class_eval do
+          extend  ClassMethods
+          include InstanceMethods
+
+          class << self
+            attr_accessor :schema
+
+            def schema
+              @schema ||= make_schema
+            end
+
+            private
+              def make_schema
+                schema = Property::Schema.new(self.to_s, self)
+                if superclass.respond_to?(:schema)
+                  schema.behave_like superclass
+                end
+                schema
+              end
+          end
+        end
       end
     end
 
