@@ -224,7 +224,7 @@ module Property
       def verify_method_not_defined_in_classes_using_this_behavior(name)
         @included_in_schemas.each do |schema|
           if schema.binding.superclass.method_defined?(name)
-            raise RedefinedMethodError.new("Method '#{name}' is already defined in #{schema.binding}.")
+            raise RedefinedMethodError.new("Method '#{name}' is already defined in #{schema.binding.superclass} or ancestors.")
           end
         end
       end
