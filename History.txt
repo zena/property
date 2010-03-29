@@ -1,7 +1,8 @@
 == 0.9.2
 
-* 1 major enhancement
+* 2 major enhancements
   * Created Property::Base module for inclusion without callbacks.
+  * Raises an exception if we try to define a property that would hide a superclass method.
 
 == 0.9.1 2010-03-20
 

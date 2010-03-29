@@ -35,8 +35,14 @@ module Property
     def behave_like(thing)
       if thing.kind_of?(Class)
         if thing.respond_to?(:schema) && thing.schema.kind_of?(Schema)
+          schema_class = thing.schema.binding
+          if @binding.ancestors.include?(schema_class)
+            check_super_methods = false
+          else
+            check_super_methods = true
+          end
           thing.schema.behaviors.flatten.each do |behavior|
-            include_behavior behavior
+            include_behavior behavior, check_super_methods
           end
           self.behaviors << thing.schema.behaviors
         else
@@ -85,15 +91,34 @@ module Property
     end
 
     private
-      def include_behavior(behavior)
+      def include_behavior(behavior, check_methods = true)
         return if behaviors.include?(behavior)
-        columns = self.columns
-        common_keys = behavior.column_names & columns.keys
-        if !common_keys.empty?
-          raise TypeError.new("Cannot include behavior #{behavior.name}. Duplicate definitions: #{common_keys.join(', ')}")
-        end
+        behavior_column_names = behavior.column_names
+
+        check_duplicate_property_definitions(behavior, behavior_column_names)
+        check_duplicate_method_definitions(behavior, behavior_column_names) if check_methods
+
         behavior.included(self)
         @binding.send(:include, behavior.accessor_module)
       end
+
+      def check_duplicate_property_definitions(behavior, keys)
+        common_keys = keys & self.columns.keys
+        if !common_keys.empty?
+          raise RedefinedPropertyError.new("Cannot include behavior '#{behavior.name}' in '#{name}'. Duplicate definitions: #{common_keys.join(', ')}")
+        end
+      end
+
+      def check_duplicate_method_definitions(behavior, keys)
+        common_keys = []
+        keys.each do |k|
+          common_keys << k if @binding.superclass.method_defined?(k)
+        end
+
+        if !common_keys.empty?
+          raise RedefinedMethodError.new("Cannot include behavior '#{behavior.name}' in '#{@binding}'. Would hide methods in superclass: #{common_keys.join(', ')}")
+        end
+      end
+
   end
 end

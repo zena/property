@@ -96,7 +96,7 @@ class BehaviorTest < Test::Unit::TestCase
 
       should 'raise an exception if class contains same definitions' do
         @parent.property.string 'poem'
-        assert_raise(TypeError) { @parent.behave_like @poet }
+        assert_raise(Property::RedefinedPropertyError) { @parent.behave_like @poet }
       end
 
       should 'not raise an exception on double inclusion' do

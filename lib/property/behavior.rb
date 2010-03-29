@@ -1,3 +1,6 @@
+require 'property/redefined_property_error'
+require 'property/redefined_method_error'
+
 module Property
   # This class holds a set of property definitions. This is like a Module in ruby:
   # by 'including' this behavior in a class or in an instance, you augment the said
@@ -75,9 +78,10 @@ module Property
       name = column.name
 
       if columns[name]
-        raise TypeError.new("Property '#{name}' is already defined.")
+        raise RedefinedPropertyError.new("Property '#{name}' is already defined.")
       else
         verify_not_defined_in_schemas_using_this_behavior(name)
+        verify_method_not_defined_in_classes_using_this_behavior(name)
         define_property_methods(column) if column.should_create_accessors?
         columns[column.name] = column
       end
@@ -212,7 +216,15 @@ module Property
       def verify_not_defined_in_schemas_using_this_behavior(name)
         @included_in_schemas.each do |schema|
           if schema.columns[name]
-            raise TypeError.new("Property '#{name}' is already defined in #{schema.name}.")
+            raise RedefinedPropertyError.new("Property '#{name}' is already defined in #{schema.name}.")
+          end
+        end
+      end
+
+      def verify_method_not_defined_in_classes_using_this_behavior(name)
+        @included_in_schemas.each do |schema|
+          if schema.binding.superclass.method_defined?(name)
+            raise RedefinedMethodError.new("Method '#{name}' is already defined in #{schema.binding}.")
           end
         end
       end

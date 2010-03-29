@@ -4,6 +4,9 @@ class Employee < ActiveRecord::Base
   property.string 'first_name', :default => '', :index => true
   property.string 'last_name',  :default => '', :index => true
   property.float  'age'
+
+  def method_in_parent
+  end
 end
 
 class Developer < Employee

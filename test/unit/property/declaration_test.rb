@@ -6,52 +6,72 @@ class DeclarationTest < Test::Unit::TestCase
   context 'A sub-class' do
     context 'from a class with property columns' do
       setup do
-        @klass = Developer
+        @ParentClass = Class.new(ActiveRecord::Base) do
+          include Property
+          property.string 'name'
+          def method_in_parent
+          end
+        end
+      end
+
+      subject do
+        Class.new(@ParentClass) do
+          property.integer 'age'
+          def method_in_self
+          end
+        end
       end
 
       should 'inherit property columns from parent class' do
-        assert_equal %w{age first_name language last_name}, @klass.schema.column_names.sort
+        assert_equal %w{age name}, subject.schema.column_names.sort
       end
 
       should 'see its property columns in schema' do
-        assert @klass.schema.has_column?('language')
+        assert subject.schema.has_column?('age')
       end
 
       should 'not back-propagate definitions to parent' do
-        assert !@klass.superclass.schema.has_column?('language')
+        assert !subject.superclass.schema.has_column?('age')
       end
 
       should 'inherit new definitions in parent' do
-        class ParentClass < ActiveRecord::Base
-          include Property
-          property.string 'name'
-        end
-
-        @klass = Class.new(ParentClass) do
-          property.integer 'age'
-        end
-
-        assert_equal %w{age name}, @klass.schema.column_names.sort
-
-        ParentClass.class_eval do
+        @ParentClass.class_eval do
           property.string 'first_name'
         end
 
-        assert_equal %w{age first_name name}, @klass.schema.column_names.sort
+        assert_equal %w{age first_name name}, subject.schema.column_names.sort
       end
 
       should 'not be allowed to overwrite a property from the parent class' do
-        assert_raise(TypeError) do
-          @klass.class_eval do
-            property.string 'age'
+        assert_raise(Property::RedefinedPropertyError) do
+          subject.class_eval do
+            property.string 'name'
           end
         end
       end
 
       should 'not be allowed to overwrite a property from the current class' do
-        assert_raise(TypeError) do
-          @klass.class_eval do
-            property.string 'language'
+        assert_raise(Property::RedefinedPropertyError) do
+          subject.class_eval do
+            property.string 'age'
+          end
+        end
+      end
+
+      # This is because we include a module and the module would hide the method
+      should 'not be allowed to define a property with the name of a method in the parent class' do
+        assert_raise(Property::RedefinedMethodError) do
+          subject.class_eval do
+            property.string 'method_in_parent'
+          end
+        end
+      end
+
+      # This is ok because it can be useful and the module inclusion would not hide it
+      should 'be allowed to define a property with the same name as a method in the current class' do
+        assert_nothing_raised do
+          subject.class_eval do
+            property.string 'method_in_self'
           end
         end
       end
@@ -211,8 +231,8 @@ class DeclarationTest < Test::Unit::TestCase
     end
   end
 
-  context 'On a class with a schema' do
-    subject { Developer }
+  context 'A class with a schema' do
+    subject { Class.new(Developer) }
 
     should 'raise an exception if we ask to behave like a class without schema' do
       assert_raise(TypeError) { subject.behave_like String }
@@ -220,6 +240,34 @@ class DeclarationTest < Test::Unit::TestCase
 
     should 'raise an exception if we ask to behave like an object' do
       assert_raise(TypeError) { subject.behave_like 'me' }
+    end
+    
+    should 'raise an exception if the behavior redefines properties' do
+      @emp = Property::Behavior.new('empi')
+      @emp.property.string 'first_name'
+      assert_raise(Property::RedefinedPropertyError) do
+        subject.behave_like @emp
+      end
+    end
+    
+    should 'raise an exception if the behavior contains superclass methods' do
+      @emp = Property::Behavior.new('empi')
+      @emp.property.string 'method_in_parent'
+      assert_raise(Property::RedefinedMethodError) do
+        subject.behave_like @emp
+      end
+    end
+    
+    should 'inherit properties when asking to behave like a class' do
+      @class = Class.new(ActiveRecord::Base) do
+        include Property
+        property do |p|
+          p.string 'hop'
+        end
+      end
+      
+      subject.behave_like @class
+      assert_equal %w{language last_name hop age first_name}, subject.schema.column_names
     end
   end
 
