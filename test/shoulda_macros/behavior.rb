@@ -1,5 +1,5 @@
 class Test::Unit::TestCase
-  def self.should_pass_behavior_tests_as(klass)
+  def self.should_store_property_definitions(klass)
 
     context 'A Behavior' do
       subject { klass.new('Foobar') }
@@ -61,20 +61,27 @@ class Test::Unit::TestCase
         subject.property.integer('foobar', :index => true)
         assert_equal %w{integer string}, subject.indices.map {|i| i[0].to_s }.sort
       end
-    end # A Behavior
 
-    context 'Adding a behavior' do
-      setup do
-        @poet = klass.new('Poet') do |p|
-          p.string 'poem', :default => :muse
+      context 'created with a Hash' do
+        subject { klass.new(:name => 'Foobar') }
 
-          p.actions do
-            def muse
-              'I am your muse'
-            end
-          end
+        should 'set name' do
+          assert_equal 'Foobar', subject.name
         end
       end
+
+      context 'created with a String Hash' do
+        subject { klass.new('name' => 'Foobar') }
+
+        should 'set name' do
+          assert_equal 'Foobar', subject.name
+        end
+      end
+    end # A Behavior
+  end # should_store_property_definitions
+
+  def self.should_insert_properties_on_behave_like_poet
+    context 'Adding a behavior' do
 
       context 'to a class' do
         setup do
@@ -109,21 +116,6 @@ class Test::Unit::TestCase
 
           assert_nothing_raised { subject.poem = 'Poe'}
         end
-
-        should 'add behavior methods to child' do
-          subject = @klass.new
-          assert_raises(NoMethodError) { subject.muse }
-          @parent.behave_like @poet
-
-          assert_nothing_raised { subject.muse }
-        end
-
-        should 'use behavior methos for defaults' do
-          subject = @klass.new
-          @parent.behave_like @poet
-          assert subject.save
-          assert_equal 'I am your muse', subject.poem
-        end
       end
 
       context 'to a parent class' do
@@ -141,5 +133,37 @@ class Test::Unit::TestCase
         end
       end
     end
-  end
+  end # should_insert_properties_on_behave_like
+
+  def self.should_add_behavior_methods
+    context 'Adding a behavior with methods' do
+
+      context 'to a class' do
+        setup do
+          @parent = Class.new(ActiveRecord::Base) do
+            set_table_name :dummies
+            include Property
+            property.string 'name'
+          end
+
+          @klass = Class.new(@parent)
+        end
+
+        should 'add behavior methods to child' do
+          subject = @klass.new
+          assert_raises(NoMethodError) { subject.muse }
+          @parent.behave_like @poet
+
+          assert_nothing_raised { subject.muse }
+        end
+
+        should 'use behavior methods for defaults' do
+          subject = @klass.new
+          @parent.behave_like @poet
+          assert subject.save
+          assert_equal 'I am your muse', subject.poem
+        end
+      end
+    end
+  end # should_add_behavior_methods
 end

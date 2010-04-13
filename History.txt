@@ -1,6 +1,9 @@
-== 0.9.2
+== 1.0.0
 
-* 2 major enhancements
+* 1 major enhancement
+  * Added ActiveBehavior class to store behavior definitions in the database.
+
+* 2 minor enhancements
   * Created Property::Base module for inclusion without callbacks.
   * Raises an exception if we try to define a property that would hide a superclass method.
 

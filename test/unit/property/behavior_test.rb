@@ -3,6 +3,23 @@ require 'fixtures'
 
 class BehaviorTest < Test::Unit::TestCase
 
-  should_pass_behavior_tests_as(Property::Behavior)
+  should_store_property_definitions(Property::Behavior)
 
+
+  context 'A Poet Behavior' do
+    setup do
+      @poet = Property::Behavior.new('Poet') do |p|
+        p.string 'poem', :default => :muse
+
+        p.actions do
+          def muse
+            'I am your muse'
+          end
+        end
+      end
+    end
+
+    should_insert_properties_on_behave_like_poet
+    should_add_behavior_methods
+  end
 end

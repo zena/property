@@ -86,6 +86,11 @@ The model now has the picture's properties defined, with accessors like @model.c
 Note that you do not need to include a behavior just to read the data as long as you use the 'prop'
 accessor.
 
+== ActiveBehavior
+
+The dynamic nature of the Property gem goes to the point where you can store your property definitions
+in the database by using the ActiveBehavior and BehaviorColumn classes.
+
 == External storage
 
 You might need to define properties in a model but store them in another model (versioning). In this
@@ -102,3 +107,43 @@ case you can simply use 'store_properties_in' class method:
 
 Doing so will not touch the storage class. All property definitions, validations and method
 definitions are executed on the 'Contact' class.
+
+== Indexing support
+
+The property gem lets you very easily export content from the packed data to any kind of external table. Using
+a key/value tables:
+
+  class Contact < ActiveRecord::Base
+    include Property
+    property do |p|
+      p.string 'name', :indexed => true
+      p.string 'first_name', :index => Proc.new {|rec| { 'fullname' => rec.fullname }}
+
+      p.index(:string) do |record|
+        {
+          'fulltext' => "name:#{record.name} first_name:#{record.first_name}",
+          "name_#{record.lang}" => record.name
+        }
+      end
+    end
+  end
+
+Using a custom indexer, you can group indexed values together in a single record. This can be interesting if you have
+some legacy code or queries that need direct access to some values:
+
+  class Contact < ActiveRecord::Base
+    include Property
+    property do |p|
+      p.string 'name'
+      p.string 'first_name'
+
+      p.index(ContactIndexer) do |record|
+        {
+          'name'       => record.name,
+          'first_name' => record.first_name,
+        }
+      end
+    end
+  end
+
+Please read the docs for details: http://zenadmin.org/635

@@ -9,7 +9,7 @@ module Property
 
     def self.new(name, &block)
       if name.kind_of?(Hash)
-        obj = super(name[:name])
+        obj = super(name[:name] || name['name'])
       else
         obj = super(name)
       end
