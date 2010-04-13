@@ -98,7 +98,7 @@ module Property
         check_duplicate_property_definitions(behavior, behavior_column_names)
         check_duplicate_method_definitions(behavior, behavior_column_names) if check_methods
 
-        behavior.included(self)
+        behavior.included_in(self)
         @binding.send(:include, behavior.accessor_module)
       end
 

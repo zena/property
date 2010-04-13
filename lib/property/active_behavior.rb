@@ -1,10 +1,9 @@
 require 'property/behavior_module'
 
 module Property
-  # This class holds a set of property definitions. This is like a Module in ruby:
-  # by 'including' this behavior in a class or in an instance, you augment the said
-  # object with the behavior's property definitions.
-  class Behavior
+  # This class lets you store a set of property definitions inside the database. For
+  # the rest, this class behaves just like Behavior.
+  class ActiveBehavior < ActiveRecord::Base
     include BehaviorModule
 
     def self.new(name, &block)
@@ -16,8 +15,8 @@ module Property
     end
 
     # Initialize a new behavior with the given name
-    def initialize(hash)
-      self.name = hash[:name]
+    def initialize(*args)
+      super
       initialize_behavior_module
     end
   end

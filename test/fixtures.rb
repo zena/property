@@ -102,6 +102,20 @@ begin
         t.string 'name'
         t.string 'other_name'
       end
+
+      # Database stored behavior
+      create_table 'behaviors' do |t|
+        t.integer 'behavior_id'
+        t.string 'name'
+      end
+
+      create_table 'columns' do |t|
+        t.integer 'column_id'
+        t.integer 'behavior_id'
+        t.string 'name'
+        # Property Type
+        t.string 'ptype'
+      end
     end
   end
 
