@@ -48,7 +48,7 @@ module Property
         else
           raise TypeError.new("expected Behavior or class with schema, found #{thing}")
         end
-      elsif thing.kind_of?(Behavior)
+      elsif thing.kind_of?(BehaviorModule)
         include_behavior thing
         self.behaviors << thing
       else

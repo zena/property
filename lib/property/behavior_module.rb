@@ -8,17 +8,6 @@ module Property
   module BehaviorModule
     def self.included(base)
       base.send(:attr_accessor, :name, :included, :accessor_module)
-
-      def base.new(arg, &block)
-        arg = {:name => arg} if arg.kind_of?(String)
-        obj = super(arg)
-
-        if block_given?
-          obj.property(&block)
-        end
-
-        obj
-      end
     end
 
     # Initialize module (should be called from within including class's initialize method).

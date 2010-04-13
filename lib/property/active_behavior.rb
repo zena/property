@@ -6,11 +6,21 @@ module Property
   class ActiveBehavior < ActiveRecord::Base
     include BehaviorModule
 
-    def self.new(name, &block)
-      obj = super
-      if block_given?
-        obj.property(&block)
+    def self.new(arg, &block)
+      unless arg.kind_of?(Hash)
+        arg = {:name => arg}
       end
+
+      if block_given?
+        obj = super(arg) do
+          # Dummy block to hide our special property declaration block
+        end
+
+        obj.property(&block)
+      else
+        obj = super(arg)
+      end
+
       obj
     end
 

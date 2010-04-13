@@ -8,7 +8,12 @@ module Property
     include BehaviorModule
 
     def self.new(name, &block)
-      obj = super
+      if name.kind_of?(Hash)
+        obj = super(name[:name])
+      else
+        obj = super(name)
+      end
+
       if block_given?
         obj.property(&block)
       end
@@ -16,8 +21,8 @@ module Property
     end
 
     # Initialize a new behavior with the given name
-    def initialize(hash)
-      self.name = hash[:name]
+    def initialize(name)
+      self.name = name
       initialize_behavior_module
     end
   end

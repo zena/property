@@ -104,14 +104,14 @@ begin
       end
 
       # Database stored behavior
-      create_table 'behaviors' do |t|
+      create_table 'active_behaviors' do |t|
         t.integer 'behavior_id'
         t.string 'name'
       end
 
       create_table 'columns' do |t|
         t.integer 'column_id'
-        t.integer 'behavior_id'
+        t.integer 'active_behavior_id'
         t.string 'name'
         # Property Type
         t.string 'ptype'
