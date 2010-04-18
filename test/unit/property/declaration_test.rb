@@ -155,6 +155,16 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
     end
+    
+    should 'allow multiple declarations in one go' do
+      subject.property.string 'foo', 'bar', 'baz'
+      assert_equal %w{bar baz foo}, subject.schema.column_names.sort
+    end
+    
+    should 'allow multiple declarations in an Array' do
+      subject.property.string ['foo', 'bar', 'baz']
+      assert_equal %w{bar baz foo}, subject.schema.column_names.sort
+    end
 
     should 'allow serialized columns' do
       Dog = Struct.new(:name, :toy) do

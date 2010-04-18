@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "0.9.2"
+  s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2010-03-28}
+  s.date = %q{2010-04-13}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [
@@ -23,24 +23,32 @@ Gem::Specification.new do |s|
      "Rakefile",
      "generators/property/property_generator.rb",
      "lib/property.rb",
+     "lib/property/active_behavior.rb",
      "lib/property/attribute.rb",
      "lib/property/base.rb",
      "lib/property/behavior.rb",
+     "lib/property/behavior_column.rb",
+     "lib/property/behavior_module.rb",
      "lib/property/column.rb",
      "lib/property/core_ext/time.rb",
      "lib/property/db.rb",
      "lib/property/declaration.rb",
      "lib/property/dirty.rb",
+     "lib/property/error.rb",
      "lib/property/index.rb",
      "lib/property/properties.rb",
+     "lib/property/redefined_method_error.rb",
+     "lib/property/redefined_property_error.rb",
      "lib/property/schema.rb",
      "lib/property/serialization/json.rb",
      "lib/property/serialization/marshal.rb",
      "lib/property/serialization/yaml.rb",
      "property.gemspec",
      "test/fixtures.rb",
+     "test/shoulda_macros/behavior.rb",
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
+     "test/unit/property/active_behavior_test.rb",
      "test/unit/property/attribute_test.rb",
      "test/unit/property/base_test.rb",
      "test/unit/property/behavior_test.rb",
@@ -63,8 +71,10 @@ Gem::Specification.new do |s|
   s.summary = %q{model properties wrap into a single database column}
   s.test_files = [
     "test/fixtures.rb",
+     "test/shoulda_macros/behavior.rb",
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
+     "test/unit/property/active_behavior_test.rb",
      "test/unit/property/attribute_test.rb",
      "test/unit/property/base_test.rb",
      "test/unit/property/behavior_test.rb",

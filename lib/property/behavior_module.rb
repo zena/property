@@ -103,7 +103,7 @@ module Property
               class_eval <<-EOV
                 def #{column_type}(*args)
                   options = args.extract_options!
-                  column_names = args
+                  column_names = args.flatten
                   default = options.delete(:default)
                   column_names.each { |name| behavior.add_column(Property::Column.new(name, default, '#{column_type}', options)) }
                 end
