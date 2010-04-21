@@ -17,25 +17,36 @@ class ValidationTest < Test::Unit::TestCase
     context 'without a property column' do
       should 'raise ActiveRecord::UnknownAttributeError when using attributes=' do
         assert_raise(ActiveRecord::UnknownAttributeError) do
-          subject.update_attributes('honest' => 'man')
+          subject.update_attributes('infamous' => 'dictator')
         end
       end
 
       should 'set an error message on the property when set directly' do
-        subject.prop['honest'] = 'man'
+        subject.prop['infamous'] = 'dictator'
         assert !subject.save
-        assert_equal subject.errors['honest'], 'property not declared'
+        assert_equal subject.errors['infamous'], 'property not declared'
       end
 
       context 'with dirty' do
         should 'validate if property was not changed' do
           subject.prop.instance_eval do
-            self['honest'] = 'man'
-            @original_hash['honest'] = 'man'
+            self['infamous'] = 'dictator'
+            @original_hash['infamous'] = 'dictator'
           end
 
           assert subject.update_attributes('boat' => 'Tiranic')
-          assert_equal 'man', subject.prop['honest']
+
+          # value should not be removed
+          assert_equal 'dictator', subject.prop['infamous']
+        end
+
+        should 'validate if no property was changed' do
+          subject.prop.instance_eval do
+            self['infamous'] = 'dictator' # simulate legacy value
+            @original_hash = nil
+          end
+
+          assert subject.valid?
         end
       end
     end

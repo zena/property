@@ -39,7 +39,8 @@ module Property
       column_names = columns.keys
       errors = @owner.errors
       no_errors = true
-      original_hash = @original_hash || {}
+
+      original_hash = @original_hash || self
 
       bad_keys         = keys - column_names
       missing_keys     = column_names - keys
@@ -47,7 +48,7 @@ module Property
 
       bad_keys.each do |key|
         if original_hash[key] == self[key]
-          # ignore
+          # ignore invalid legacy value
         else
           errors.add("#{key}", 'property not declared')
         end
