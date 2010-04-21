@@ -1,7 +1,8 @@
 == 1.0.0
 
-* 1 major enhancement
+* 2 major enhancements
   * Added ActiveBehavior class to store behavior definitions in the database.
+  * Validates with legacy but invalid properties if value is unchanged.
 
 * 2 minor enhancements
   * Created Property::Base module for inclusion without callbacks.

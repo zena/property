@@ -39,13 +39,18 @@ module Property
       column_names = columns.keys
       errors = @owner.errors
       no_errors = true
+      original_hash = @original_hash || {}
 
       bad_keys         = keys - column_names
       missing_keys     = column_names - keys
       keys_to_validate = keys - bad_keys
 
       bad_keys.each do |key|
-        errors.add("#{key}", 'property is not declared')
+        if original_hash[key] == self[key]
+          # ignore
+        else
+          errors.add("#{key}", 'property not declared')
+        end
       end
 
       missing_keys.each do |key|

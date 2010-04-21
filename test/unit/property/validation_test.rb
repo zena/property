@@ -24,8 +24,19 @@ class ValidationTest < Test::Unit::TestCase
       should 'set an error message on the property when set directly' do
         subject.prop['honest'] = 'man'
         assert !subject.save
-        assert_contains subject.errors.full_messages, 'Honest property is not declared'
-        assert_equal subject.errors['honest'], 'property is not declared'
+        assert_equal subject.errors['honest'], 'property not declared'
+      end
+
+      context 'with dirty' do
+        should 'validate if property was not changed' do
+          subject.prop.instance_eval do
+            self['honest'] = 'man'
+            @original_hash['honest'] = 'man'
+          end
+
+          assert subject.update_attributes('boat' => 'Tiranic')
+          assert_equal 'man', subject.prop['honest']
+        end
       end
     end
 
