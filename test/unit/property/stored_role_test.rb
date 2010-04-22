@@ -37,6 +37,10 @@ class StoredRoleTest < ActiveSupport::TestCase
           end
         end
       end
+
+      should 'return name on name' do
+        assert_equal 'Poet', @poet.name
+      end
     end # with column definitions
   end # A stored Role
 

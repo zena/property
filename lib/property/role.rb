@@ -5,6 +5,7 @@ module Property
   # by 'including' this role in a class or in an instance, you augment the said
   # object with the role's property definitions.
   class Role
+    attr_accessor :name
     include RoleModule
 
     def self.new(name, &block)

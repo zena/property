@@ -22,6 +22,7 @@ module Property
 
       base.class_eval do
         after_save :update_columns
+        validates_presence_of :name
 
         def self.new(arg, &block)
           unless arg.kind_of?(Hash)

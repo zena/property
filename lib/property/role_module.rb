@@ -6,9 +6,21 @@ module Property
   # by 'including' this role in a class or in an instance, you augment the said
   # object with the role's property definitions.
   module RoleModule
-    def self.included(base)
-      base.send(:attr_accessor, :name, :included, :accessor_module)
-    end
+    attr_accessor :included, :accessor_module
+
+    # We cannot use attr_accessor to define these because we are in a module
+    # when the module is included in an ActiveRecord class.
+    #%W{name included accessor_module}.each do |name|
+    #  class_eval %Q{
+    #    def #{name}
+    #      @#{name}
+    #    end
+    #
+    #    def #{name}=(value)
+    #      @#{name} = value
+    #    end
+    #  }
+    #end
 
     # Initialize module (should be called from within including class's initialize method).
     def initialize_role_module

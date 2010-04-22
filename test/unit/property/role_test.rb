@@ -21,5 +21,9 @@ class RoleTest < Test::Unit::TestCase
     should_insert_properties_on_has_role_poet
     should_add_role_methods
     should_take_part_in_used_list
+    
+    should 'return name on name' do
+      assert_equal 'Poet', @poet.name
+    end
   end
 end
