@@ -1,9 +1,10 @@
 == 1.0.0
 
-* 3 major enhancements
-  * Added ActiveBehavior class to store behavior definitions in the database.
+* 4 major enhancements
+  * Added StoredRole class to store role definitions in the database.
   * Validates with legacy but invalid properties if value is unchanged.
-  * Added the notion of used behaviors.
+  * Added the notion of used roles.
+  * Renamed Behavior to Role.
 
 * 2 minor enhancements
   * Created Property::Base module for inclusion without callbacks.
@@ -36,13 +37,13 @@
 == 0.8.1 2010-02-14
 
 * 2 major enhancement
-  * Enabled behavior method definitions.
+  * Enabled role method definitions.
   * Enabled external storage with 'store_properties_in' method.
 
 == 0.8.0 2010-02-11
 
 * 3 major enhancements
-  * Enabled Behaviors that can be added on an instance.
+  * Enabled Roles that can be added on an instance.
   * Enabled non-DB types.
   * 100% test coverage.
 

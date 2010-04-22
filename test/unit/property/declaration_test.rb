@@ -197,15 +197,15 @@ class DeclarationTest < Test::Unit::TestCase
       assert column.indexed?
     end
 
-    context 'through a Behavior on an instance' do
+    context 'through a Role on an instance' do
       setup do
         @instance = subject.new
-        @poet = Property::Behavior.new('Poet')
+        @poet = Property::Role.new('Poet')
         @poet.property do |p|
           p.string 'poem'
         end
 
-        @instance.behave_like @poet
+        @instance.has_role @poet
       end
 
       should 'behave like any other property column' do
@@ -245,26 +245,26 @@ class DeclarationTest < Test::Unit::TestCase
     subject { Class.new(Developer) }
 
     should 'raise an exception if we ask to behave like a class without schema' do
-      assert_raise(TypeError) { subject.behave_like String }
+      assert_raise(TypeError) { subject.has_role String }
     end
 
     should 'raise an exception if we ask to behave like an object' do
-      assert_raise(TypeError) { subject.behave_like 'me' }
+      assert_raise(TypeError) { subject.has_role 'me' }
     end
     
-    should 'raise an exception if the behavior redefines properties' do
-      @emp = Property::Behavior.new('empi')
+    should 'raise an exception if the role redefines properties' do
+      @emp = Property::Role.new('empi')
       @emp.property.string 'first_name'
       assert_raise(Property::RedefinedPropertyError) do
-        subject.behave_like @emp
+        subject.has_role @emp
       end
     end
     
-    should 'raise an exception if the behavior contains superclass methods' do
-      @emp = Property::Behavior.new('empi')
+    should 'raise an exception if the role contains superclass methods' do
+      @emp = Property::Role.new('empi')
       @emp.property.string 'method_in_parent'
       assert_raise(Property::RedefinedMethodError) do
-        subject.behave_like @emp
+        subject.has_role @emp
       end
     end
     
@@ -276,7 +276,7 @@ class DeclarationTest < Test::Unit::TestCase
         end
       end
       
-      subject.behave_like @class
+      subject.has_role @class
       assert_equal %w{language last_name hop age first_name}, subject.schema.column_names
     end
   end

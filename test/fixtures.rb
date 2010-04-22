@@ -103,15 +103,15 @@ begin
         t.string 'other_name'
       end
 
-      # Database stored behavior
-      create_table 'active_behaviors' do |t|
+      # Database stored role
+      create_table 'stored_roles' do |t|
         t.integer 'id'
         t.string 'name'
       end
 
-      create_table 'behavior_columns' do |t|
+      create_table 'stored_columns' do |t|
         t.integer 'id'
-        t.integer 'active_behavior_id'
+        t.integer 'stored_role_id'
         t.string 'name'
         # Property Type
         t.string 'ptype'

@@ -3,21 +3,21 @@ require 'property/redefined_method_error'
 
 module Property
   # This class holds a set of property definitions. This is like a Module in ruby:
-  # by 'including' this behavior in a class or in an instance, you augment the said
-  # object with the behavior's property definitions.
-  module BehaviorModule
+  # by 'including' this role in a class or in an instance, you augment the said
+  # object with the role's property definitions.
+  module RoleModule
     def self.included(base)
       base.send(:attr_accessor, :name, :included, :accessor_module)
     end
 
     # Initialize module (should be called from within including class's initialize method).
-    def initialize_behavior_module
+    def initialize_role_module
       @included_in_schemas = []
       @group_indices   = []
       @accessor_module = build_accessor_module
     end
 
-    # List all property definitiosn for the current behavior
+    # List all property definitiosn for the current role
     def columns
       @columns ||= {}
     end
@@ -35,7 +35,7 @@ module Property
       end + @group_indices
     end
 
-    # Return true if the Behavior contains the given column (property).
+    # Return true if the Role contains the given column (property).
     def has_column?(name)
       column_names.include?(name)
     end
@@ -45,12 +45,12 @@ module Property
       columns.keys
     end
 
-    # Use this method to declare properties into a Behavior.
+    # Use this method to declare properties into a Role.
     # Example:
-    #  @behavior.property.string 'phone', :default => ''
+    #  @role.property.string 'phone', :default => ''
     #
     # You can also use a block:
-    #  @behavior.property do |p|
+    #  @role.property do |p|
     #    p.string 'phone', 'name', :default => ''
     #  end
     def property
@@ -61,7 +61,7 @@ module Property
     end
 
     # @internal
-    # This is called when the behavior is included in a schema
+    # This is called when the role is included in a schema
     def included_in(schema)
       @included_in_schemas << schema
     end
@@ -73,8 +73,8 @@ module Property
       if columns[name]
         raise RedefinedPropertyError.new("Property '#{name}' is already defined.")
       else
-        verify_not_defined_in_schemas_using_this_behavior(name)
-        verify_method_not_defined_in_classes_using_this_behavior(name)
+        verify_not_defined_in_schemas_using_this_role(name)
+        verify_method_not_defined_in_classes_using_this_role(name)
         define_property_methods(column) if column.should_create_accessors?
         columns[column.name] = column
       end
@@ -86,14 +86,14 @@ module Property
       @group_indices << [type, nil, proc]
     end
 
-    # Returns true if the current behavior is used by the given object. A Behavior is
+    # Returns true if the current role is used by the given object. A Role is
     # considered to be used if any of it's attributes is not blank in the object's
     # properties.
     def used_in(object)
       used_keys_in(object) != []
     end
 
-    # Returns the list of column names in the current behavior that are used by the
+    # Returns the list of column names in the current role that are used by the
     # given object (value not blank).
     def used_keys_in(object)
       object.properties.keys & column_names
@@ -104,7 +104,7 @@ module Property
         accessor_module = Module.new
         accessor_module.class_eval do
           class << self
-            attr_accessor :behavior
+            attr_accessor :role
 
             # def string(*args)
             #   options = args.extract_options!
@@ -118,7 +118,7 @@ module Property
                   options = args.extract_options!
                   column_names = args.flatten
                   default = options.delete(:default)
-                  column_names.each { |name| behavior.add_column(Property::Column.new(name, default, '#{column_type}', options)) }
+                  column_names.each { |name| role.add_column(Property::Column.new(name, default, '#{column_type}', options)) }
                 end
               EOV
             end
@@ -127,7 +127,7 @@ module Property
             #   p.serialize 'pet', Dog
             def serialize(name, klass, options = {})
               Property.validate_property_class(klass)
-              behavior.add_column(Property::Column.new(name, nil, klass, options))
+              role.add_column(Property::Column.new(name, nil, klass, options))
             end
 
             # This is used to create complex indices with the following syntax:
@@ -142,13 +142,13 @@ module Property
             # The first argument is the type (used to locate the table where the data will be stored) and the block
             # will be yielded with the record and should return a hash of key => value pairs.
             def index(type, &block)
-              behavior.add_index(type, block)
+              role.add_index(type, block)
             end
 
             alias actions class_eval
           end
         end
-        accessor_module.behavior = self
+        accessor_module.role = self
         accessor_module
       end
 
@@ -219,7 +219,7 @@ module Property
         accessor_module.class_eval(method_definition, __FILE__, __LINE__)
       end
 
-      def verify_not_defined_in_schemas_using_this_behavior(name)
+      def verify_not_defined_in_schemas_using_this_role(name)
         @included_in_schemas.each do |schema|
           if schema.columns[name]
             raise RedefinedPropertyError.new("Property '#{name}' is already defined in #{schema.name}.")
@@ -227,7 +227,7 @@ module Property
         end
       end
 
-      def verify_method_not_defined_in_classes_using_this_behavior(name)
+      def verify_method_not_defined_in_classes_using_this_role(name)
         @included_in_schemas.each do |schema|
           if schema.binding.superclass.method_defined?(name)
             raise RedefinedMethodError.new("Method '#{name}' is already defined in #{schema.binding.superclass} or ancestors.")

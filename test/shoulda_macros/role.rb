@@ -77,7 +77,7 @@ class Test::Unit::TestCase
     end
   end # should_store_property_definitions
 
-  def self.should_insert_properties_on_behave_like_poet
+  def self.should_insert_properties_on_has_role_poet
     context 'added' do
 
       context 'to a parent class' do
@@ -92,24 +92,24 @@ class Test::Unit::TestCase
         end
 
         should 'propagate definitions to child' do
-          @parent.behave_like @poet
+          @parent.has_role @poet
           assert_equal %w{name poem}, @klass.schema.column_names.sort
         end
 
         should 'raise an exception if class contains same definitions' do
           @parent.property.string 'poem'
-          assert_raise(Property::RedefinedPropertyError) { @parent.behave_like @poet }
+          assert_raise(Property::RedefinedPropertyError) { @parent.has_role @poet }
         end
 
         should 'not raise an exception on double inclusion' do
-          @parent.behave_like @poet
-          assert_nothing_raised { @parent.behave_like @poet }
+          @parent.has_role @poet
+          assert_nothing_raised { @parent.has_role @poet }
         end
 
         should 'add accessor methods to child' do
           subject = @klass.new
           assert_raises(NoMethodError) { subject.poem = 'Poe'}
-          @parent.behave_like @poet
+          @parent.has_role @poet
 
           assert_nothing_raised { subject.poem = 'Poe'}
         end
@@ -125,7 +125,7 @@ class Test::Unit::TestCase
         end
 
         should 'propagate definitions to child' do
-          @klass.behave_like @poet
+          @klass.has_role @poet
           assert_equal %w{name poem}, @klass.schema.column_names.sort
         end
       end
@@ -134,7 +134,7 @@ class Test::Unit::TestCase
         subject { Developer.new }
 
         setup do
-          subject.behave_like @poet
+          subject.has_role @poet
         end
 
         should 'merge property definitions' do
@@ -142,9 +142,9 @@ class Test::Unit::TestCase
         end
       end
     end
-  end # should_insert_properties_on_behave_like
+  end # should_insert_properties_on_has_role
 
-  def self.should_add_behavior_methods
+  def self.should_add_role_methods
     context 'added' do
       context 'to a parent class' do
         setup do
@@ -157,23 +157,23 @@ class Test::Unit::TestCase
           @klass = Class.new(@parent)
         end
 
-        should 'add behavior methods to child' do
+        should 'add role methods to child' do
           subject = @klass.new
           assert_raises(NoMethodError) { subject.muse }
-          @parent.behave_like @poet
+          @parent.has_role @poet
 
           assert_nothing_raised { subject.muse }
         end
 
-        should 'use behavior methods for defaults' do
+        should 'use role methods for defaults' do
           subject = @klass.new
-          @parent.behave_like @poet
+          @parent.has_role @poet
           assert subject.save
           assert_equal 'I am your muse', subject.poem
         end
       end
     end
-  end # should_add_behavior_methods
+  end # should_add_role_methods
 
   def self.should_take_part_in_used_list(has_defaults = true)
 
@@ -186,32 +186,32 @@ class Test::Unit::TestCase
             property.string 'name'
           end
 
-          @klass.behave_like @poet
+          @klass.has_role @poet
         end
 
         subject do
           @klass.new
         end
 
-        should 'not return behavior without corresponding attributes' do
+        should 'not return role without corresponding attributes' do
           subject.attributes = {'name' => 'hello'}
-          assert_equal [@klass.schema.behavior], subject.used_behaviors
+          assert_equal [@klass.schema.role], subject.used_roles
         end
 
-        should 'return behavior with corresponding attributes' do
+        should 'return role with corresponding attributes' do
           subject.attributes = {'poem' => 'hello'}
-          assert_equal [@poet], subject.used_behaviors
+          assert_equal [@poet], subject.used_roles
         end
 
-        should 'not return behavior only with blank attributes' do
+        should 'not return role only with blank attributes' do
           subject.attributes = {'name' => ''}
-          assert_equal [], subject.used_behaviors
+          assert_equal [], subject.used_roles
         end
 
         if has_defaults
-          should 'return behavior with default attributes after validate' do
+          should 'return role with default attributes after validate' do
             subject.valid?
-            assert_equal [@poet], subject.used_behaviors
+            assert_equal [@poet], subject.used_roles
           end
         end
       end # to a class

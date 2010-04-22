@@ -27,7 +27,7 @@ module Property
               def make_schema
                 schema = Property::Schema.new(self.to_s, self)
                 if superclass.respond_to?(:schema)
-                  schema.behave_like superclass
+                  schema.has_role superclass
                 end
                 schema
               end
@@ -38,10 +38,10 @@ module Property
 
     module ClassMethods
 
-      # Include a new set of property definitions (Behavior) into the current class schema.
+      # Include a new set of property definitions (Role) into the current class schema.
       # You can also provide a class to simulate multiple inheritance.
-      def behave_like(behavior)
-        schema.behave_like behavior
+      def has_role(role)
+        schema.has_role role
       end
 
       # Use this class method to declare properties and indices that will be used in your models.
@@ -58,27 +58,27 @@ module Property
       #    end
       #  end
       def property(&block)
-        schema.behavior.property(&block)
+        schema.role.property(&block)
       end
     end # ClassMethods
 
     module InstanceMethods
-      # Instance's schema (can be different from the instance's class schema if behaviors have been
+      # Instance's schema (can be different from the instance's class schema if roles have been
       # added to the instance.
       def schema
         @own_schema || self.class.schema
       end
 
-      # Include a new set of property definitions (Behavior) into the current instance's schema.
+      # Include a new set of property definitions (Role) into the current instance's schema.
       # You can also provide a class to simulate multiple inheritance.
-      def behave_like(behavior)
-        own_schema.behave_like behavior
+      def has_role(role)
+        own_schema.has_role role
       end
 
-      # Return the list of active behaviors. The active behaviors are all the Behaviors included
+      # Return the list of active roles. The active roles are all the Roles included
       # in the current object for which properties have been defined (not blank).
-      def used_behaviors
-        own_schema.used_behaviors_in(self)
+      def used_roles
+        own_schema.used_roles_in(self)
       end
 
       protected
@@ -93,7 +93,7 @@ module Property
         def make_own_schema
           this = class << self; self; end
           schema = Property::Schema.new(nil, this)
-          schema.behave_like self.class
+          schema.has_role self.class
           schema
         end
     end # InsanceMethods

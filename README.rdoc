@@ -47,12 +47,12 @@ And set them with:
   @contact.prop['name'] = 'Gandhi'
   @contact.name = 'Gandhi'
 
-== Behaviors
+== Roles
 
 Properties would not be really fun if you could not add new properties to your instances depending
-on some flags. First define the behaviors:
+on some flags. First define the roles:
 
-  @picture = Property::Behavior.new do |p|
+  @picture = Property::Role.new do |p|
     p.integer :width,  :default => :get_width
     p.integer :height, :default => :get_height
     p.string  'camera'
@@ -76,20 +76,20 @@ on some flags. First define the behaviors:
     end
   end
 
-And then, either when creating new pictures or updating them, you need to include the behavior:
+And then, either when creating new pictures or updating them, you need to include the role:
 
-  @model.behave_like @picture
+  @model.has_role @picture
 
 The model now has the picture's properties defined, with accessors like @model.camera, methods like
 @model.image, get_with, etc and default values will be fetched on save.
 
-Note that you do not need to include a behavior just to read the data as long as you use the 'prop'
+Note that you do not need to include a role just to read the data as long as you use the 'prop'
 accessor.
 
-== ActiveBehavior
+== StoredRole
 
 The dynamic nature of the Property gem goes to the point where you can store your property definitions
-in the database by using the ActiveBehavior and BehaviorColumn classes.
+in the database by using the StoredRole and StoredColumn classes.
 
 == External storage
 

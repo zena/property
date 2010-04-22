@@ -4,35 +4,35 @@ module Property
   # to validate content and type_cast during write operations.
   #
   # The properties are not directly defined in the schema. They are stored in a
-  # Behavior instance which checks that the database is in sync with the properties
+  # Role instance which checks that the database is in sync with the properties
   # defined.
   class Schema
-    attr_reader :behaviors, :behavior, :binding
+    attr_reader :roles, :role, :binding
 
     # Create a new Schema. If a class_name is provided, the schema automatically
-    # creates a default Behavior to store definitions.
+    # creates a default Role to store definitions.
     def initialize(class_name, binding)
       @binding = binding
-      @behaviors = []
+      @roles = []
       if class_name
-        @behavior  = Behavior.new(class_name)
-        include_behavior @behavior
-        @behaviors << @behavior
+        @role  = Role.new(class_name)
+        include_role @role
+        @roles << @role
       end
     end
 
     # Return an identifier for the schema to help locate property redefinition errors.
     def name
-      @behavior ? @behavior.name : @binding.to_s
+      @role ? @role.name : @binding.to_s
     end
 
     # If the parameter is a class, the schema will inherit the property definitions
-    # from the class. If the parameter is a Behavior, the properties from that
-    # behavior will be included. Any new columns added to a behavior or any new
-    # behaviors included in a class will be dynamically added to the sub-classes (just like
+    # from the class. If the parameter is a Role, the properties from that
+    # role will be included. Any new columns added to a role or any new
+    # roles included in a class will be dynamically added to the sub-classes (just like
     # Ruby class inheritance, module inclusion works).
     # If you ...
-    def behave_like(thing)
+    def has_role(thing)
       if thing.kind_of?(Class)
         if thing.respond_to?(:schema) && thing.schema.kind_of?(Schema)
           schema_class = thing.schema.binding
@@ -41,26 +41,26 @@ module Property
           else
             check_super_methods = true
           end
-          thing.schema.behaviors.flatten.each do |behavior|
-            include_behavior behavior, check_super_methods
+          thing.schema.roles.flatten.each do |role|
+            include_role role, check_super_methods
           end
-          self.behaviors << thing.schema.behaviors
+          self.roles << thing.schema.roles
         else
-          raise TypeError.new("expected Behavior or class with schema, found #{thing}")
+          raise TypeError.new("expected Role or class with schema, found #{thing}")
         end
-      elsif thing.kind_of?(BehaviorModule)
-        include_behavior thing
-        self.behaviors << thing
+      elsif thing.kind_of?(RoleModule)
+        include_role thing
+        self.roles << thing
       else
-        raise TypeError.new("expected Behavior or class with schema, found #{thing.class}")
+        raise TypeError.new("expected Role or class with schema, found #{thing.class}")
       end
     end
 
-    # Return the list of active behaviors. The active behaviors are all the Behaviors included
+    # Return the list of active roles. The active roles are all the Roles included
     # in the current object for which properties have been defined (not blank).
-    def used_behaviors_in(object)
-      behaviors.flatten.uniq.reject do |behavior|
-        !behavior.used_in(object)
+    def used_roles_in(object)
+      roles.flatten.uniq.reject do |role|
+        !role.used_in(object)
       end
     end
 
@@ -72,16 +72,16 @@ module Property
     # Return true if the schema has a property with the given name.
     def has_column?(name)
       name = name.to_s
-      [@behaviors].flatten.each do |behavior|
-        return true if behavior.has_column?(name)
+      [@roles].flatten.each do |role|
+        return true if role.has_column?(name)
       end
       false
     end
 
-    # Return column definitions from all included behaviors.
+    # Return column definitions from all included roles.
     def columns
       columns = {}
-      @behaviors.flatten.uniq.each do |b|
+      @roles.flatten.uniq.each do |b|
         columns.merge!(b.columns)
       end
       columns
@@ -90,7 +90,7 @@ module Property
     # Return a hash with indexed types as keys and index definitions as values.
     def index_groups
       index_groups = {}
-      @behaviors.flatten.uniq.each do |b|
+      @roles.flatten.uniq.each do |b|
         b.indices.each do |list|
           (index_groups[list.first] ||= []) << list[1..-1]
         end
@@ -99,32 +99,32 @@ module Property
     end
 
     private
-      def include_behavior(behavior, check_methods = true)
-        return if behaviors.include?(behavior)
-        behavior_column_names = behavior.column_names
+      def include_role(role, check_methods = true)
+        return if roles.include?(role)
+        stored_column_names = role.column_names
 
-        check_duplicate_property_definitions(behavior, behavior_column_names)
-        check_duplicate_method_definitions(behavior, behavior_column_names) if check_methods
+        check_duplicate_property_definitions(role, stored_column_names)
+        check_duplicate_method_definitions(role, stored_column_names) if check_methods
 
-        behavior.included_in(self)
-        @binding.send(:include, behavior.accessor_module)
+        role.included_in(self)
+        @binding.send(:include, role.accessor_module)
       end
 
-      def check_duplicate_property_definitions(behavior, keys)
+      def check_duplicate_property_definitions(role, keys)
         common_keys = keys & self.columns.keys
         if !common_keys.empty?
-          raise RedefinedPropertyError.new("Cannot include behavior '#{behavior.name}' in '#{name}'. Duplicate definitions: #{common_keys.join(', ')}")
+          raise RedefinedPropertyError.new("Cannot include role '#{role.name}' in '#{name}'. Duplicate definitions: #{common_keys.join(', ')}")
         end
       end
 
-      def check_duplicate_method_definitions(behavior, keys)
+      def check_duplicate_method_definitions(role, keys)
         common_keys = []
         keys.each do |k|
           common_keys << k if @binding.superclass.method_defined?(k)
         end
 
         if !common_keys.empty?
-          raise RedefinedMethodError.new("Cannot include behavior '#{behavior.name}' in '#{@binding}'. Would hide methods in superclass: #{common_keys.join(', ')}")
+          raise RedefinedMethodError.new("Cannot include role '#{role.name}' in '#{@binding}'. Would hide methods in superclass: #{common_keys.join(', ')}")
         end
       end
 
