@@ -18,6 +18,7 @@ class ActiveBehaviorTest < ActiveSupport::TestCase
       end
 
       should_insert_properties_on_behave_like_poet
+      should_take_part_in_used_list(false)
 
       should 'create new behavior columns on save' do
         @poet.property do |p|

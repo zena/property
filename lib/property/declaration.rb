@@ -75,6 +75,12 @@ module Property
         own_schema.behave_like behavior
       end
 
+      # Return the list of active behaviors. The active behaviors are all the Behaviors included
+      # in the current object for which properties have been defined (not blank).
+      def used_behaviors
+        own_schema.used_behaviors_in(self)
+      end
+
       protected
         def properties_validation
           properties.validate

@@ -21,5 +21,6 @@ class BehaviorTest < Test::Unit::TestCase
 
     should_insert_properties_on_behave_like_poet
     should_add_behavior_methods
+    should_take_part_in_used_list
   end
 end

@@ -86,6 +86,19 @@ module Property
       @group_indices << [type, nil, proc]
     end
 
+    # Returns true if the current behavior is used by the given object. A Behavior is
+    # considered to be used if any of it's attributes is not blank in the object's
+    # properties.
+    def used_in(object)
+      used_keys_in(object) != []
+    end
+
+    # Returns the list of column names in the current behavior that are used by the
+    # given object (value not blank).
+    def used_keys_in(object)
+      object.properties.keys & column_names
+    end
+
     private
       def build_accessor_module
         accessor_module = Module.new

@@ -56,6 +56,14 @@ module Property
       end
     end
 
+    # Return the list of active behaviors. The active behaviors are all the Behaviors included
+    # in the current object for which properties have been defined (not blank).
+    def used_behaviors_in(object)
+      behaviors.flatten.uniq.reject do |behavior|
+        !behavior.used_in(object)
+      end
+    end
+
     # Return the list of column names.
     def column_names
       columns.keys
