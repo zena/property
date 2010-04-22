@@ -4,18 +4,21 @@ require 'property/stored_column'
 module Property
   # This module lets you use a custom class to store a set of property definitions inside
   # the database. For the rest, this class behaves just like Role.
+  #
+  # Once this module is included, you need to set the has_many association to the class that
+  # contains the columns definitions with something like:
+  #
+  #   has_many :stored_columns, :class_name => NameOfColumnsClass
   module StoredRole
     include RoleModule
 
     module ClassMethods
-      def store_columns_in(columns_class, opts = {})
-        columns_class = columns_class.to_s
-        has_many :stored_columns, opts.merge(:class_name => columns_class)
+      def stored_columns_class(columns_class)
+        has_many :stored_columns, :class_name => NameOfColumnsClass
       end
     end
 
     def self.included(base)
-      base.extend ClassMethods
 
       base.class_eval do
         after_save :update_columns

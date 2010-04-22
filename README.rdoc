@@ -89,7 +89,7 @@ accessor.
 == StoredRole
 
 The dynamic nature of the Property gem goes to the point where you can store your property definitions
-in the database by using the StoredRole and StoredColumn classes.
+in the database by using the StoredRole and StoredColumn modules.
 
 == External storage
 

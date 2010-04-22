@@ -8,7 +8,7 @@ class StoredRoleTest < ActiveSupport::TestCase
 
   class Role < ActiveRecord::Base
     include Property::StoredRole
-    store_columns_in Column
+    has_many :stored_columns, :class_name => 'StoredRoleTest::Column'
   end
 
   should_store_property_definitions(Role)
