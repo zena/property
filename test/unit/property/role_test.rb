@@ -2,7 +2,6 @@ require 'test_helper'
 require 'fixtures'
 
 class RoleTest < Test::Unit::TestCase
-
   should_store_property_definitions(Property::Role)
 
 

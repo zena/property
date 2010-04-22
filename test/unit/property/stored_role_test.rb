@@ -2,19 +2,25 @@ require 'test_helper'
 require 'fixtures'
 
 class StoredRoleTest < ActiveSupport::TestCase
-  StoredRole = Property::StoredRole
-  StoredColumn = Property::StoredColumn
+  class Column < ActiveRecord::Base
+    include Property::StoredColumn
+  end
 
-  should_store_property_definitions(StoredRole)
+  class Role < ActiveRecord::Base
+    include Property::StoredRole
+    store_columns_in Column
+  end
 
-  context 'A stored StoredRole' do
+  should_store_property_definitions(Role)
+
+  context 'A stored Role' do
 
     context 'with column definitions' do
       setup do
-        role = StoredRole.create(:name => 'Poet')
-        role.stored_columns << StoredColumn.new(:ptype => 'string',  :name => 'poem')
+        role = Role.create(:name => 'Poet')
+        role.stored_columns << Column.new(:ptype => 'string',  :name => 'poem')
         role.save!
-        @poet = StoredRole.find(role.id)
+        @poet = Role.find(role.id)
       end
 
       should_insert_properties_on_has_role_poet
@@ -25,18 +31,18 @@ class StoredRoleTest < ActiveSupport::TestCase
           p.integer 'year'
         end
 
-        assert_difference('StoredRole.count', 0) do
-          assert_difference('StoredColumn.count', 1) do
+        assert_difference('Role.count', 0) do
+          assert_difference('Column.count', 1) do
             @poet.save
           end
         end
       end
     end # with column definitions
-  end # A stored StoredRole
+  end # A stored Role
 
-  context 'A new StoredRole' do
+  context 'A new Role' do
     subject do
-      StoredRole.new('Poet') do |p|
+      Role.new('Poet') do |p|
         p.string 'name'
       end
     end
@@ -47,11 +53,11 @@ class StoredRoleTest < ActiveSupport::TestCase
 
     should 'create role columns on save' do
       role = subject
-      assert_difference('StoredRole.count', 1) do
-        assert_difference('StoredColumn.count', 1) do
-          role.save
+      assert_difference('Role.count', 1) do
+        assert_difference('Column.count', 1) do
+          assert role.save
         end
       end
     end
-  end # A new StoredRole
+  end # A new Role
 end

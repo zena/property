@@ -104,14 +104,14 @@ begin
       end
 
       # Database stored role
-      create_table 'stored_roles' do |t|
+      create_table 'roles' do |t|
         t.integer 'id'
         t.string 'name'
       end
 
-      create_table 'stored_columns' do |t|
+      create_table 'columns' do |t|
         t.integer 'id'
-        t.integer 'stored_role_id'
+        t.integer 'role_id'
         t.string 'name'
         # Property Type
         t.string 'ptype'
@@ -120,7 +120,7 @@ begin
   end
 
   ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>':memory:')
-#  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.logger = Logger.new(File.open(Pathname(__FILE__).dirname + 'test.log', 'wb'))
   ActiveRecord::Migration.verbose = false
   #PropertyMigration.migrate(:down)
   PropertyMigration.migrate(:up)

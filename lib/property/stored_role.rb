@@ -2,38 +2,51 @@ require 'property/role_module'
 require 'property/stored_column'
 
 module Property
-  # This class lets you store a set of property definitions inside the database. For
-  # the rest, this class behaves just like Role.
-  class StoredRole < ActiveRecord::Base
+  # This module lets you use a custom class to store a set of property definitions inside
+  # the database. For the rest, this class behaves just like Role.
+  module StoredRole
     include RoleModule
-    has_many :stored_columns
-    after_save :update_columns
 
-    def self.new(arg, &block)
-      unless arg.kind_of?(Hash)
-        arg = {:name => arg}
+    module ClassMethods
+      def store_columns_in(columns_class, opts = {})
+        columns_class = columns_class.to_s
+        has_many :stored_columns, opts.merge(:class_name => columns_class)
       end
+    end
 
-      if block_given?
-        obj = super(arg) do
-          # Dummy block to hide our special property declaration block
+    def self.included(base)
+      base.extend ClassMethods
+
+      base.class_eval do
+        after_save :update_columns
+
+        def self.new(arg, &block)
+          unless arg.kind_of?(Hash)
+            arg = {:name => arg}
+          end
+
+          if block_given?
+            obj = super(arg) do
+              # Dummy block to hide our special property declaration block
+            end
+
+            obj.property(&block)
+          else
+            obj = super(arg)
+          end
+
+          obj
         end
 
-        obj.property(&block)
-      else
-        obj = super(arg)
+        # Initialize a new role with the given name
+        def initialize(*args)
+          super
+          initialize_role_module
+        end
       end
+    end # included
 
-      obj
-    end
-
-    # Initialize a new role with the given name
-    def initialize(*args)
-      super
-      initialize_role_module
-    end
-
-    # List all property definitiosn for the current role
+    # List all property definitions for the current role
     def columns
       load_columns_from_db unless @columns_from_db_loaded
       super
@@ -67,6 +80,7 @@ module Property
         # deleted_columns = stored_column_names - defined_column_names
 
         new_columns.each do |name|
+          ActiveRecord::Base.logger.warn "Creating #{name} column"
           stored_columns.create(:name => name, :ptype => columns[name].type)
         end
 
