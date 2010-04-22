@@ -50,7 +50,7 @@ And set them with:
 == Roles
 
 Properties would not be really fun if you could not add new properties to your instances depending
-on some flags. First define the roles:
+on what the object does. First define the roles:
 
   @picture = Property::Role.new do |p|
     p.integer :width,  :default => :get_width
