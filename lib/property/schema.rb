@@ -100,7 +100,8 @@ module Property
 
     private
       def include_role(role, check_methods = true)
-        return if roles.include?(role)
+        return if roles.flatten.include?(role)
+
         stored_column_names = role.column_names
 
         check_duplicate_property_definitions(role, stored_column_names)

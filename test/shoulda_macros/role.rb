@@ -200,7 +200,8 @@ class Test::Unit::TestCase
 
         should 'return role with corresponding attributes' do
           subject.attributes = {'poem' => 'hello'}
-          assert_equal [@poet], subject.used_roles
+          roles = @poet.kind_of?(Class) ? @poet.schema.roles : [@poet]
+          assert_equal roles, subject.used_roles
         end
 
         should 'not return role only with blank attributes' do
@@ -211,7 +212,8 @@ class Test::Unit::TestCase
         if has_defaults
           should 'return role with default attributes after validate' do
             subject.valid?
-            assert_equal [@poet], subject.used_roles
+            roles = @poet.kind_of?(Class) ? @poet.schema.roles : [@poet]
+            assert_equal roles, subject.used_roles
           end
         end
       end # to a class

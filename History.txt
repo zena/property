@@ -10,6 +10,7 @@
   * Created Property::Base module for inclusion without callbacks.
   * Raises an exception if we try to define a property that would hide a superclass method.
   * Fixed multiple column declarations in one go.
+  * Fixed bug when adding role as class to sub-class.
 
 == 0.9.1 2010-03-20
 
