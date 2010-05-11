@@ -26,6 +26,16 @@ module Property
       @role ? @role.name : @binding.to_s
     end
 
+    # Return true if the current schema has all the roles of the given object, class or role.
+    def has_role?(thing)
+      roles = self.roles.flatten
+      test_roles = thing.class < RoleModule ? [thing] : thing.schema.roles.flatten
+      test_roles.each do |role|
+        return false unless roles.include?(role)
+      end
+      true
+    end
+
     # If the parameter is a class, the schema will inherit the property definitions
     # from the class. If the parameter is a Role, the properties from that
     # role will be included. Any new columns added to a role or any new

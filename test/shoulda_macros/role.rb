@@ -96,6 +96,11 @@ class Test::Unit::TestCase
           assert_equal %w{name poem}, @klass.schema.column_names.sort
         end
 
+        should 'return true on has_role?' do
+          @parent.has_role @poet
+          assert @klass.has_role?(@poet)
+        end
+
         should 'raise an exception if class contains same definitions' do
           @parent.property.string 'poem'
           assert_raise(Property::RedefinedPropertyError) { @parent.has_role @poet }
@@ -124,10 +129,16 @@ class Test::Unit::TestCase
           end
         end
 
-        should 'propagate definitions to child' do
+        should 'insert definitions' do
           @klass.has_role @poet
           assert_equal %w{name poem}, @klass.schema.column_names.sort
         end
+
+        should 'return true on class has_role?' do
+          @klass.has_role @poet
+          assert @klass.has_role?(@poet)
+        end
+
       end
 
       context 'to an instance' do
@@ -191,6 +202,10 @@ class Test::Unit::TestCase
 
         subject do
           @klass.new
+        end
+
+        should 'return true on instance has_role?' do
+          assert subject.has_role?(@poet)
         end
 
         should 'not return role without corresponding attributes' do

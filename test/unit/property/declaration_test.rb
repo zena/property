@@ -278,6 +278,7 @@ class DeclarationTest < Test::Unit::TestCase
       
       subject.has_role @class
       assert_equal %w{language last_name hop age first_name}, subject.schema.column_names
+      assert subject.has_role?(@class)
     end
   end
 

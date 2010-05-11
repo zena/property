@@ -44,6 +44,11 @@ module Property
         schema.has_role role
       end
 
+      # Return true if the current object has all the roles of the given object, class or role.
+      def has_role?(role)
+        schema.has_role? role
+      end
+
       # Use this class method to declare properties and indices that will be used in your models.
       # Example:
       #  property.string 'phone', :default => '', :indexed => true
@@ -79,6 +84,11 @@ module Property
       # in the current object for which properties have been defined (not blank).
       def used_roles
         own_schema.used_roles_in(self)
+      end
+
+      # Return true if the current object has all the roles of the given object, class or role.
+      def has_role?(role)
+        own_schema.has_role? role
       end
 
       protected
