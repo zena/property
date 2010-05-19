@@ -48,6 +48,9 @@ module Property
       @klass || super
     end
 
+    # Property type used instead of 'type' when column is stored
+    alias ptype type
+
     def type_cast(value)
       if type == :string
         value = value.to_s

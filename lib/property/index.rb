@@ -61,12 +61,16 @@ module Property
                 value = prop[key]
                 if !value.blank?
                   if proc
+                    # Get value(s) to index through proc
                     cur_indices.merge!(proc.call(self))
                   else
+                    # Set current value from prop
                     cur_indices[key] = value
                   end
                 end
               else
+                # No key: group index generated with
+                # p.index(group_name) do |record| ...
                 cur_indices.merge!(proc.call(self))
               end
             end
@@ -91,8 +95,8 @@ module Property
                 value = cur_indices[key]
                 if value.blank?
                   del_keys << key
-                else
-                  connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(cur_indices[key])} WHERE #{reader_sql} AND `key` = #{connection.quote(key)}"
+                elsif value != old_indices[key]
+                  connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(value)} WHERE #{reader_sql} AND `key` = #{connection.quote(key)}"
                 end
               end
 
