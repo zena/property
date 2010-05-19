@@ -30,7 +30,7 @@ module Property
         end
 
         def index_reader_sql
-          index_reader.map {|k, v| "`#{k}` = #{self.class.connection.quote(v)}"}.join(' AND ')
+          @index_reader_sql ||= index_reader.map {|k, v| "`#{k}` = #{self.class.connection.quote(v)}"}.join(' AND ')
         end
 
         def index_reader
@@ -44,16 +44,38 @@ module Property
         end
 
         def index_foreign_key
-          self.class.table_name.singularize.foreign_key
+          @index_foreign_key ||=self.class.table_name.singularize.foreign_key
+        end
+
+        # Create a list of index entries
+        def create_indices(table_name, new_keys, cur_indices)
+          # Build insert_many query
+
+          # Get list of foreign keys
+          foreign_keys   = index_writer.keys
+          foreign_values = foreign_keys.map {|k| index_writer[k]}
+
+          Property::Db.insert_many(
+            table_name,
+            foreign_keys + ['key', 'value'],
+            new_keys.map do |key|
+              foreign_values + [connection.quote(key), connection.quote(cur_indices[key])]
+            end
+          )
+        end
+
+        # Update an index entry
+        def update_index(table_name, key, value)
+          self.class.connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(value)} WHERE #{index_reader_sql} AND `key` = #{connection.quote(key)}"
+        end
+
+        # Delete a list of indices (value became blank).
+        def delete_indices(table_name, keys)
+          self.class.connection.execute "DELETE FROM #{table_name} WHERE #{index_reader_sql} AND `key` IN (#{keys.map{|key| connection.quote(key)}.join(',')})"
         end
 
         # This method prepares the index
         def property_index
-          connection     = self.class.connection
-          reader_sql     = index_reader_sql
-          foreign_keys   = nil
-          foreign_values = nil
-
           schema.index_groups.each do |group_name, definitions|
             cur_indices = {}
             definitions.each do |key, proc|
@@ -96,30 +118,21 @@ module Property
                 if value.blank?
                   del_keys << key
                 elsif value != old_indices[key]
-                  connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(value)} WHERE #{reader_sql} AND `key` = #{connection.quote(key)}"
+                  update_index(table_name, key, value)
                 end
               end
 
               if !del_keys.empty?
-                connection.execute "DELETE FROM #{table_name} WHERE #{reader_sql} AND `key` IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
+                delete_indices(table_name, del_keys)
               end
 
               new_keys.reject! {|k| cur_indices[k].blank? }
               if !new_keys.empty?
-                # we evaluate this now to have the id on record creation
-                foreign_keys   ||= index_writer.keys
-                foreign_values ||= foreign_keys.map {|k| index_writer[k]}
-
-                Property::Db.insert_many(
-                  table_name,
-                  foreign_keys + ['key', 'value'],
-                  new_keys.map do |key|
-                    foreign_values + [connection.quote(key), connection.quote(cur_indices[key])]
-                  end
-                )
+                create_indices(table_name, new_keys, cur_indices)
               end
             end
           end
+          @index_reader_sql = nil
         end
 
         # Remove all index entries on destroy
