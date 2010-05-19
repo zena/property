@@ -85,11 +85,11 @@ module Property
 
         new_columns.each do |name|
           ActiveRecord::Base.logger.warn "Creating #{name} column"
-          stored_columns.create(:name => name, :ptype => columns[name].type)
+          stored_columns.create(:name => name, :ptype => columns[name].type.to_s)
         end
 
         updated_columns.each do |name|
-          @original_columns[name].update_attributes(:name => name, :ptype => columns[name].type)
+          @original_columns[name].update_attributes(:name => name, :ptype => columns[name].type.to_s)
         end
 
         # Not needed: there is no way to remove a property right now

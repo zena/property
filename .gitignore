@@ -1,4 +1,4 @@
 .DS_Store
 coverage
 *.gem
-test/test.log
+log/test.log

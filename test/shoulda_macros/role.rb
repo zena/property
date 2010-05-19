@@ -93,7 +93,7 @@ class Test::Unit::TestCase
 
         should 'propagate definitions to child' do
           @parent.has_role @poet
-          assert_equal %w{name poem}, @klass.schema.column_names.sort
+          assert_equal %w{name poem year}, @klass.schema.column_names.sort
         end
 
         should 'return true on has_role?' do
@@ -131,7 +131,7 @@ class Test::Unit::TestCase
 
         should 'insert definitions' do
           @klass.has_role @poet
-          assert_equal %w{name poem}, @klass.schema.column_names.sort
+          assert_equal %w{name poem year}, @klass.schema.column_names.sort
         end
 
         should 'return true on class has_role?' do
@@ -149,7 +149,7 @@ class Test::Unit::TestCase
         end
 
         should 'merge property definitions' do
-          assert_equal %w{age first_name language last_name poem}, subject.schema.column_names.sort
+          assert_equal %w{age first_name language last_name poem year}, subject.schema.column_names.sort
         end
       end
     end

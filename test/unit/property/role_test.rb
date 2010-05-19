@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'fixtures'
 
-class RoleTest < Test::Unit::TestCase
+class RoleTest < ActiveSupport::TestCase
   should_store_property_definitions(Property::Role)
 
 
@@ -9,6 +9,7 @@ class RoleTest < Test::Unit::TestCase
     setup do
       @poet = Property::Role.new('Poet') do |p|
         p.string 'poem', :default => :muse
+        p.integer 'year'
 
         p.actions do
           def muse
@@ -21,11 +22,24 @@ class RoleTest < Test::Unit::TestCase
     should_insert_properties_on_has_role_poet
     should_add_role_methods
     should_take_part_in_used_list
+    should_not_maintain_indices # no indexed column defined
 
     should 'return name on name' do
       assert_equal 'Poet', @poet.name
     end
   end # A Poet role
+
+  context 'A Poet role with indices' do
+    setup do
+      @poet = Property::Role.new('Poet') do |p|
+        p.string  'poem', :index => true
+        p.integer 'year', :index => true
+      end
+    end
+
+    should_maintain_indices
+  end # A Poet role with indices
+
 
   context 'A class used as role' do
     class Foo < ActiveRecord::Base
@@ -33,6 +47,7 @@ class RoleTest < Test::Unit::TestCase
 
       property do |p|
         p.string 'poem', :default => :muse
+        p.integer 'year'
 
         p.actions do
           def muse

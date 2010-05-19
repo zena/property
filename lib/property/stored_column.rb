@@ -9,7 +9,7 @@ module Property
 
     # No supported options yet.
     def options
-      {}
+      {:index => index?}
     end
   end
 end

@@ -115,12 +115,16 @@ begin
         t.string 'name'
         # Property Type
         t.string 'ptype'
+        # Indexed (we store an integer so that we can have multiple index types)
+        t.integer 'index'
       end
     end
   end
 
   ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>':memory:')
-  ActiveRecord::Base.logger = Logger.new(File.open(Pathname(__FILE__).dirname + 'test.log', 'wb'))
+  log_path = Pathname(__FILE__).dirname + '../log/test.log'
+  Dir.mkdir(log_path.dirname) unless File.exist?(log_path.dirname)
+  ActiveRecord::Base.logger = Logger.new(File.open(log_path, 'wb'))
   ActiveRecord::Migration.verbose = false
   #PropertyMigration.migrate(:down)
   PropertyMigration.migrate(:up)

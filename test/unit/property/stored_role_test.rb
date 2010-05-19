@@ -19,16 +19,18 @@ class StoredRoleTest < ActiveSupport::TestCase
       setup do
         role = Role.create(:name => 'Poet')
         role.stored_columns << Column.new(:ptype => 'string',  :name => 'poem')
+        role.stored_columns << Column.new(:ptype => 'integer', :name => 'year')
         role.save!
         @poet = Role.find(role.id)
       end
 
       should_insert_properties_on_has_role_poet
       should_take_part_in_used_list(false)
+      should_not_maintain_indices # no indexed column defined
 
       should 'create new role columns on save' do
         @poet.property do |p|
-          p.integer 'year'
+          p.string 'original_language'
         end
 
         assert_difference('Role.count', 0) do
@@ -41,6 +43,21 @@ class StoredRoleTest < ActiveSupport::TestCase
       should 'return name on name' do
         assert_equal 'Poet', @poet.name
       end
+    end # with column definitions
+  end # A stored Role
+
+  context 'A stored Role' do
+
+    context 'with indexed column definitions' do
+      setup do
+        role = Role.create(:name => 'Poet')
+        role.stored_columns << Column.new(:ptype => 'string',  :name => 'poem', :index => true)
+        role.stored_columns << Column.new(:ptype => 'integer', :name => 'year', :index => true)
+        role.save!
+        @poet = Role.find(role.id)
+      end
+
+      should_maintain_indices
     end # with column definitions
   end # A stored Role
 
