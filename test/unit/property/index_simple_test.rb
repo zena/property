@@ -3,7 +3,7 @@ require 'fixtures'
 
 class IndexSimpleTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :i_string_employees
+    set_table_name :i_special_employees
   end
 
   class IndexedIntegerEmp < ActiveRecord::Base
@@ -25,7 +25,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
     alias_method_chain :save, :raise
 
     property do |p|
-      p.string  'name', :index   => true
+      p.string  'name', :index   => :special
       p.integer 'age',  :indexed => true # synonym
     end
   end
@@ -40,7 +40,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
     end
 
     should 'group indices by type' do
-      assert_equal %w{integer string}, subject.index_groups.keys.map(&:to_s).sort
+      assert_equal %w{integer special}, subject.index_groups.keys.map(&:to_s).sort
     end
   end
 
@@ -49,12 +49,25 @@ class IndexSimpleTest < ActiveSupport::TestCase
       Dog
     end
 
+    class Mongrel < Dog
+      attr_accessor :last_index_table_name
+      def create_indices(table_name, new_keys, cur_indices)
+        @last_index_table_name = table_name
+        super
+      end
+    end
+
     context 'on record creation' do
       should 'create index entries' do
         assert_difference('IndexedStringEmp.count', 1) do
           Dog.create('name' => 'Pavlov')
         end
       end
+
+      should 'call create_indices to create index entries' do
+         m = Mongrel.create('name' => 'Zed')
+         assert_equal 'i_special_employees', m.last_index_table_name
+       end
 
       should 'not create index entries for blank values' do
         assert_difference('IndexedIntegerEmp.count', 0) do
@@ -91,7 +104,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
           @dog.update_attributes('name' => 'Médor')
         end
       end
-      
+
       should 'remove blank values' do
         assert_difference('IndexedStringEmp.count', -1) do
           @dog.update_attributes('name' => '')

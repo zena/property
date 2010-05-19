@@ -40,9 +40,11 @@ module Property
         c.indexed?
       end.map do |c|
         if c.index == true
-          [c.type, c.name]
+          [c.type.to_sym, c.name]
+        elsif c.index.kind_of?(Proc)
+          [c.type.to_sym, c.name, c.index]
         else
-          [c.type, c.name, c.index]
+          [c.index,       c.name]
         end
       end + @group_indices
     end

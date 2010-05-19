@@ -81,6 +81,13 @@ begin
         t.string  'value'
       end
 
+      # index strings in employees
+      create_table 'i_special_employees' do |t|
+        t.integer 'employee_id'
+        t.string  'key'
+        t.string  'value'
+      end
+
       # index integer in employees
       create_table 'i_integer_employees' do |t|
         t.integer 'employee_id'
