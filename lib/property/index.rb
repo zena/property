@@ -30,7 +30,7 @@ module Property
         end
 
         def index_reader_sql
-          index_reader.map {|k, v| "#{k} = #{self.class.connection.quote(v)}"}.join(' AND ')
+          index_reader.map {|k, v| "`#{k}` = #{self.class.connection.quote(v)}"}.join(' AND ')
         end
 
         def index_reader
@@ -92,12 +92,12 @@ module Property
                 if value.blank?
                   del_keys << key
                 else
-                  connection.execute "UPDATE #{table_name} SET value = #{connection.quote(cur_indices[key])} WHERE #{reader_sql} AND key = #{connection.quote(key)}"
+                  connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(cur_indices[key])} WHERE #{reader_sql} AND `key` = #{connection.quote(key)}"
                 end
               end
 
               if !del_keys.empty?
-                connection.execute "DELETE FROM #{table_name} WHERE #{reader_sql} AND key IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
+                connection.execute "DELETE FROM #{table_name} WHERE #{reader_sql} AND `key` IN (#{del_keys.map{|key| connection.quote(key)}.join(',')})"
               end
 
               new_keys.reject! {|k| cur_indices[k].blank? }
@@ -127,7 +127,7 @@ module Property
             if group_name.kind_of?(Class)
               group_name.delete_property_index(self)
             else
-              connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{foreign_key} = #{current_id}"
+              connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE `#{foreign_key}` = #{current_id}"
             end
           end
         end
