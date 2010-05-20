@@ -6,6 +6,7 @@
   * Added the notion of used roles.
   * Renamed Behavior to Role.
   * Added support for index definition in stored column.
+  * Added support for :with option in index_reader.
 
 * 2 minor enhancements
   * Created Property::Base module for inclusion without callbacks.

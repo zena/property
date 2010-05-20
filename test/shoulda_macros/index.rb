@@ -24,6 +24,10 @@ class Test::Unit::TestCase
         dummy
       end
 
+      should 'write tests for :with option' do
+        assert false
+      end
+
       should 'create string indices on save' do
         assert_difference('IndexMacros::IndexedStringEmp.count', 1) do
           subject.poem = 'Hyperions Schicksalslied'

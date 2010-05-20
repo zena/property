@@ -30,14 +30,30 @@ module Property
         end
 
         def index_reader_sql
-          @index_reader_sql ||= index_reader.map {|k, v| "`#{k}` = #{self.class.connection.quote(v)}"}.join(' AND ')
+          @index_reader_sql ||= begin
+            index_reader.map do |k, v|
+              if k == :with
+                v.map do |subk, subv|
+                  if subv.kind_of?(Array)
+                    "`#{subk}` IN (#{subv.map {|ssubv| connection.quote(ssubv)}.join(',')})"
+                  else
+                    "`#{subk}` = #{self.class.connection.quote(subv)}"
+                  end
+                end.join(' AND ')
+              else
+                "`#{k}` = #{self.class.connection.quote(v)}"
+              end
+            end.join(' AND ')
+          end
         end
 
         def index_reader
           {index_foreign_key => self.id}
         end
 
-        alias index_writer index_reader
+        def index_writer
+          index_reader
+        end
 
         def index_table_name(group_name)
           "i_#{group_name}_#{self.class.table_name}"
@@ -52,16 +68,66 @@ module Property
           # Build insert_many query
 
           # Get list of foreign keys
-          foreign_keys   = index_writer.keys
+          foreign_keys = index_writer.keys
+
           foreign_values = foreign_keys.map {|k| index_writer[k]}
 
           Property::Db.insert_many(
             table_name,
-            foreign_keys + ['key', 'value'],
-            new_keys.map do |key|
-              foreign_values + [connection.quote(key), connection.quote(cur_indices[key])]
-            end
+            index_foreign_keys + %w{key value},
+            map_index_values(new_keys, cur_indices)
           )
+        end
+
+        def index_foreign_keys
+          if with = index_writer[:with]
+            index_writer.keys - [:with] + with.keys
+          else
+            index_writer.keys
+          end
+        end
+
+        def map_index_values(new_keys, cur_indices)
+          if with = index_writer[:with]
+            foreign_values = explode_list(index_foreign_keys.map {|k| index_writer[k] || with[k]})
+          else
+            foreign_values = [index_foreign_keys.map {|k| index_writer[k]}]
+          end
+
+          values = new_keys.map do |key|
+            [connection.quote(key), connection.quote(cur_indices[key])]
+          end
+
+          res = []
+          foreign_values.each do |list|
+            list = list.map {|k| connection.quote(k)}
+            values.each do |value|
+              res << (list + value)
+            end
+          end
+          res
+        end
+
+        # Takes a mixed array and explodes it
+        # [x, ['en','fr'], y, [a,b]] ==> [[x,'en',y,a], [x,'en',y',b], [x,'fr',y,a], [x,'fr',y,b]]
+        def explode_list(list)
+          res = [[]]
+          list.each do |key|
+            if key.kind_of?(Array)
+              res_bak = res
+              res = []
+              key.each do |k|
+                res_bak.each do |list|
+                  res << (list + [k])
+                end
+              end
+            else
+              res.each do |list|
+                list << key
+              end
+            end
+          end
+          res
         end
 
         # Update an index entry
