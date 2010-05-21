@@ -57,12 +57,12 @@ class IndexForeignTest < ActiveSupport::TestCase
       end
     end
 
-    def index_reader
+    def index_reader(group_name)
       {'version_id' => version.id}
     end
 
     # Foreign index: we store the 'employee_id' in the index to get back directly to non-versioned class Contact (through employee_id key).
-    def index_writer
+    def index_writer(group_name)
       {'version_id' => version.id, 'employee_id' => self.id}
     end
   end

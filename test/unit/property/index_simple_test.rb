@@ -50,9 +50,9 @@ class IndexSimpleTest < ActiveSupport::TestCase
     end
 
     class Mongrel < Dog
-      attr_accessor :last_index_table_name
-      def create_indices(table_name, new_keys, cur_indices)
-        @last_index_table_name = table_name
+      attr_accessor :last_index_group_name
+      def create_indices(group_name, new_keys, cur_indices)
+        @last_index_group_name = group_name
         super
       end
     end
@@ -66,7 +66,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
 
       should 'call create_indices to create index entries' do
          m = Mongrel.create('name' => 'Zed')
-         assert_equal 'i_special_employees', m.last_index_table_name
+         assert_equal :special, m.last_index_group_name
        end
 
       should 'not create index entries for blank values' do

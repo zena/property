@@ -23,15 +23,15 @@ module Property
         def get_indices(group_name)
           return {} if new_record?
           res = {}
-          Property::Db.fetch_attributes(['key', 'value'], index_table_name(group_name), index_reader_sql).each do |row|
+          Property::Db.fetch_attributes(['key', 'value'], index_table_name(group_name), index_reader_sql(group_name)).each do |row|
             res[row['key']] = row['value']
           end
           res
         end
 
-        def index_reader_sql
+        def index_reader_sql(group_name)
           @index_reader_sql ||= begin
-            index_reader.map do |k, v|
+            index_reader(group_name).map do |k, v|
               if k == :with
                 v.map do |subk, subv|
                   if subv.kind_of?(Array)
@@ -47,12 +47,12 @@ module Property
           end
         end
 
-        def index_reader
+        def index_reader(group_name)
           {index_foreign_key => self.id}
         end
 
-        def index_writer
-          index_reader
+        def index_writer(group_name)
+          index_reader(group_name)
         end
 
         def index_table_name(group_name)
@@ -64,30 +64,27 @@ module Property
         end
 
         # Create a list of index entries
-        def create_indices(table_name, new_keys, cur_indices)
+        def create_indices(group_name, new_keys, cur_indices)
           # Build insert_many query
-
-          # Get list of foreign keys
-          foreign_keys = index_writer.keys
-
-          foreign_values = foreign_keys.map {|k| index_writer[k]}
+          writer       = index_writer(group_name)
+          foreign_keys = index_foreign_keys(writer)
 
           Property::Db.insert_many(
-            table_name,
-            index_foreign_keys + %w{key value},
-            map_index_values(new_keys, cur_indices)
+            index_table_name(group_name),
+            foreign_keys + %w{key value},
+            map_index_values(new_keys, cur_indices, foreign_keys, writer)
           )
         end
 
-        def index_foreign_keys
-          if with = index_writer[:with]
-            index_writer.keys - [:with] + with.keys
+        def index_foreign_keys(writer)
+          if with = writer[:with]
+            writer.keys - [:with] + with.keys
           else
-            index_writer.keys
+            writer.keys
           end
         end
 
-        def map_index_values(new_keys, cur_indices)
+        def map_index_values(new_keys, cur_indices, index_foreign_keys, index_writer)
           if with = index_writer[:with]
             foreign_values = explode_list(index_foreign_keys.map {|k| index_writer[k] || with[k]})
           else
@@ -131,13 +128,13 @@ module Property
         end
 
         # Update an index entry
-        def update_index(table_name, key, value)
-          self.class.connection.execute "UPDATE #{table_name} SET `value` = #{connection.quote(value)} WHERE #{index_reader_sql} AND `key` = #{connection.quote(key)}"
+        def update_index(group_name, key, value)
+          self.class.connection.execute "UPDATE #{index_table_name(group_name)} SET `value` = #{connection.quote(value)} WHERE #{index_reader_sql(group_name)} AND `key` = #{connection.quote(key)}"
         end
 
         # Delete a list of indices (value became blank).
-        def delete_indices(table_name, keys)
-          self.class.connection.execute "DELETE FROM #{table_name} WHERE #{index_reader_sql} AND `key` IN (#{keys.map{|key| connection.quote(key)}.join(',')})"
+        def delete_indices(group_name, keys)
+          self.class.connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{index_reader_sql(group_name)} AND `key` IN (#{keys.map{|key| connection.quote(key)}.join(',')})"
         end
 
         # This method prepares the index
@@ -177,24 +174,22 @@ module Property
               del_keys = old_keys - cur_keys
               upd_keys = cur_keys & old_keys
 
-              table_name  = index_table_name(group_name)
-
               upd_keys.each do |key|
                 value = cur_indices[key]
                 if value.blank?
                   del_keys << key
                 elsif value != old_indices[key]
-                  update_index(table_name, key, value)
+                  update_index(group_name, key, value)
                 end
               end
 
               if !del_keys.empty?
-                delete_indices(table_name, del_keys)
+                delete_indices(group_name, del_keys)
               end
 
               new_keys.reject! {|k| cur_indices[k].blank? }
               if !new_keys.empty?
-                create_indices(table_name, new_keys, cur_indices)
+                create_indices(group_name, new_keys, cur_indices)
               end
             end
           end
