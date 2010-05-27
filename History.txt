@@ -1,6 +1,6 @@
-== 1.0.0
+== 1.0.0 2010-05-27
 
-* 4 major enhancements
+* Major enhancements
   * Added StoredRole class to store role definitions in the database.
   * Validates with legacy but invalid properties if value is unchanged.
   * Added the notion of used roles.
