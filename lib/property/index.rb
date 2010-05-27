@@ -30,21 +30,19 @@ module Property
         end
 
         def index_reader_sql(group_name)
-          @index_reader_sql ||= begin
-            index_reader(group_name).map do |k, v|
-              if k == :with
-                v.map do |subk, subv|
-                  if subv.kind_of?(Array)
-                    "`#{subk}` IN (#{subv.map {|ssubv| connection.quote(ssubv)}.join(',')})"
-                  else
-                    "`#{subk}` = #{self.class.connection.quote(subv)}"
-                  end
-                end.join(' AND ')
-              else
-                "`#{k}` = #{self.class.connection.quote(v)}"
-              end
-            end.join(' AND ')
-          end
+          index_reader(group_name).map do |k, v|
+            if k == :with
+              v.map do |subk, subv|
+                if subv.kind_of?(Array)
+                  "`#{subk}` IN (#{subv.map {|ssubv| connection.quote(ssubv)}.join(',')})"
+                else
+                  "`#{subk}` = #{self.class.connection.quote(subv)}"
+                end
+              end.join(' AND ')
+            else
+              "`#{k}` = #{self.class.connection.quote(v)}"
+            end
+          end.join(' AND ')
         end
 
         def index_reader(group_name)
@@ -163,7 +161,7 @@ module Property
             if group_name.kind_of?(Class)
               # Use a custom indexer
               group_name.set_property_index(self, cur_indices)
-            else
+            elsif index_reader(group_name)
               # Add key/value pairs to the default tables
               old_indices = get_indices(group_name)
 
@@ -193,7 +191,6 @@ module Property
               end
             end
           end
-          @index_reader_sql = nil
         end
 
         # Remove all index entries on destroy
