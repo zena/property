@@ -81,6 +81,16 @@ begin
         t.string  'value'
       end
 
+      # multilingual index strings in employees
+      create_table 'i_ml_string_employees' do |t|
+        t.integer 'employee_id'
+        t.integer 'version_id'
+        t.string  'lang'
+        t.integer 'site_id'
+        t.string  'key'
+        t.string  'value'
+      end
+
       # index strings in employees
       create_table 'i_special_employees' do |t|
         t.integer 'employee_id'
@@ -123,7 +133,7 @@ begin
         # Property Type
         t.string 'ptype'
         # Indexed (we store an integer so that we can have multiple index types)
-        t.integer 'index'
+        t.string 'index'
       end
     end
   end

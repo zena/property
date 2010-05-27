@@ -12,11 +12,11 @@ module Property
 
     def initialize(name, default, type, options={})
       name = name.to_s
-      extract_property_options(options)
       if type.kind_of?(Class)
         @klass = type
       end
       super(name, default, type, options)
+      extract_property_options(options)
     end
 
     def validate(value, errors)
@@ -65,6 +65,15 @@ module Property
     private
       def extract_property_options(options)
         @index = options.delete(:index) || options.delete(:indexed)
+        if @index == true
+          @index = ptype
+        end
+
+        if @index.blank?
+          @index = nil
+        elsif @index.kind_of?(Symbol)
+          @index = @index.to_s
+        end
       end
 
       def extract_default(default)

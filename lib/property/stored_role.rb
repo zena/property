@@ -14,15 +14,15 @@ module Property
 
     module ClassMethods
       def stored_columns_class(columns_class)
-        has_many :stored_columns, :class_name => NameOfColumnsClass
+        has_many :stored_columns, :class_name => columns_class
       end
     end
 
     def self.included(base)
-
       base.class_eval do
         after_save :update_columns
         validates_presence_of :name
+        extend ClassMethods
 
         def self.new(arg, &block)
           unless arg.kind_of?(Hash)

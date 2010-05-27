@@ -32,7 +32,7 @@ class RoleTest < ActiveSupport::TestCase
   context 'A Poet role with indices' do
     setup do
       @poet = Property::Role.new('Poet') do |p|
-        p.string  'poem', :index => true
+        p.string  'poem', :index => :ml_string
         p.integer 'year', :index => true
       end
     end

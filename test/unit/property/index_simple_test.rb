@@ -66,7 +66,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
 
       should 'call create_indices to create index entries' do
          m = Mongrel.create('name' => 'Zed')
-         assert_equal :special, m.last_index_group_name
+         assert_equal 'special', m.last_index_group_name
        end
 
       should 'not create index entries for blank values' do

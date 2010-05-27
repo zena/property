@@ -3,6 +3,10 @@ module IndexMacros
     set_table_name :i_string_employees
   end
 
+  class MLIndexedStringEmp < ActiveRecord::Base
+    set_table_name :i_ml_string_employees
+  end
+
   class IndexedIntegerEmp < ActiveRecord::Base
     set_table_name :i_integer_employees
   end
@@ -10,6 +14,14 @@ module IndexMacros
   # Simple class
   class Employee < ActiveRecord::Base
     include Property
+
+    def index_reader(group_name)
+      if group_name.to_s == 'ml_string'
+        super.merge(:with => {'lang' => ['en', 'fr'], 'site_id' => '123'})
+      else
+        super
+      end
+    end
   end
 end
 
@@ -24,12 +36,12 @@ class Test::Unit::TestCase
         dummy
       end
 
-      should 'write tests for :with option' do
-        assert false
+      should 'use index_reader method' do
+        assert_equal Hash[:with=>{'lang'=>['en', 'fr'], 'site_id'=>'123'}, "employee_id"=>nil], subject.index_reader(:ml_string)
       end
 
-      should 'create string indices on save' do
-        assert_difference('IndexMacros::IndexedStringEmp.count', 1) do
+      should 'create multilingual string indices on save' do
+        assert_difference('IndexMacros::MLIndexedStringEmp.count', 2) do
           subject.poem = 'Hyperions Schicksalslied'
           subject.save
         end

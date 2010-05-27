@@ -8,7 +8,7 @@ class StoredRoleTest < ActiveSupport::TestCase
 
   class Role < ActiveRecord::Base
     include Property::StoredRole
-    has_many :stored_columns, :class_name => 'StoredRoleTest::Column'
+    stored_columns_class 'StoredRoleTest::Column'
   end
 
   should_store_property_definitions(Role)
@@ -51,7 +51,7 @@ class StoredRoleTest < ActiveSupport::TestCase
     context 'with indexed column definitions' do
       setup do
         role = Role.create(:name => 'Poet')
-        role.stored_columns << Column.new(:ptype => 'string',  :name => 'poem', :index => true)
+        role.stored_columns << Column.new(:ptype => 'string',  :name => 'poem', :index => :ml_string)
         role.stored_columns << Column.new(:ptype => 'integer', :name => 'year', :index => true)
         role.save!
         @poet = Role.find(role.id)
