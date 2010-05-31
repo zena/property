@@ -3,11 +3,11 @@ require 'fixtures'
 
 class IndexSimpleTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_special_employees
+    set_table_name :idx_employees_special
   end
 
   class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_integer_employees
+    set_table_name :idx_employees_integer
   end
 
   # Simple index definition class

@@ -74,7 +74,7 @@ begin
       end
 
       # index strings in employees
-      create_table 'idx_string_employees' do |t|
+      create_table 'idx_employees_string' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'key'
@@ -82,7 +82,7 @@ begin
       end
 
       # multilingual index strings in employees
-      create_table 'idx_ml_string_employees' do |t|
+      create_table 'idx_employees_ml_string' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'lang'
@@ -92,14 +92,14 @@ begin
       end
 
       # index strings in employees
-      create_table 'idx_special_employees' do |t|
+      create_table 'idx_employees_special' do |t|
         t.integer 'employee_id'
         t.string  'key'
         t.string  'value'
       end
 
       # index integer in employees
-      create_table 'idx_integer_employees' do |t|
+      create_table 'idx_employees_integer' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'key'
@@ -107,7 +107,7 @@ begin
       end
 
       # index text in employees
-      create_table 'idx_text_employees' do |t|
+      create_table 'idx_employees_text' do |t|
         t.integer 'employee_id'
         t.string  'key'
         t.text    'value'

@@ -3,15 +3,15 @@ require 'fixtures'
 
 class IndexForeignTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_string_employees
+    set_table_name :idx_employees_string
   end
 
   class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_integer_employees
+    set_table_name :idx_employees_integer
   end
 
   class IndexedTextEmp < ActiveRecord::Base
-    set_table_name :idx_text_employees
+    set_table_name :idx_employees_text
   end
 
   class Version < ActiveRecord::Base
@@ -174,10 +174,10 @@ class IndexForeignTest < ActiveSupport::TestCase
         end
 
         should 'create index entries to sort multilingual values' do
-          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_string_employees AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
+          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
                                           :order => "ise.value asc")
 
-          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_string_employees AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
+          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
                                           :order => "ise.value asc")
 
           assert_equal [@jean.id, @jim.id], people_fr.map {|r| r.id}
@@ -201,10 +201,10 @@ class IndexForeignTest < ActiveSupport::TestCase
         end
 
         should 'create index entries to sort multilingual values' do
-          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_string_employees AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
+          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
                                           :order => "ise.value asc")
 
-          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_string_employees AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
+          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
                                           :order => "ise.value asc")
 
           # This is what we would like to have (once we have found an SQL trick to get the record in 'en')

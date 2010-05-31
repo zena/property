@@ -17,7 +17,7 @@ module Property
 
       # Return the table name for the given index group. Produces something like 'i_string_pages'.
       def index_table_name(group_name)
-        "idx_#{group_name}_#{table_name}"
+        "idx_#{table_name}_#{group_name}"
       end
     end
 

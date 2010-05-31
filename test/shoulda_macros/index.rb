@@ -1,14 +1,14 @@
 module IndexMacros
   class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_string_employees
+    set_table_name :idx_employees_string
   end
 
   class MLIndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_ml_string_employees
+    set_table_name :idx_employees_ml_string
   end
 
   class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_integer_employees
+    set_table_name :idx_employees_integer
   end
 
   # Simple class
