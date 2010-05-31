@@ -139,6 +139,10 @@ class Test::Unit::TestCase
           assert @klass.has_role?(@poet)
         end
 
+        should 'return role from column' do
+          @klass.has_role @poet
+          assert_equal (@poet.kind_of?(Class) ? @poet.schema.role : @poet), @klass.schema.columns['poem'].role
+        end
       end
 
       context 'to an instance' do

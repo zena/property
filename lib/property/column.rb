@@ -44,8 +44,14 @@ module Property
       end
     end
 
+    # Return the class related to the type of property stored (String, Integer, etc).
     def klass
       @klass || super
+    end
+
+    # Return the role in which the column was originally defined.
+    def role
+      @role
     end
 
     # Property type used instead of 'type' when column is stored
@@ -65,6 +71,7 @@ module Property
     private
       def extract_property_options(options)
         @index = options.delete(:index) || options.delete(:indexed)
+        @role  = options.delete(:role)
         if @index == true
           @index = ptype
         end

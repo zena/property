@@ -1,3 +1,8 @@
+== 1.1
+
+* Major enhancements
+  * Storing original role in column
+
 == 1.0.0 2010-05-27
 
 * Major enhancements

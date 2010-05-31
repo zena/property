@@ -132,7 +132,7 @@ module Property
                   options = args.extract_options!
                   column_names = args.flatten
                   default = options.delete(:default)
-                  column_names.each { |name| role.add_column(Property::Column.new(name, default, '#{column_type}', options)) }
+                  column_names.each { |name| role.add_column(Property::Column.new(name, default, '#{column_type}', options.merge(:role => role))) }
                 end
               EOV
             end
@@ -141,7 +141,7 @@ module Property
             #   p.serialize 'pet', Dog
             def serialize(name, klass, options = {})
               Property.validate_property_class(klass)
-              role.add_column(Property::Column.new(name, nil, klass, options))
+              role.add_column(Property::Column.new(name, nil, klass, options.merge(:role => role)))
             end
 
             # This is used to create complex indices with the following syntax:

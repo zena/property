@@ -69,7 +69,7 @@ module Property
         @original_columns = {}
         stored_columns.each do |column|
           @original_columns[column.name] = column
-          add_column(Property::Column.new(column.name, column.default, column.ptype, column.options))
+          add_column(Property::Column.new(column.name, column.default, column.ptype, column.options.merge(:role => self)))
         end
       end
 
