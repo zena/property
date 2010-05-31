@@ -3,15 +3,15 @@ require 'fixtures'
 
 class IndexComplexTest < ActiveSupport::TestCase
   class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :i_string_employees
+    set_table_name :idx_string_employees
   end
 
   class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :i_integer_employees
+    set_table_name :idx_integer_employees
   end
 
   class IndexedTextEmp < ActiveRecord::Base
-    set_table_name :i_text_employees
+    set_table_name :idx_text_employees
   end
 
   # Complex index definition class

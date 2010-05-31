@@ -2,6 +2,7 @@
 
 * Major enhancements
   * Storing original role in column
+  * Using 'idx_' as prefix by default instead of 'i_'.
 
 == 1.0.0 2010-05-27
 
