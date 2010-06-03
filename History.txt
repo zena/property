@@ -1,8 +1,9 @@
 == 1.1
 
 * Major enhancements
-  * Storing original role in column
+  * Storing original role in column.
   * Using 'idx_' as prefix by default instead of 'i_'.
+  * Pluralizing index table names.
 
 == 1.0.0 2010-05-27
 

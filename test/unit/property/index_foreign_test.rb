@@ -2,18 +2,6 @@ require 'test_helper'
 require 'fixtures'
 
 class IndexForeignTest < ActiveSupport::TestCase
-  class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_employees_string
-  end
-
-  class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_employees_integer
-  end
-
-  class IndexedTextEmp < ActiveRecord::Base
-    set_table_name :idx_employees_text
-  end
-
   class Version < ActiveRecord::Base
     belongs_to :contact, :class_name => 'IndexForeignTest::Contact',
                :foreign_key => 'employee_id'
@@ -74,14 +62,14 @@ class IndexForeignTest < ActiveSupport::TestCase
 
     context 'on record creation' do
       should 'create index entries' do
-        assert_difference('IndexedStringEmp.count', 2) do
+        assert_difference('IdxEmployeesString.count', 2) do
           Contact.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
         end
       end
 
       should 'store key and value pairs linked to the model' do
         person = Contact.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        high_index, name_index = IndexedStringEmp.all(:conditions => {:version_id => person.version.id}, :order => 'key asc')
+        high_index, name_index = IdxEmployeesString.all(:conditions => {:version_id => person.version.id}, :order => 'key asc')
         assert_equal 'high', high_index.key
         assert_equal 'gender:M age:34 name:Juan', high_index.value
         assert_equal 'name_es', name_index.key
@@ -90,7 +78,7 @@ class IndexForeignTest < ActiveSupport::TestCase
 
       should 'store key and value pairs linked to the foreign model' do
         person = Contact.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        high_index, name_index = IndexedStringEmp.all(:conditions => {:employee_id => person.id}, :order => 'key asc')
+        high_index, name_index = IdxEmployeesString.all(:conditions => {:employee_id => person.id}, :order => 'key asc')
         assert_equal 'high', high_index.key
         assert_equal 'gender:M age:34 name:Juan', high_index.value
         assert_equal 'name_es', name_index.key
@@ -104,13 +92,13 @@ class IndexForeignTest < ActiveSupport::TestCase
       end
 
       should 'update index entries' do
-        high_index, name_index = IndexedStringEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
-        assert_difference('IndexedStringEmp.count', 0) do
+        high_index, name_index = IdxEmployeesString.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+        assert_difference('IdxEmployeesString.count', 0) do
           @person.update_attributes('name' => 'Xavier')
         end
 
-        high_index = IndexedStringEmp.find(high_index.id) # reload (make sure the record has been updated, not recreated)
-        name_index = IndexedStringEmp.find(name_index.id) # reload (make sure the record has been updated, not recreated)
+        high_index = IdxEmployeesString.find(high_index.id) # reload (make sure the record has been updated, not recreated)
+        name_index = IdxEmployeesString.find(name_index.id) # reload (make sure the record has been updated, not recreated)
 
         assert_equal 'high', high_index.key
         assert_equal 'gender:M age:34 name:Xavier', high_index.value
@@ -120,15 +108,15 @@ class IndexForeignTest < ActiveSupport::TestCase
 
       context 'with key alterations' do
         should 'remove and create new keys' do
-          high_index, name_index = IndexedStringEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
-          assert_difference('IndexedStringEmp.count', 0) do
+          high_index, name_index = IdxEmployeesString.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+          assert_difference('IdxEmployeesString.count', 0) do
             @person.update_attributes('lang' => 'en', 'name' => 'John')
           end
 
-          assert IndexedStringEmp.find(high_index.id)
-          assert_nil IndexedStringEmp.find_by_id(name_index.id)
+          assert IdxEmployeesString.find(high_index.id)
+          assert_nil IdxEmployeesString.find_by_id(name_index.id)
 
-          high_index, name_index = IndexedStringEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+          high_index, name_index = IdxEmployeesString.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
 
           assert_equal 'high', high_index.key
           assert_equal 'gender:M age:34 name:John', high_index.value
@@ -141,13 +129,13 @@ class IndexForeignTest < ActiveSupport::TestCase
     context 'on record update with a new version' do
       should 'create new index entries' do
         @person = Contact.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        high_index1, name_index1 = IndexedStringEmp.all(:conditions => {:version_id => @person.version.id}, :order => 'key asc')
+        high_index1, name_index1 = IdxEmployeesString.all(:conditions => {:version_id => @person.version.id}, :order => 'key asc')
         @person.new_version!
-        assert_difference('IndexedStringEmp.count', 2) do
+        assert_difference('IdxEmployeesString.count', 2) do
           @person.update_attributes('name' => 'John', 'lang' => 'en')
         end
 
-        high_index, name_index = IndexedStringEmp.all(:conditions => {:version_id => @person.version.id}, :order => 'key asc')
+        high_index, name_index = IdxEmployeesString.all(:conditions => {:version_id => @person.version.id}, :order => 'key asc')
         assert_not_equal high_index1.id, high_index.id
         assert_not_equal name_index1.id, name_index.id
 
@@ -174,10 +162,10 @@ class IndexForeignTest < ActiveSupport::TestCase
         end
 
         should 'create index entries to sort multilingual values' do
-          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
+          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_strings AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
                                           :order => "ise.value asc")
 
-          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
+          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_strings AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
                                           :order => "ise.value asc")
 
           assert_equal [@jean.id, @jim.id], people_fr.map {|r| r.id}
@@ -201,10 +189,10 @@ class IndexForeignTest < ActiveSupport::TestCase
         end
 
         should 'create index entries to sort multilingual values' do
-          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
+          people_fr = Contact.find(:all, :joins  => "INNER JOIN idx_employees_strings AS ise ON ise.employee_id = employees.id AND ise.key = 'name_fr'",
                                           :order => "ise.value asc")
 
-          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_string AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
+          people_en = Contact.find(:all, :joins  => "INNER JOIN idx_employees_strings AS ise ON ise.employee_id = employees.id AND ise.key = 'name_en'",
                                           :order => "ise.value asc")
 
           # This is what we would like to have (once we have found an SQL trick to get the record in 'en')
@@ -221,8 +209,8 @@ class IndexForeignTest < ActiveSupport::TestCase
     context 'on record destruction' do
       should 'remove index entries' do
         person = Contact.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        assert_difference('IndexedStringEmp.count', -2) do
-          assert_difference('IndexedIntegerEmp.count', -1) do
+        assert_difference('IdxEmployeesString.count', -2) do
+          assert_difference('IdxEmployeesInteger.count', -1) do
             person.destroy
           end
         end

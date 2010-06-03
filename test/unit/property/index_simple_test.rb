@@ -2,13 +2,6 @@ require 'test_helper'
 require 'fixtures'
 
 class IndexSimpleTest < ActiveSupport::TestCase
-  class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_employees_special
-  end
-
-  class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_employees_integer
-  end
 
   # Simple index definition class
   class Dog < ActiveRecord::Base
@@ -59,7 +52,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
 
     context 'on record creation' do
       should 'create index entries' do
-        assert_difference('IndexedStringEmp.count', 1) do
+        assert_difference('IdxEmployeesSpecial.count', 1) do
           Dog.create('name' => 'Pavlov')
         end
       end
@@ -70,16 +63,23 @@ class IndexSimpleTest < ActiveSupport::TestCase
        end
 
       should 'not create index entries for blank values' do
-        assert_difference('IndexedIntegerEmp.count', 0) do
+        assert_difference('IdxEmployeesInteger.count', 0) do
           Dog.create('name' => 'Pavlov')
         end
       end
 
-      should 'store a key and value pair linked to the model' do
+      should 'special indices linked to the model' do
         dog = Dog.create('name' => 'Pavlov')
-        index_string = IndexedStringEmp.first(:conditions => {:employee_id => dog.id})
+        index_string = IdxEmployeesSpecial.first(:conditions => {:employee_id => dog.id})
         assert_equal 'Pavlov', index_string.value
         assert_equal 'name', index_string.key
+      end
+
+      should 'store a key and value pair linked to the model' do
+        dog = Dog.create('age' => 15)
+        index_integer = IdxEmployeesInteger.first(:conditions => {:employee_id => dog.id})
+        assert_equal 15, index_integer.value
+        assert_equal 'age', index_integer.key
       end
     end
 
@@ -89,37 +89,37 @@ class IndexSimpleTest < ActiveSupport::TestCase
       end
 
       should 'update index entries' do
-        index_string = IndexedStringEmp.first(:conditions => {:employee_id => @dog.id})
-        assert_difference('IndexedStringEmp.count', 0) do
+        index_string = IdxEmployeesSpecial.first(:conditions => {:employee_id => @dog.id})
+        assert_difference('IdxEmployeesSpecial.count', 0) do
           @dog.update_attributes('name' => 'Médor')
         end
 
-        index_string = IndexedStringEmp.find(index_string.id)
+        index_string = IdxEmployeesSpecial.find(index_string.id)
         assert_equal 'Médor', index_string.value
         assert_equal 'name', index_string.key
       end
 
       should 'not create index entries for blank values' do
-        assert_difference('IndexedIntegerEmp.count', 0) do
+        assert_difference('IdxEmployeesInteger.count', 0) do
           @dog.update_attributes('name' => 'Médor')
         end
       end
 
       should 'remove blank values' do
-        assert_difference('IndexedStringEmp.count', -1) do
+        assert_difference('IdxEmployeesSpecial.count', -1) do
           @dog.update_attributes('name' => '')
         end
       end
 
       should 'create new entries for new keys' do
-        assert_difference('IndexedIntegerEmp.count', 1) do
+        assert_difference('IdxEmployeesInteger.count', 1) do
           @dog.update_attributes('age' => 7)
         end
       end
 
       should 'store a key and value pair linked to the model' do
         @dog.update_attributes('age' => 7)
-        index_int = IndexedIntegerEmp.first(:conditions => {:employee_id => @dog.id})
+        index_int = IdxEmployeesInteger.first(:conditions => {:employee_id => @dog.id})
         assert_equal 7, index_int.value
         assert_equal 'age', index_int.key
       end
@@ -130,13 +130,13 @@ class IndexSimpleTest < ActiveSupport::TestCase
         end
 
         should 'not alter indices' do
-          assert_difference('IndexedIntegerEmp.count', 0) do
+          assert_difference('IdxEmployeesInteger.count', 0) do
             assert_raises(Exception) do
               @dog.update_attributes('name' => 'raise')
             end
           end
 
-          index_string = IndexedStringEmp.first(:conditions => {:employee_id => @dog.id})
+          index_string = IdxEmployeesSpecial.first(:conditions => {:employee_id => @dog.id})
           assert_equal 'Pavlov', index_string.value
           assert_equal 'name', index_string.key
         end
@@ -147,8 +147,8 @@ class IndexSimpleTest < ActiveSupport::TestCase
     context 'on record destruction' do
       should 'remove index entries' do
         dog = Dog.create('name' => 'Pavlov', 'age' => 7)
-        assert_difference('IndexedStringEmp.count', -1) do
-          assert_difference('IndexedIntegerEmp.count', -1) do
+        assert_difference('IdxEmployeesSpecial.count', -1) do
+          assert_difference('IdxEmployeesInteger.count', -1) do
             dog.destroy
           end
         end

@@ -28,22 +28,44 @@ class Version < ActiveRecord::Base
 end
 
 # To test custom class serialization
-class Dog
+class Cat
   attr_accessor :name, :toy
   def self.json_create(data)
-    Dog.new(data['name'], data['toy'])
+    Cat.new(data['name'], data['toy'])
   end
+
   def initialize(name, toy)
     @name, @toy = name, toy
   end
+
   def to_json(*args)
     { 'json_class' => self.class.to_s,
       'name' => @name, 'toy' => @toy
     }.to_json(*args)
   end
+
   def ==(other)
-    other.kind_of?(Dog) && @name == other.name && @toy == other.toy
+    other.kind_of?(Cat) && @name == other.name && @toy == other.toy
   end
+end
+
+
+class IdxEmployeesString < ActiveRecord::Base
+end
+
+class IdxEmployeesString < ActiveRecord::Base
+end
+
+class IdxEmployeesMlString < ActiveRecord::Base
+end
+
+class IdxEmployeesInteger < ActiveRecord::Base
+end
+
+class IdxEmployeesText < ActiveRecord::Base
+end
+
+class IdxEmployeesSpecial < ActiveRecord::Base
 end
 
 begin
@@ -74,7 +96,7 @@ begin
       end
 
       # index strings in employees
-      create_table 'idx_employees_string' do |t|
+      create_table 'idx_employees_strings' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'key'
@@ -82,7 +104,7 @@ begin
       end
 
       # multilingual index strings in employees
-      create_table 'idx_employees_ml_string' do |t|
+      create_table 'idx_employees_ml_strings' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'lang'
@@ -92,14 +114,15 @@ begin
       end
 
       # index strings in employees
-      create_table 'idx_employees_special' do |t|
+      create_table 'idx_employees_specials' do |t|
+        t.integer 'id'
         t.integer 'employee_id'
         t.string  'key'
         t.string  'value'
       end
 
       # index integer in employees
-      create_table 'idx_employees_integer' do |t|
+      create_table 'idx_employees_integers' do |t|
         t.integer 'employee_id'
         t.integer 'version_id'
         t.string  'key'
@@ -107,7 +130,7 @@ begin
       end
 
       # index text in employees
-      create_table 'idx_employees_text' do |t|
+      create_table 'idx_employees_texts' do |t|
         t.integer 'employee_id'
         t.string  'key'
         t.text    'value'

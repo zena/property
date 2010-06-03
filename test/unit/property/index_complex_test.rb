@@ -2,18 +2,6 @@ require 'test_helper'
 require 'fixtures'
 
 class IndexComplexTest < ActiveSupport::TestCase
-  class IndexedStringEmp < ActiveRecord::Base
-    set_table_name :idx_employees_string
-  end
-
-  class IndexedIntegerEmp < ActiveRecord::Base
-    set_table_name :idx_employees_integer
-  end
-
-  class IndexedTextEmp < ActiveRecord::Base
-    set_table_name :idx_employees_text
-  end
-
   # Complex index definition class
   class Person < ActiveRecord::Base
     include Property
@@ -38,7 +26,7 @@ class IndexComplexTest < ActiveSupport::TestCase
       p.index(:text) do |r| # r = record
         {
           "high"           => "gender:#{r.gender} age:#{r.age} name:#{r.name}",
-          "name_#{r.lang}" => r.name, # multi-lingual index
+          "name_#{r.lang}" => r.name, # multi-lingual index only matching existing object in required lang
         }
       end
     end
@@ -65,20 +53,20 @@ class IndexComplexTest < ActiveSupport::TestCase
 
     context 'on record creation' do
       should 'create index entries' do
-        assert_difference('IndexedTextEmp.count', 2) do
+        assert_difference('IdxEmployeesText.count', 2) do
           Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
         end
       end
 
       should 'not create index entries for blank values' do
-        assert_difference('IndexedIntegerEmp.count', 0) do
+        assert_difference('IdxEmployeesInteger.count', 0) do
           Person.create('name' => 'Pavlov')
         end
       end
 
       should 'store key and value pairs linked to the model' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        high_index, name_index = IndexedTextEmp.all(:conditions => {:employee_id => person.id}, :order => 'key asc')
+        high_index, name_index = IdxEmployeesText.all(:conditions => {:employee_id => person.id}, :order => 'key asc')
         assert_equal 'high', high_index.key
         assert_equal 'gender:M age:34 name:Juan', high_index.value
         assert_equal 'name_es', name_index.key
@@ -87,13 +75,13 @@ class IndexComplexTest < ActiveSupport::TestCase
 
       should 'execute index Proc to build value' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        int_index = IndexedIntegerEmp.first(:conditions => {:employee_id => person.id})
+        int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id})
         assert_equal 44, int_index.value
       end
 
       should 'remove blank values built from proc execution' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        assert_difference('IndexedIntegerEmp.count', -1) do
+        assert_difference('IdxEmployeesInteger.count', -1) do
           person.update_attributes('age' => 0)
         end
       end
@@ -105,13 +93,13 @@ class IndexComplexTest < ActiveSupport::TestCase
       end
 
       should 'update index entries' do
-        high_index, name_index = IndexedTextEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
-        assert_difference('IndexedTextEmp.count', 0) do
+        high_index, name_index = IdxEmployeesText.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+        assert_difference('IdxEmployeesText.count', 0) do
           @person.update_attributes('name' => 'Xavier')
         end
 
-        high_index = IndexedTextEmp.find(high_index.id) # reload (make sure the record has been updated, not recreated)
-        name_index = IndexedTextEmp.find(name_index.id) # reload (make sure the record has been updated, not recreated)
+        high_index = IdxEmployeesText.find(high_index.id) # reload (make sure the record has been updated, not recreated)
+        name_index = IdxEmployeesText.find(name_index.id) # reload (make sure the record has been updated, not recreated)
 
         assert_equal 'high', high_index.key
         assert_equal 'gender:M age:34 name:Xavier', high_index.value
@@ -121,15 +109,15 @@ class IndexComplexTest < ActiveSupport::TestCase
 
       context 'with key alterations' do
         should 'remove and create new keys' do
-          high_index, name_index = IndexedTextEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
-          assert_difference('IndexedTextEmp.count', 0) do
+          high_index, name_index = IdxEmployeesText.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+          assert_difference('IdxEmployeesText.count', 0) do
             @person.update_attributes('lang' => 'en', 'name' => 'John')
           end
 
-          assert IndexedTextEmp.find(high_index.id)
-          assert_nil IndexedTextEmp.find_by_id(name_index.id)
+          assert IdxEmployeesText.find(high_index.id)
+          assert_nil IdxEmployeesText.find_by_id(name_index.id)
 
-          high_index, name_index = IndexedTextEmp.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
+          high_index, name_index = IdxEmployeesText.all(:conditions => {:employee_id => @person.id}, :order => 'key asc')
 
           assert_equal 'high', high_index.key
           assert_equal 'gender:M age:34 name:John', high_index.value
@@ -142,8 +130,8 @@ class IndexComplexTest < ActiveSupport::TestCase
     context 'on record destruction' do
       should 'remove index entries' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        assert_difference('IndexedTextEmp.count', -2) do
-          assert_difference('IndexedIntegerEmp.count', -1) do
+        assert_difference('IdxEmployeesText.count', -2) do
+          assert_difference('IdxEmployeesInteger.count', -1) do
             person.destroy
           end
         end

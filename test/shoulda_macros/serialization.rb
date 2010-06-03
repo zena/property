@@ -20,7 +20,7 @@ class Test::Unit::TestCase
         setup do
           @properties = Property::Properties[
             'string'     => "one\ntwo",
-            'serialized' => Dog.new('Pavlov', 'Freud'),
+            'serialized' => Cat.new('Pavlov', 'Freud'),
             'datetime'   => Time.utc(2010, 02, 12, 21, 31, 25),
             'float'      => 4.3432,
             'integer'    => 4

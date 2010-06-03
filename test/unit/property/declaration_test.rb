@@ -167,9 +167,9 @@ class DeclarationTest < Test::Unit::TestCase
     end
 
     should 'allow serialized columns' do
-      Dog = Struct.new(:name, :toy) do
+      Cat = Struct.new(:name, :toy) do
         def self.json_create(data)
-          Dog.new(data['name'], data['toy'])
+          Cat.new(data['name'], data['toy'])
         end
         def to_json(*args)
           { 'json_class' => self.class.to_s,
@@ -178,10 +178,10 @@ class DeclarationTest < Test::Unit::TestCase
         end
       end
 
-      subject.property.serialize('pet', Dog)
+      subject.property.serialize('pet', Cat)
       column = subject.schema.columns['pet']
       assert_equal 'pet', column.name
-      assert_equal Dog, column.klass
+      assert_equal Cat, column.klass
       assert_equal nil, column.type
     end
 

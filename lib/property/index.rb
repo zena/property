@@ -15,13 +15,17 @@ module Property
 
     module ClassMethods
 
-      # Return the table name for the given index group. Produces something like 'i_string_pages'.
+      # Return the table name for the given index group. Produces something like 'idx_pages_strings'.
       def index_table_name(group_name)
-        "idx_#{table_name}_#{group_name}"
+        "idx_#{table_name}_#{group_name}s"
       end
     end
 
     module InstanceMethods
+
+      def rebuild_index!
+        property_index
+      end
 
       private
         # Retrieve the current indices for a given group (:string, :text, etc)
