@@ -13,7 +13,7 @@ require 'property/core_ext/time'
 require 'property/base'
 
 module Property
-  VERSION = '1.0.0'
+  VERSION = '1.1.0'
 
   def self.included(base)
     base.class_eval do
