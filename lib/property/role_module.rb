@@ -39,13 +39,7 @@ module Property
       columns.values.select do |c|
         c.indexed?
       end.map do |c|
-        if c.index == true
-          [c.type.to_sym, c.name]
-        elsif c.index.kind_of?(Proc)
-          [c.type.to_sym, c.name, c.index]
-        else
-          [c.index,       c.name]
-        end
+        [c.index, c.name, c.index_proc]
       end + @group_indices
     end
 

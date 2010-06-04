@@ -19,8 +19,8 @@ class IndexComplexTest < ActiveSupport::TestCase
     property do |p|
       p.string  'name'
       # only runs if 'age' is not blank
-      p.integer 'age', :index => Proc.new {|r| {'age' => r.age == 0 ? nil : r.age + 10}}
-      p.string  'gender'
+      p.integer 'age',    :index => Proc.new {|r| {'age' => r.age == 0 ? nil : r.age + 10}}
+      p.string  'gender', :index => Proc.new {|r| {'gender' => r.gender[0]}}, :index_group => :integer
       p.string  'lang'
 
       p.index(:text) do |r| # r = record
@@ -73,10 +73,16 @@ class IndexComplexTest < ActiveSupport::TestCase
         assert_equal 'Juan', name_index.value
       end
 
-      should 'execute index Proc to build value' do
+      should 'execute index Proc to build values' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
-        int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id})
+        int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id, :key => 'age'})
         assert_equal 44, int_index.value
+      end
+      
+      should 'use index_group setting to build values' do
+        person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
+        int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id, :key => 'gender'})
+        assert_equal "M"[0], int_index.value
       end
 
       should 'remove blank values built from proc execution' do
@@ -131,7 +137,7 @@ class IndexComplexTest < ActiveSupport::TestCase
       should 'remove index entries' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
         assert_difference('IdxEmployeesText.count', -2) do
-          assert_difference('IdxEmployeesInteger.count', -1) do
+          assert_difference('IdxEmployeesInteger.count', -2) do
             person.destroy
           end
         end

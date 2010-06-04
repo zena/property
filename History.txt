@@ -4,6 +4,7 @@
   * Storing original role in column.
   * Using 'idx_' as prefix by default instead of 'i_'.
   * Pluralizing index table names.
+  * Added 'index_group' setting to use with Proc indexes on properties.
 
 == 1.0.0 2010-05-27
 

@@ -15,6 +15,7 @@ module Property
       if type.kind_of?(Class)
         @klass = type
       end
+
       super(name, default, type, options)
       extract_property_options(options)
     end
@@ -68,17 +69,23 @@ module Property
       end
     end
 
+    # Return the Proc to use to build index (usually nil).
+    def index_proc
+      @index_proc
+    end
+
     private
       def extract_property_options(options)
         @index = options.delete(:index) || options.delete(:indexed)
         @role  = options.delete(:role)
         if @index == true
-          @index = ptype
-        end
-
-        if @index.blank?
+          @index = (options.delete(:index_group) || ptype).to_s
+        elsif @index.kind_of?(Proc)
+          @index_proc = @index
+          @index = (options.delete(:index_group) || ptype).to_s
+        elsif @index.blank?
           @index = nil
-        elsif @index.kind_of?(Symbol)
+        else
           @index = @index.to_s
         end
       end
