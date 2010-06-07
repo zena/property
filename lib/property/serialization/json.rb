@@ -1,3 +1,4 @@
+require 'yajl'
 module Property
   module Serialization
     # Use JSON to encode properties. This is the serialization best option. It's
@@ -21,18 +22,22 @@ module Property
 
       def self.included(base)
         Property.validators << Validator
+        base.extend Encoder
       end
 
-      # Encode properties with JSON
-      def encode_properties(properties)
-        properties.to_json
-      end
+      module Encoder
+        # Encode properties with JSON
+        def encode_properties(properties)
+          properties.to_json
+        end
 
-      # Decode Marshal encoded properties
-      def decode_properties(string)
-        ::JSON.parse(string)
-      end
-
+        # Decode Marshal encoded properties
+        def decode_properties(string)
+          ::JSON.parse(string)
+        end
+      end # Encoder
+      include Encoder
+      extend Encoder
     end # JSON
   end # Serialization
 end # Property

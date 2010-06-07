@@ -3,15 +3,23 @@ module Property
     # Use YAML to encode properties. This method is the slowest of all
     # and you should use JSON if you haven't got good reasons not to.
     module YAML
-      # Encode properties with YAML
-      def encode_properties(properties)
-        ::YAML.dump(properties)
+      def self.included(base)
+        base.extend Encoder
       end
 
-      # Decode properties from YAML
-      def decode_properties(string)
-        ::YAML::load(string)
-      end
+      module Encoder
+        # Encode properties with Marhsal
+        def encode_properties(properties)
+          ::YAML.dump(properties)
+        end
+
+        # Decode Marshal encoded properties
+        def decode_properties(string)
+          ::YAML::load(string)
+        end
+      end # Encoder
+      include Encoder
+      extend Encoder
 
     end # Yaml
   end # Serialization

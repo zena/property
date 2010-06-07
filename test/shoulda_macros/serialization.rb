@@ -38,6 +38,22 @@ class Test::Unit::TestCase
           assert_equal @properties, properties
         end
 
+        context 'with ascii 18' do
+          subject do
+            Property::Properties[
+              'string' => (1..255).to_a.map{|n| n.chr}.join('') # "AB"
+            ]
+          end
+
+          should 'encode and decode ascii 18' do
+            string = @obj.encode_properties(subject)
+            properties = @obj.decode_properties(string)
+            assert_equal Property::Properties, properties.class
+            assert_equal subject, properties
+          end
+        end # with ascii 18
+
+
         should 'not include instance variables' do
           @properties.instance_eval do
             @baz   = 'some data'
