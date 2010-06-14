@@ -1,4 +1,3 @@
-require 'yajl'
 module Property
   module Serialization
     # Use JSON to encode properties. This is the serialization best option. It's
