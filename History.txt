@@ -1,4 +1,4 @@
-== 1.1
+== 1.1.0 2010-07-22
 
 * Major enhancements
   * Storing original role in column.

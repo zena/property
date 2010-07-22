@@ -3,6 +3,7 @@ module Property
   # Property::Declaration module is used to declare property definitions in a Class. The module
   # also manages property inheritence in sub-classes.
   module Index
+    KEY = Property::Db.connection.quote_column_name('key')
 
     def self.included(base)
       base.class_eval do
@@ -32,7 +33,7 @@ module Property
         def get_indices(group_name)
           return {} if new_record?
           res = {}
-          Property::Db.fetch_attributes(['key', 'value'], index_table_name(group_name), index_reader_sql(group_name)).each do |row|
+          Property::Db.fetch_attributes(%w{key value}, index_table_name(group_name), index_reader_sql(group_name)).each do |row|
             res[row['key']] = row['value']
           end
           res
@@ -43,13 +44,13 @@ module Property
             if k == :with
               v.map do |subk, subv|
                 if subv.kind_of?(Array)
-                  "`#{subk}` IN (#{subv.map {|ssubv| connection.quote(ssubv)}.join(',')})"
+                  "#{subk} IN (#{subv.map {|ssubv| connection.quote(ssubv)}.join(',')})"
                 else
-                  "`#{subk}` = #{self.class.connection.quote(subv)}"
+                  "#{subk} = #{self.class.connection.quote(subv)}"
                 end
               end.join(' AND ')
             else
-              "`#{k}` = #{self.class.connection.quote(v)}"
+              "#{k} = #{self.class.connection.quote(v)}"
             end
           end.join(' AND ')
         end
@@ -99,12 +100,11 @@ module Property
           end
 
           values = new_keys.map do |key|
-            [connection.quote(key), connection.quote(cur_indices[key])]
+            [key, cur_indices[key]]
           end
 
           res = []
           foreign_values.each do |list|
-            list = list.map {|k| connection.quote(k)}
             values.each do |value|
               res << (list + value)
             end
@@ -136,12 +136,12 @@ module Property
 
         # Update an index entry
         def update_index(group_name, key, value)
-          self.class.connection.execute "UPDATE #{index_table_name(group_name)} SET `value` = #{connection.quote(value)} WHERE #{index_reader_sql(group_name)} AND `key` = #{connection.quote(key)}"
+          self.class.connection.execute "UPDATE #{index_table_name(group_name)} SET value = #{connection.quote(value)} WHERE #{index_reader_sql(group_name)} AND #{KEY} = #{connection.quote(key)}"
         end
 
         # Delete a list of indices (value became blank).
         def delete_indices(group_name, keys)
-          self.class.connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{index_reader_sql(group_name)} AND `key` IN (#{keys.map{|key| connection.quote(key)}.join(',')})"
+          self.class.connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{index_reader_sql(group_name)} AND #{KEY} IN (#{keys.map{|key| connection.quote(key)}.join(',')})"
         end
 
         # This method prepares the index
@@ -211,7 +211,7 @@ module Property
             if group_name.kind_of?(Class)
               group_name.delete_property_index(self)
             else
-              connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE `#{foreign_key}` = #{current_id}"
+              connection.execute "DELETE FROM #{index_table_name(group_name)} WHERE #{foreign_key} = #{current_id}"
             end
           end
         end

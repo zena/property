@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2010-06-03}
+  s.date = %q{2010-07-22}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [
@@ -43,7 +43,9 @@ Gem::Specification.new do |s|
      "lib/property/serialization/yaml.rb",
      "lib/property/stored_column.rb",
      "lib/property/stored_role.rb",
+     "lib/property/version.rb",
      "property.gemspec",
+     "test/database.rb",
      "test/fixtures.rb",
      "test/shoulda_macros/index.rb",
      "test/shoulda_macros/role.rb",
@@ -51,6 +53,7 @@ Gem::Specification.new do |s|
      "test/test_helper.rb",
      "test/unit/property/attribute_test.rb",
      "test/unit/property/base_test.rb",
+     "test/unit/property/column_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/index_complex_test.rb",
@@ -71,13 +74,15 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{model properties wrap into a single database column}
   s.test_files = [
-    "test/fixtures.rb",
+    "test/database.rb",
+     "test/fixtures.rb",
      "test/shoulda_macros/index.rb",
      "test/shoulda_macros/role.rb",
      "test/shoulda_macros/serialization.rb",
      "test/test_helper.rb",
      "test/unit/property/attribute_test.rb",
      "test/unit/property/base_test.rb",
+     "test/unit/property/column_test.rb",
      "test/unit/property/declaration_test.rb",
      "test/unit/property/dirty_test.rb",
      "test/unit/property/index_complex_test.rb",
