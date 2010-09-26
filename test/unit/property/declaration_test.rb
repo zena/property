@@ -77,6 +77,26 @@ class DeclarationTest < Test::Unit::TestCase
       end
     end
   end
+  
+  context 'An instance' do
+    subject do
+      Class.new(ActiveRecord::Base) do
+        set_table_name :dummies
+        include Property
+      end.new
+    end
+    
+    should 'be able to include a role with _name_ property' do
+      role_with_name = Property::Role.new('foo')
+      role_with_name.property do |p|
+        p.string :name
+      end
+      
+      assert_nothing_raised do
+        subject.has_role role_with_name
+      end
+    end
+  end # An instance
 
   context 'Property declaration' do
     Superhero = Class.new(ActiveRecord::Base) do

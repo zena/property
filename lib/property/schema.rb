@@ -130,12 +130,14 @@ module Property
 
       def check_duplicate_method_definitions(role, keys)
         common_keys = []
+        # we are in an instance's metaclass, find the class
+        superclass  = @binding.ancestors.detect {|a| a.kind_of?(Class)}
         keys.each do |k|
-          common_keys << k if @binding.superclass.method_defined?(k)
+          common_keys << k if superclass.method_defined?(k)
         end
 
         if !common_keys.empty?
-          raise RedefinedMethodError.new("Cannot include role '#{role.name}' in '#{@binding}'. Would hide methods in superclass: #{common_keys.join(', ')}")
+          raise RedefinedMethodError.new("Cannot include role '#{role.name}' in '#{@binding}'. Would hide methods in superclass (#{superclass}): #{common_keys.join(', ')}")
         end
       end
 
