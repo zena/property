@@ -41,9 +41,11 @@ class DeclarationTest < Test::Unit::TestCase
 
         assert_equal %w{age first_name name}, subject.schema.column_names.sort
       end
-
-      should 'not be allowed to overwrite a property from the parent class' do
-        assert_raise(Property::RedefinedPropertyError) do
+      
+      # This is allowed: it's the user's responsability to make sure such a thing does not happen
+      # or cause problems.
+      should 'be allowed to overwrite a property from the parent class' do
+        assert_nothing_raised do
           subject.class_eval do
             property.string 'name'
           end
@@ -58,9 +60,10 @@ class DeclarationTest < Test::Unit::TestCase
         end
       end
 
-      # This is because we include a module and the module would hide the method
-      should 'not be allowed to define a property with the name of a method in the parent class' do
-        assert_raise(Property::RedefinedMethodError) do
+      # This is allowed, it's the user's responsability to make sure such a thing does not cause
+      # problems.
+      should 'be allowed to define a property with the name of a method in the parent class' do
+        assert_nothing_raised do
           subject.class_eval do
             property.string 'method_in_parent'
           end

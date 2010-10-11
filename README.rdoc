@@ -14,11 +14,15 @@ changes detections and migrations.
 == Usage
 
 You first need to create a migration to add a 'text' field named 'properties' to
-your model. Something like this:
+your model. Choose a text format that is really long (otherwize your data will be truncated and the property will fail to decode => error). Do something like this:
 
  class AddPropertyToContact < ActiveRecord::Migration
    def self.up
-     add_column :contacts, :properties, :text
+     if ActiveRecord::Base.configurations[RAILS_ENV]['adapter'] == 'mysql'
+       execute "ALTER TABLE contacts ADD COLUMN properties LONGTEXT"
+     else
+       add_column :contacts, :properties, :text
+     end
    end
 
    def self.down

@@ -117,7 +117,6 @@ module Property
         check_duplicate_property_definitions(role, stored_column_names)
         check_duplicate_method_definitions(role, stored_column_names) if check_methods
 
-        role.included_in(self)
         @binding.send(:include, role.accessor_module)
       end
 

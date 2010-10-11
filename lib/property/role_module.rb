@@ -24,7 +24,6 @@ module Property
 
     # Initialize module (should be called from within including class's initialize method).
     def initialize_role_module
-      @included_in_schemas = []
       @group_indices   = []
       @accessor_module = build_accessor_module
     end
@@ -69,20 +68,12 @@ module Property
     end
 
     # @internal
-    # This is called when the role is included in a schema
-    def included_in(schema)
-      @included_in_schemas << schema
-    end
-
-    # @internal
     def add_column(column)
       name = column.name
 
       if columns[name]
         raise RedefinedPropertyError.new("Property '#{name}' is already defined.")
       else
-        verify_not_defined_in_schemas_using_this_role(name)
-        verify_method_not_defined_in_classes_using_this_role(name)
         define_property_methods(column) if column.should_create_accessors?
         columns[column.name] = column
       end
@@ -225,22 +216,6 @@ module Property
       # Evaluate the definition for an attribute related method
       def evaluate_attribute_property_method(attr_name, method_definition, method_name=attr_name)
         accessor_module.class_eval(method_definition, __FILE__, __LINE__)
-      end
-
-      def verify_not_defined_in_schemas_using_this_role(name)
-        @included_in_schemas.each do |schema|
-          if schema.columns[name]
-            raise RedefinedPropertyError.new("Property '#{name}' is already defined in #{schema.name}.")
-          end
-        end
-      end
-
-      def verify_method_not_defined_in_classes_using_this_role(name)
-        @included_in_schemas.each do |schema|
-          if schema.binding.superclass.method_defined?(name)
-            raise RedefinedMethodError.new("Method '#{name}' is already defined in #{schema.binding.superclass} or ancestors.")
-          end
-        end
       end
   end
 end
