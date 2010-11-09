@@ -1,7 +1,8 @@
-== 1.3.0 2010-10-11
+== 1.3.0 2010-11-9
 
 * Major enhancements
   * Removed 'included_in' check (the same property can now be redefined)
+  * Added support for field indices (as columns in the owner table).
 
 == 1.2.0 2010-09-26
 

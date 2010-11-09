@@ -4,12 +4,14 @@ module Property
   # also manages property inheritence in sub-classes.
   module Index
     KEY = Property::Db.connection.quote_column_name('key')
+    FIELD_INDEX_REGEXP = %r{\A\.(.*)\Z}
 
     def self.included(base)
       base.class_eval do
         extend  ClassMethods
         include InstanceMethods
-        after_save :property_index
+        before_save :property_field_index
+        after_save  :property_index
         after_destroy :property_index_destroy
       end
     end
@@ -25,6 +27,12 @@ module Property
     module InstanceMethods
 
       def rebuild_index!
+        property_field_index
+
+        if changed?
+          update_without_callbacks # no validation, no callbacks
+        end
+
         property_index
       end
 
@@ -145,8 +153,20 @@ module Property
         end
 
         # This method prepares the index
+        def property_field_index
+          schema.index_groups.each do |group_name, definitions|
+            if group_name =~ FIELD_INDEX_REGEXP
+              # write attribute in owner
+              key = definitions.first.first
+              self[$1] = prop[key]
+            end
+          end
+        end
+
+        # This method prepares the index
         def property_index
           schema.index_groups.each do |group_name, definitions|
+            next if group_name =~ FIELD_INDEX_REGEXP
             cur_indices = {}
             definitions.each do |key, proc|
               if key

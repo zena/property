@@ -17,6 +17,7 @@ class WebDeveloper < Developer
 
 end
 
+
 class Version < ActiveRecord::Base
   attr_accessor :backup
   include Property

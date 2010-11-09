@@ -11,6 +11,7 @@ begin
       create_table 'employees' do |t|
         t.string 'type'
         t.text   'properties'
+        t.float  'idx_float1'
       end
 
       create_table 'versions' do |t|
