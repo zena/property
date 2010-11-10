@@ -22,6 +22,10 @@ module Property
       base.class_eval do
         after_save :update_columns
         validates_presence_of :name
+        def after_initialize
+          initialize_role_module
+        end
+        
         extend ClassMethods
 
         def self.new(arg, &block)
@@ -59,7 +63,7 @@ module Property
     def property
       super
     end
-    
+
     # Overwrite name reader in RoleModule
     def name
       self[:name]

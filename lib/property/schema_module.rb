@@ -17,19 +17,19 @@ module Property
         include_role superschema
       end
     end
-    
+
     def klass
       @klass
     end
-    
+
     def roles
       @roles
     end
-    
+
     # Add a set of property definitions to the schema.
     def include_role(role)
-      @columns = nil # clear cache
-      if role.kind_of?(Schema)
+      # @columns = nil # clear cache
+      if role.kind_of?(SchemaModule)
         # Superclass inheritance
         @roles << role.roles
       elsif role.kind_of?(RoleModule)

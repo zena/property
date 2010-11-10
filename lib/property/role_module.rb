@@ -101,7 +101,7 @@ module Property
 
     def inspect
       # "#<#{self.class}:#{sprintf("0x%x", object_id)} #{@name.inspect} @klass = #{@klass.inspect} @defined_columns = #{@defined_columns.inspect}>"
-      "#<#{self.class}:#{sprintf("0x%x", object_id)} #{column_names.inspect}>"
+      "#<#{self.class}:#{sprintf("0x%x", object_id)} #{defined_columns.keys.inspect}>"
     end
 
     protected

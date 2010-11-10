@@ -9,12 +9,10 @@ module Property
 
     def self.included(base)
       base.class_eval do
-        # Initialize a new schema with the given name
-        def initialize(opts = {})
-          klass = opts.delete(:class)
-          superschema = opts.delete(:superschema)
-          super
-          initialize_schema_module(:class => klass, :superschema => superschema)
+        attr_writer :class, :superschema
+        
+        def after_initialize
+          initialize_schema_module(:class => @class, :superschema => @superschema)
         end
       end
     end
