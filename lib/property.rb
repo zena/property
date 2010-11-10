@@ -3,6 +3,7 @@ require 'property/dirty'
 require 'property/properties'
 require 'property/column'
 require 'property/role_module'
+require 'property/schema_module'
 require 'property/role'
 require 'property/schema'
 require 'property/declaration'
@@ -12,6 +13,7 @@ require 'property/serialization/json'
 require 'property/core_ext/time'
 require 'property/base'
 require 'property/stored_role'
+require 'property/stored_schema'
 
 module Property
   def self.included(base)

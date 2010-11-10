@@ -1,4 +1,9 @@
-== 2.0.0
+== 2.1.0
+
+* Major enhancements
+  * Added support for custom Schema classes through SchemaModule and StoredSchema.
+  
+== 2.0.0 2010-11-10
 
 * Major enhancements
   * Rewrite of the core engine to remove all the metaclass and anonymous module codes (generated memory leaks).
