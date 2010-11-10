@@ -29,7 +29,7 @@ module Property
       def rebuild_index!
         property_field_index
 
-        if changed?
+        if changed_without_properties?
           update_without_callbacks # no validation, no callbacks
         end
 

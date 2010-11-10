@@ -92,7 +92,8 @@ module Property
 
       private
         def attributes_with_properties=(attributes, guard_protected_attributes = true)
-          property_columns = self.properties.columns
+          property_columns = self.schema.column_names
+          
           properties = {}
 
           attributes.keys.each do |k|
