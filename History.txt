@@ -1,4 +1,12 @@
-== 1.3.0 2010-11-9
+== 2.0.0
+
+* Major enhancements
+  * Rewrite of the core engine to remove all the metaclass and anonymous module codes (generated memory leaks).
+  * Removed "actions" to create methods in a Role (you have to define them in the host class instead).
+  * Not defining accessor methods in Roles (using method missing instead). Accessors in Schema are defined directly in the class.
+  * Not checking for redefined methods anymore.
+
+== 1.3.0 2010-11-9 (not released)
 
 * Major enhancements
   * Removed 'included_in' check (the same property can now be redefined)

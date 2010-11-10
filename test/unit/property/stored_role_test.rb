@@ -24,7 +24,7 @@ class StoredRoleTest < ActiveSupport::TestCase
         @poet = Role.find(role.id)
       end
 
-      should_insert_properties_on_has_role_poet
+      should_insert_properties_on_include_role_poet
       should_take_part_in_used_list(false)
       should_not_maintain_indices # no indexed column defined
 

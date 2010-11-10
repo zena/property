@@ -10,17 +10,10 @@ class RoleTest < ActiveSupport::TestCase
       @poet = Property::Role.new('Poet') do |p|
         p.string 'poem', :default => :muse
         p.integer 'year'
-
-        p.actions do
-          def muse
-            'I am your muse'
-          end
-        end
       end
     end
 
-    should_insert_properties_on_has_role_poet
-    should_add_role_methods
+    should_insert_properties_on_include_role_poet
     should_take_part_in_used_list
     should_not_maintain_indices # no indexed column defined
 
@@ -48,12 +41,10 @@ class RoleTest < ActiveSupport::TestCase
       property do |p|
         p.string 'poem', :default => :muse
         p.integer 'year'
+      end
 
-        p.actions do
-          def muse
-            'I am your muse'
-          end
-        end
+      def muse
+        'I am your muse'
       end
     end
 
@@ -61,8 +52,7 @@ class RoleTest < ActiveSupport::TestCase
       @poet = Foo
     end
 
-    should_insert_properties_on_has_role_poet
-    should_add_role_methods
+    should_insert_properties_on_include_role_poet
     should_take_part_in_used_list
 
     context 'set on a sub-class instance' do
@@ -71,7 +61,7 @@ class RoleTest < ActiveSupport::TestCase
       end
 
       should 'not raise an exception' do
-        assert_nothing_raised { subject.has_role Developer }
+        assert_nothing_raised { subject.include_role Developer }
       end
     end # set on a sub-class instance
   end # A class used as role

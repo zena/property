@@ -19,7 +19,7 @@ module Property
       end
     end
 
-    # This is just a helper module that includes necessary code for property access, but without
+    # This is just a helper module that includes the necessary code for property access, but without
     # the validation/save hooks.
     module Base
       def self.included(base)

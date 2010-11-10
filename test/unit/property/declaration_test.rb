@@ -41,7 +41,7 @@ class DeclarationTest < Test::Unit::TestCase
 
         assert_equal %w{age first_name name}, subject.schema.column_names.sort
       end
-      
+
       # This is allowed: it's the user's responsability to make sure such a thing does not happen
       # or cause problems.
       should 'be allowed to overwrite a property from the parent class' do
@@ -80,7 +80,7 @@ class DeclarationTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context 'An instance' do
     subject do
       Class.new(ActiveRecord::Base) do
@@ -88,15 +88,15 @@ class DeclarationTest < Test::Unit::TestCase
         include Property
       end.new
     end
-    
+
     should 'be able to include a role with _name_ property' do
       role_with_name = Property::Role.new('foo')
       role_with_name.property do |p|
         p.string :name
       end
-      
+
       assert_nothing_raised do
-        subject.has_role role_with_name
+        subject.include_role role_with_name
       end
     end
   end # An instance
@@ -178,12 +178,12 @@ class DeclarationTest < Test::Unit::TestCase
       assert_equal Time, column.klass
       assert_equal :datetime, column.type
     end
-    
+
     should 'allow multiple declarations in one go' do
       subject.property.string 'foo', 'bar', 'baz'
       assert_equal %w{bar baz foo}, subject.schema.column_names.sort
     end
-    
+
     should 'allow multiple declarations in an Array' do
       subject.property.string ['foo', 'bar', 'baz']
       assert_equal %w{bar baz foo}, subject.schema.column_names.sort
@@ -228,7 +228,7 @@ class DeclarationTest < Test::Unit::TestCase
           p.string 'poem'
         end
 
-        @instance.has_role @poet
+        @instance.include_role @poet
       end
 
       should 'behave like any other property column' do
@@ -239,10 +239,19 @@ class DeclarationTest < Test::Unit::TestCase
         assert_equal Hash['poem' => 'shazam'], @instance.prop
       end
 
+      should 'use method_missing for property methods' do
+        assert !@instance.respond_to?(:poem=)
+        assert_nothing_raised do
+          @instance.poem = 'shazam'
+          assert_equal 'shazam', @instance.poem
+        end
+      end
+
       should 'not affect instance class' do
         assert !subject.schema.column_names.include?('poem')
-        assert_raise(NoMethodError) do
-          subject.new.poem = 'not a poet'
+        assert_raise(ArgumentError) do # rails transforms the NoMethodError into an obscure ArgumentError...
+          instance = subject.new
+          instance.poem = 'not a poet'
         end
       end
     end
@@ -268,29 +277,13 @@ class DeclarationTest < Test::Unit::TestCase
     subject { Class.new(Developer) }
 
     should 'raise an exception if we ask to behave like a class without schema' do
-      assert_raise(TypeError) { subject.has_role String }
+      assert_raise(TypeError) { subject.include_role String }
     end
 
     should 'raise an exception if we ask to behave like an object' do
-      assert_raise(TypeError) { subject.has_role 'me' }
+      assert_raise(TypeError) { subject.include_role 'me' }
     end
-    
-    should 'raise an exception if the role redefines properties' do
-      @emp = Property::Role.new('empi')
-      @emp.property.string 'first_name'
-      assert_raise(Property::RedefinedPropertyError) do
-        subject.has_role @emp
-      end
-    end
-    
-    should 'raise an exception if the role contains superclass methods' do
-      @emp = Property::Role.new('empi')
-      @emp.property.string 'method_in_parent'
-      assert_raise(Property::RedefinedMethodError) do
-        subject.has_role @emp
-      end
-    end
-    
+
     should 'inherit properties when asking to behave like a class' do
       @class = Class.new(ActiveRecord::Base) do
         include Property
@@ -298,10 +291,10 @@ class DeclarationTest < Test::Unit::TestCase
           p.string 'hop'
         end
       end
-      
-      subject.has_role @class
+
+      subject.include_role @class
       assert_equal %w{language last_name hop age first_name}, subject.schema.column_names
-      assert subject.has_role?(@class)
+      assert subject.has_role?(@class.schema)
     end
   end
 
@@ -324,12 +317,10 @@ class DeclarationTest < Test::Unit::TestCase
         p.string 'first_name'
         p.string 'famous', :default => :get_is_famous
         p.integer 'age'
+      end
 
-        p.actions do
-          def get_is_famous
-            'no'
-          end
-        end
+      def get_is_famous
+        'no'
       end
 
       def version

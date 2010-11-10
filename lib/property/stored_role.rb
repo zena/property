@@ -8,7 +8,7 @@ module Property
   # Once this module is included, you need to set the has_many association to the class that
   # contains the columns definitions with something like:
   #
-  #   has_many :stored_columns, :class_name => NameOfColumnsClass
+  #   stored_columns_class NameOfColumnsClass
   module StoredRole
     include RoleModule
 

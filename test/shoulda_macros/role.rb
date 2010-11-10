@@ -77,7 +77,7 @@ class Test::Unit::TestCase
     end
   end # should_store_property_definitions
 
-  def self.should_insert_properties_on_has_role_poet
+  def self.should_insert_properties_on_include_role_poet
     context 'added' do
 
       context 'to a parent class' do
@@ -86,35 +86,34 @@ class Test::Unit::TestCase
             set_table_name :dummies
             include Property
             property.string 'name'
+
+            def muse
+              'I am your muse'
+            end
           end
 
           @klass = Class.new(@parent)
         end
 
         should 'propagate definitions to child' do
-          @parent.has_role @poet
+          @parent.include_role @poet
           assert_equal %w{name poem year}, @klass.schema.column_names.sort
         end
 
         should 'return true on has_role?' do
-          @parent.has_role @poet
+          @parent.include_role @poet
           assert @klass.has_role?(@poet)
         end
 
-        should 'raise an exception if class contains same definitions' do
-          @parent.property.string 'poem'
-          assert_raise(Property::RedefinedPropertyError) { @parent.has_role @poet }
-        end
-
         should 'not raise an exception on double inclusion' do
-          @parent.has_role @poet
-          assert_nothing_raised { @parent.has_role @poet }
+          @parent.include_role @poet
+          assert_nothing_raised { @parent.include_role @poet }
         end
 
         should 'add accessor methods to child' do
           subject = @klass.new
-          assert_raises(NoMethodError) { subject.poem = 'Poe'}
-          @parent.has_role @poet
+          assert_raises(ArgumentError) { subject.poem = 'Poe'} # rails changes NoMethodError to ArgumentError
+          @parent.include_role @poet
 
           assert_nothing_raised { subject.poem = 'Poe'}
         end
@@ -126,22 +125,26 @@ class Test::Unit::TestCase
             set_table_name :dummies
             include Property
             property.string 'name'
+
+            def muse
+              'I am your muse'
+            end
           end
         end
 
         should 'insert definitions' do
-          @klass.has_role @poet
+          @klass.include_role @poet
           assert_equal %w{name poem year}, @klass.schema.column_names.sort
         end
 
         should 'return true on class has_role?' do
-          @klass.has_role @poet
+          @klass.include_role @poet
           assert @klass.has_role?(@poet)
         end
 
         should 'return role from column' do
-          @klass.has_role @poet
-          assert_equal (@poet.kind_of?(Class) ? @poet.schema.role : @poet), @klass.schema.columns['poem'].role
+          @klass.include_role @poet
+          assert_equal (@poet.kind_of?(Class) ? @poet.schema : @poet), @klass.schema.columns['poem'].role
         end
       end
 
@@ -149,7 +152,7 @@ class Test::Unit::TestCase
         subject { Developer.new }
 
         setup do
-          subject.has_role @poet
+          subject.include_role @poet
         end
 
         should 'merge property definitions' do
@@ -157,38 +160,7 @@ class Test::Unit::TestCase
         end
       end
     end
-  end # should_insert_properties_on_has_role
-
-  def self.should_add_role_methods
-    context 'added' do
-      context 'to a parent class' do
-        setup do
-          @parent = Class.new(ActiveRecord::Base) do
-            set_table_name :dummies
-            include Property
-            property.string 'name'
-          end
-
-          @klass = Class.new(@parent)
-        end
-
-        should 'add role methods to child' do
-          subject = @klass.new
-          assert_raises(NoMethodError) { subject.muse }
-          @parent.has_role @poet
-
-          assert_nothing_raised { subject.muse }
-        end
-
-        should 'use role methods for defaults' do
-          subject = @klass.new
-          @parent.has_role @poet
-          assert subject.save
-          assert_equal 'I am your muse', subject.poem
-        end
-      end
-    end
-  end # should_add_role_methods
+  end # should_insert_properties_on_include_role
 
   def self.should_take_part_in_used_list(has_defaults = true)
 
@@ -199,9 +171,13 @@ class Test::Unit::TestCase
             set_table_name :dummies
             include Property
             property.string 'name'
+
+            def muse
+              'I am your muse'
+            end
           end
 
-          @klass.has_role @poet
+          @klass.include_role @poet
         end
 
         subject do
@@ -214,7 +190,7 @@ class Test::Unit::TestCase
 
         should 'not return role without corresponding attributes' do
           subject.attributes = {'name' => 'hello'}
-          assert_equal [@klass.schema.role], subject.used_roles
+          assert_equal [@klass.schema], subject.used_roles
         end
 
         should 'return role with corresponding attributes' do

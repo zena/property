@@ -3,7 +3,10 @@ module IndexMacros
   class Client < ActiveRecord::Base
     set_table_name :employees
     include Property
-
+    
+    def muse
+      'I am your muse'
+    end
     def index_reader(group_name)
       if group_name.to_s == 'ml_string'
         super.merge(:with => {'lang' => ['en', 'fr'], 'site_id' => '123'})
@@ -21,7 +24,7 @@ class Test::Unit::TestCase
     context "assigned to an instance of Dummy" do
       subject do
         dummy = IndexMacros::Client.new
-        dummy.has_role @poet
+        dummy.include_role @poet
         dummy
       end
 
@@ -58,7 +61,7 @@ class Test::Unit::TestCase
     context "assigned to an instance of Dummy" do
       subject do
         dummy = IndexMacros::Client.new
-        dummy.has_role @poet
+        dummy.include_role @poet
         dummy
       end
 
