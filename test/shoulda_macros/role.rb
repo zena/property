@@ -112,7 +112,7 @@ class Test::Unit::TestCase
 
         should 'add accessor methods to child' do
           subject = @klass.new
-          assert_raises(ArgumentError) { subject.poem = 'Poe'} # rails changes NoMethodError to ArgumentError
+          assert_raises(NoMethodError) { subject.poem = 'Poe'}
           @parent.include_role @poet
 
           assert_nothing_raised { subject.poem = 'Poe'}
@@ -160,7 +160,7 @@ class Test::Unit::TestCase
         end
       end
     end
-  end # should_insert_properties_on_include_role
+  end # should_insert_properties_on_include_role_poet
 
   def self.should_take_part_in_used_list(has_defaults = true)
 

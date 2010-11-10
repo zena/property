@@ -25,10 +25,11 @@ module Property
 
     # Add a set of property definitions to the schema.
     def include_role(role)
+      @columns = nil # clear cache
       if role.kind_of?(Schema)
         # Superclass inheritance
         @roles << role.roles
-      elsif role.kind_of?(Role)
+      elsif role.kind_of?(RoleModule)
         @roles << role
       elsif role.respond_to?(:schema) && role.schema.kind_of?(Role)
         @roles << role.schema.roles
@@ -51,6 +52,7 @@ module Property
     # Return a hash with the column definitions defined in the schema and in the included
     # roles.
     def columns
+      # FIXME: can we memoize this list on the first call ? Do we need to update properties after such a call ?
       # @columns ||=
       begin
         res = {}
@@ -74,7 +76,7 @@ module Property
     def has_role?(role)
       if role.kind_of?(Schema)
         role.roles.flatten - @roles.flatten == []
-      elsif role.kind_of?(Role)
+      elsif role.kind_of?(RoleModule)
         @roles.flatten.include?(role)
       elsif role.respond_to?(:schema) && role.schema.kind_of?(Role)
         has_role?(role.schema)

@@ -50,15 +50,19 @@ module Property
       end
     end # included
 
-    # List all property definitions for the current role
-    def columns
+    # Get all property definitions defined for this role
+    def defined_columns
       load_columns_from_db unless @columns_from_db_loaded
       super
     end
 
     def property
-      initialize_role_module unless @accessor_module
       super
+    end
+    
+    # Overwrite name reader in RoleModule
+    def name
+      self[:name]
     end
 
 
@@ -74,9 +78,12 @@ module Property
       end
 
       def update_columns
-        @original_columns ||= {}
+        return unless @defined_columns # no change
+        unless @original_columns
+          load_columns_from_db
+        end
         stored_column_names  = @original_columns.keys
-        defined_column_names = self.column_names
+        defined_column_names = column_names
 
         new_columns     = defined_column_names - stored_column_names
         updated_columns = defined_column_names & stored_column_names

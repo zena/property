@@ -249,7 +249,7 @@ class DeclarationTest < Test::Unit::TestCase
 
       should 'not affect instance class' do
         assert !subject.schema.column_names.include?('poem')
-        assert_raise(ArgumentError) do # rails transforms the NoMethodError into an obscure ArgumentError...
+        assert_raise(NoMethodError) do
           instance = subject.new
           instance.poem = 'not a poet'
         end

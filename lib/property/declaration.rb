@@ -124,8 +124,8 @@ module Property
         # When roles are dynamically added to a model, we use method_missing to mimic property
         # accessors. Since this has a cost, it is better to use 'prop' based accessors in production
         # code (this is mostly helpful for testing/debugging).
-        def method_missing(method, *args)
-          method = method.to_s
+        def method_missing(meth, *args, &block)
+          method = meth.to_s
           if args.empty?
             if method[-1..-1] == '?'
               # predicate
