@@ -1,8 +1,13 @@
+== 2.1.1
+
+* Minor enhancements
+  * Made defined_columns public.
+
 == 2.1.0 2010-11-15
 
 * Major enhancements
   * Added support for custom Schema classes through SchemaModule and StoredSchema.
-  
+
 == 2.0.0 2010-11-10
 
 * Major enhancements

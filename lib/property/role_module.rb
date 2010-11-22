@@ -104,14 +104,14 @@ module Property
       "#<#{self.class}:#{sprintf("0x%x", object_id)} #{defined_columns.keys.inspect}>"
     end
 
+    # List all property columns defined for this role
+    def defined_columns
+      @defined_columns ||= {}
+    end
+
     protected
       def initialize_role_module
         @group_indices = []
-      end
-
-      # List all property columns defined for this role
-      def defined_columns
-        @defined_columns ||= {}
       end
 
       # @internal

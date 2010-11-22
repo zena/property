@@ -281,7 +281,7 @@ class AttributeTest < Test::Unit::TestCase
     setup do
       version = Version.create('title' => 'first', 'tic' => 'tac')
       @version = Version.find(version.id)
-      assert subject.update_attributes('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
+      assert subject.update_attributes(:foo=>'bar', 'title'=>'test', 'backup' => 'please')
     end
 
     subject { @version }
