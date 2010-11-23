@@ -54,10 +54,10 @@ class Test::Unit::TestCase
       assert column.indexed?
     end
 
-    should 'return a list of indices on indices' do
+    should 'return a list of indices on defined_indices' do
       subject.property.string('rolodex', :index => true)
       subject.property.integer('foobar', :index => true)
-      assert_equal %w{integer string}, subject.indices.map {|i| i[0].to_s }.sort
+      assert_equal %w{integer string}, subject.defined_indices.map {|i| i[0].to_s }.sort
     end
 
     context 'created with a Hash' do

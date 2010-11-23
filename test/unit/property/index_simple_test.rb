@@ -35,6 +35,10 @@ class IndexSimpleTest < ActiveSupport::TestCase
     should 'group indices by type' do
       assert_equal %w{integer special}, subject.index_groups.keys.map(&:to_s).sort
     end
+    
+    should 'group indices by type' do
+      assert_equal Hash["special"=>[["name", nil]], "integer"=>[["age", nil]]], subject.index_groups
+    end
   end
 
   context 'A class with a simple index definition' do

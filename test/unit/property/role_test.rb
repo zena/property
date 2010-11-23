@@ -27,6 +27,7 @@ class RoleTest < ActiveSupport::TestCase
       @poet = Property::Role.new('Poet') do |p|
         p.string  'poem', :index => :ml_string
         p.integer 'year', :index => true
+        p.integer 'age'
       end
     end
 

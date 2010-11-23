@@ -53,7 +53,19 @@ class Test::Unit::TestCase
           end
         end
       end
-    end # An instance of Person
+      
+      should 'build a group of indices' do
+        assert_equal Hash['ml_string'=>[['poem', nil]], 'integer'=>[['year', nil]]], subject.schema.index_groups
+      end
+      
+      should 'build indices array' do
+        assert_equal [['integer', 'year', nil], ['ml_string', 'poem', nil]], @poet.defined_indices
+      end
+      
+      should 'only use defined propertys to build indices array' do
+        assert_equal [], subject.schema.defined_indices
+      end
+    end # assigned to an instance of Dummy
   end
 
   def self.should_not_maintain_indices

@@ -90,9 +90,9 @@ module Property
       object.properties.keys & column_names
     end
 
-    # Return a list of index definitions in the form [type, key, proc_or_nil]
-    def indices
-      columns.values.select do |c|
+    # Return a list of index definitions from the defined columns in the form [type, key, proc_or_nil]
+    def defined_indices
+      defined_columns.values.select do |c|
         c.indexed?
       end.map do |c|
         [c.index, c.name, c.index_proc]
