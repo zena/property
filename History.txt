@@ -1,10 +1,12 @@
 == 2.1.1
 
+* Major enhancements
+  * Not raising an error on invalid attributes.
+
 * Minor enhancements
   * Made defined_columns public.
   * Fixed a bug where all columns would be parsed for each role.
   * Fixed a bug where group_indices would be overwritten during initialization.
-  * Removed the need for module initialization.
 
 == 2.1.0 2010-11-15
 

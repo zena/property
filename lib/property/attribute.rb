@@ -94,16 +94,17 @@ module Property
         def attributes_with_properties=(attributes, guard_protected_attributes = true)
           property_columns = schema.column_names
 
-          properties = {}
+          model_attrs  = {}
 
           attributes.keys.each do |k|
-            if property_columns.include?(k)
-              properties[k] = attributes.delete(k)
+            if respond_to?("#{k}=")
+              model_attrs[k] = attributes.delete(k)
             end
           end
-
-          self.properties = properties
-          self.attributes_without_properties = attributes
+          
+          # Properties validation will add errors on invalid keys.
+          self.properties = attributes
+          self.attributes_without_properties = model_attrs
         end
     end # InstanceMethods
   end # Attribute

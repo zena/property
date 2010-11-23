@@ -259,7 +259,7 @@ class AttributeTest < Test::Unit::TestCase
     should 'call native methods' do
       assert_equal 'please', subject.backup
     end
-  end
+  end # Setting attributes
 
   context 'Initializing an object' do
     subject { Version.new('foo'=>'bar', 'title'=>'test', 'backup' => 'please') }
