@@ -22,9 +22,6 @@ module Property
       base.class_eval do
         after_save :update_columns
         validates_presence_of :name
-        def after_initialize
-          initialize_role_module
-        end
         
         extend ClassMethods
 
@@ -44,12 +41,6 @@ module Property
           end
 
           obj
-        end
-
-        # Initialize a new role with the given name
-        def initialize(*args)
-          initialize_role_module
-          super
         end
       end
     end # included

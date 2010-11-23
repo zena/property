@@ -30,7 +30,6 @@ module Property
     # Initialize a new role with the given name
     def initialize(name, opts = nil)
       @name = name
-      initialize_role_module
     end
   end
 end

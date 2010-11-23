@@ -74,7 +74,7 @@ module Property
     # will be yielded with the record and should return a hash of key => value pairs.
     def index(type, &block)
       #                 type,  key, proc
-      @group_indices << [type, nil, block]
+      group_indices << [type, nil, block]
     end
 
     # Returns true if the role is used by the given object. A role is
@@ -96,7 +96,7 @@ module Property
         c.indexed?
       end.map do |c|
         [c.index, c.name, c.index_proc]
-      end + @group_indices
+      end + group_indices
     end
 
     def inspect
@@ -110,8 +110,8 @@ module Property
     end
 
     protected
-      def initialize_role_module
-        @group_indices = []
+      def group_indices
+        @group_indices ||= []
       end
 
       # @internal
