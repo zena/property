@@ -48,8 +48,8 @@ module Property
 
         # Initialize a new role with the given name
         def initialize(*args)
-          super
           initialize_role_module
+          super
         end
       end
     end # included
@@ -72,7 +72,6 @@ module Property
 
     private
       def load_columns_from_db
-        initialize_role_module
         @columns_from_db_loaded = true
         @original_columns = {}
         stored_columns.each do |column|
