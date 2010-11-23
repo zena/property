@@ -10,6 +10,10 @@ class ValidationTest < Test::Unit::TestCase
       property.float 'boat'
       property.string 'bird_name'
       property.serialize 'cat', Cat
+      
+      def infamous
+        raise Exception.new("Should not send!")
+      end
     end
 
     subject { Pirate.create }
@@ -31,7 +35,28 @@ class ValidationTest < Test::Unit::TestCase
         assert !subject.save
         assert_equal subject.errors['infamous'], 'property not declared'
       end
-
+      
+      should 'not send to get value in error message' do
+        subject.prop['infamous'] = 'dictator'
+        assert !subject.save
+        assert_nothing_raised do
+          subject.errors.each_error do |key, error|
+            assert_equal 'Infamous property not declared', error.full_message
+          end
+        end
+      end
+      
+      context 'with blank value' do
+        
+        should 'not set an error message' do
+          subject.prop['infamous'] = ''
+          subject.prop['greedy']   = nil
+          assert subject.save
+          assert_nil subject.errors['infamous']
+          assert_nil subject.errors['greedy']
+        end
+      end # with blank value
+      
       context 'with dirty' do
         should 'validate if property was not changed' do
           subject.prop.instance_eval do

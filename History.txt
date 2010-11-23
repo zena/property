@@ -2,6 +2,8 @@
 
 * Major enhancements
   * Not raising an error on invalid attributes.
+  * Avoid bad attributes being used to 'send' messages during error message building.
+  * Not setting an error for blank values.
 
 * Minor enhancements
   * Made defined_columns public.

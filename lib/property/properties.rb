@@ -1,4 +1,18 @@
 module Property
+  class AttributeError < ActiveRecord::Error
+    def default_options
+      options.reverse_merge :scope => [:activerecord, :errors],
+                            :model => @base.class.human_name,
+                            :attribute => @base.class.human_attribute_name(attribute.to_s)
+    end
+
+    # SECURITY: MAKE SURE WE DO NOT SEND.
+    # Value is already in 'options'.
+    def value
+      nil
+    end
+  end
+
   class Properties < Hash
     attr_accessor :owner
     include Property::DirtyProperties
@@ -49,8 +63,12 @@ module Property
       bad_keys.each do |key|
         if original_hash[key] == self[key]
           # ignore invalid legacy value
+        elsif self[key].blank?
+          # ignore blank values
+          self.delete(key)
         else
-          errors.add("#{key}", 'property not declared')
+          # We use our own Error class to make sure 'send' is not used on error keys.
+          errors.add(key, Property::AttributeError.new(@owner, key, nil, :message => 'property not declared', :value => self[key]))
         end
       end
 
