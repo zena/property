@@ -1,3 +1,8 @@
+== 2.1.2 2010-12-04
+
+* Major enhancements
+  * Fixed a bug preventing destruction of objects with a field index.
+
 == 2.1.1 2010-11-23
 
 * Major enhancements

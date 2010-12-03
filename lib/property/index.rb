@@ -228,6 +228,7 @@ module Property
           foreign_key = index_foreign_key
           current_id  = self.id
           schema.index_groups.each do |group_name, definitions|
+            next if group_name =~ FIELD_INDEX_REGEXP
             if group_name.kind_of?(Class)
               group_name.delete_property_index(self)
             else

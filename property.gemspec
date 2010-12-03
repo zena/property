@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "2.1.1"
+  s.version = "2.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2010-11-23}
+  s.date = %q{2010-12-04}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [

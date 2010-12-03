@@ -52,5 +52,19 @@ class IndexFieldTest < ActiveSupport::TestCase
       end
     end # on index rebuild
 
+    context 'on record destroy' do
+      subject do
+        Person.create('name' => 'Jake Sully', 'age' => 30)
+      end
+
+      should 'not raise an error' do
+        subject # create
+        assert_difference('Person.count', -1) do
+          assert_nothing_raised do
+            assert subject.destroy
+          end
+        end
+      end
+    end
   end
 end
