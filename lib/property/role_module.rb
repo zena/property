@@ -101,7 +101,7 @@ module Property
 
     def inspect
       # "#<#{self.class}:#{sprintf("0x%x", object_id)} #{@name.inspect} @klass = #{@klass.inspect} @defined_columns = #{@defined_columns.inspect}>"
-      "#<#{self.class}:#{sprintf("0x%x", object_id)} #{defined_columns.keys.inspect}>"
+      "#<#{self.class}:'#{name}' #{defined_columns.keys.join(', ')}>"
     end
 
     # List all property columns defined for this role

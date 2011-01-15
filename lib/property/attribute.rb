@@ -101,7 +101,7 @@ module Property
               model_attrs[k] = attributes.delete(k)
             end
           end
-          
+
           # Properties validation will add errors on invalid keys.
           self.properties = attributes
           self.attributes_without_properties = model_attrs
