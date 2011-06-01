@@ -22,7 +22,7 @@ module Property
       base.class_eval do
         after_save :update_columns
         validates_presence_of :name
-        
+
         extend ClassMethods
 
         def self.new(arg, &block)
@@ -67,7 +67,7 @@ module Property
         @original_columns = {}
         stored_columns.each do |column|
           @original_columns[column.name] = column
-          add_column(Property::Column.new(column.name, column.default, column.ptype, column.options.merge(:role => self)))
+          add_column(Property::Column.new(column.name, column.default, column.ptype, column.options.merge(:role => self, :orig => column)))
         end
       end
 
@@ -85,7 +85,6 @@ module Property
         # deleted_columns = stored_column_names - defined_column_names
 
         new_columns.each do |name|
-          ActiveRecord::Base.logger.warn "Creating #{name} column"
           stored_columns.create(:name => name, :ptype => columns[name].type.to_s)
         end
 

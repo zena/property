@@ -1,3 +1,8 @@
+== 2.2.0
+
+* Major enhancements
+  * Better support for stored columns and custom type cast.
+
 == 2.1.2 2010-12-04
 
 * Major enhancements

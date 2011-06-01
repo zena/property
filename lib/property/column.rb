@@ -59,7 +59,9 @@ module Property
     alias ptype type
 
     def type_cast(value)
-      if type == :string
+      if @caster && val = @caster.type_cast(value)
+        val
+      elsif type == :string
         value = value.to_s
         value.blank? ? nil : value
       elsif @klass
@@ -78,6 +80,7 @@ module Property
       def extract_property_options(options)
         @index = options.delete(:index) || options.delete(:indexed)
         @role  = options.delete(:role)
+        @caster= options.delete(:orig)
         if @index == true
           @index = (options.delete(:index_group) || ptype).to_s
         elsif @index.kind_of?(Proc)

@@ -186,7 +186,7 @@ module Property
                 cur_indices.merge!(proc.call(self))
               end
             end
-
+            
             if group_name.kind_of?(Class)
               # Use a custom indexer
               group_name.set_property_index(self, cur_indices)
@@ -200,7 +200,7 @@ module Property
               new_keys = cur_keys - old_keys
               del_keys = old_keys - cur_keys
               upd_keys = cur_keys & old_keys
-
+              
               upd_keys.each do |key|
                 value = cur_indices[key]
                 if value.blank?
