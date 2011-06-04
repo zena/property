@@ -2,6 +2,7 @@ require 'pathname'
 $LOAD_PATH.unshift((Pathname(__FILE__).dirname +  '..' + 'lib').expand_path)
 
 require 'rubygems'
+gem 'activerecord', '2.3.11'
 require 'test/unit'
 require 'shoulda'
 require 'active_record'

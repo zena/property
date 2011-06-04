@@ -16,6 +16,11 @@ module Property
       {:index => (index.blank? ? nil : index)}
     end
 
+    # Dummy, can be reimplemented in the class storing the column.
+    def type_cast(value)
+      nil
+    end
+
     private
       def set_index
         if index == true
