@@ -50,7 +50,6 @@ class Cat
   end
 end
 
-
 class IdxEmployeesString < ActiveRecord::Base
 end
 

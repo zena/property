@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require 'fixtures'
 
@@ -20,7 +21,7 @@ class IndexComplexTest < ActiveSupport::TestCase
       p.string  'name'
       # only runs if 'age' is not blank
       p.integer 'age',    :index => Proc.new {|r| {'age' => r.age == 0 ? nil : r.age + 10}}
-      p.string  'gender', :index => Proc.new {|r| {'gender' => r.gender[0]}}, :index_group => :integer
+      p.string  'gender', :index => Proc.new {|r| {'gender' => r.gender.ord}}, :index_group => :integer
       p.string  'lang'
 
       p.index(:text) do |r| # r = record
@@ -78,11 +79,11 @@ class IndexComplexTest < ActiveSupport::TestCase
         int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id, :key => 'age'})
         assert_equal 44, int_index.value
       end
-      
+
       should 'use index_group setting to build values' do
         person = Person.create('name' => 'Juan', 'lang' => 'es', 'gender' => 'M', 'age' => 34)
         int_index = IdxEmployeesInteger.first(:conditions => {:employee_id => person.id, :key => 'gender'})
-        assert_equal "M"[0], int_index.value
+        assert_equal ?M.ord, int_index.value
       end
 
       should 'remove blank values built from proc execution' do

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require 'fixtures'
 
@@ -114,20 +115,39 @@ class DeclarationTest < Test::Unit::TestCase
       assert_kind_of Property::Column, subject.schema.columns['weapon']
     end
 
-    should 'create ruby accessors' do
-      subject.property.string('weapon')
-      assert subject.instance_methods.include?('weapon')
-      assert subject.instance_methods.include?('weapon=')
-      assert subject.instance_methods.include?('weapon?')
-    end
+    if RUBY_VERSION.to_f > 1.8
+      should 'create ruby accessors' do
+        subject.property.string('weapon')
+        assert subject.instance_methods.include?(:weapon)
+        assert subject.instance_methods.include?(:weapon=)
+        assert subject.instance_methods.include?(:weapon?)
+      end
 
-    should 'not create accessors for illegal ruby names' do
-      bad_names = ['some.thing', 'puts("yo")', '/var/', 'hello darness']
-      assert_nothing_raised { subject.property.string bad_names }
-      bad_names.each do |bad_name|
-        assert !subject.instance_methods.include?(bad_name)
-        assert !subject.instance_methods.include?("#{bad_name}=")
-        assert !subject.instance_methods.include?("#{bad_name}?")
+      should 'not create accessors for illegal ruby names' do
+        bad_names = ['some.thing', 'puts("yo")', '/var/', 'hello darness']
+        assert_nothing_raised { subject.property.string bad_names }
+        bad_names.each do |bad_name|
+          assert !subject.instance_methods.include?(bad_name.to_sym)
+          assert !subject.instance_methods.include?(:"#{bad_name}=")
+          assert !subject.instance_methods.include?(:"#{bad_name}?")
+        end
+      end
+    else
+      should 'create ruby accessors' do
+        subject.property.string('weapon')
+        assert subject.instance_methods.include?('weapon')
+        assert subject.instance_methods.include?('weapon=')
+        assert subject.instance_methods.include?('weapon?')
+      end
+
+      should 'not create accessors for illegal ruby names' do
+        bad_names = ['some.thing', 'puts("yo")', '/var/', 'hello darness']
+        assert_nothing_raised { subject.property.string bad_names }
+        bad_names.each do |bad_name|
+          assert !subject.instance_methods.include?(bad_name)
+          assert !subject.instance_methods.include?("#{bad_name}=")
+          assert !subject.instance_methods.include?("#{bad_name}?")
+        end
       end
     end
 
@@ -293,7 +313,7 @@ class DeclarationTest < Test::Unit::TestCase
       end
 
       subject.include_role @class
-      assert_equal %w{language last_name hop age first_name}, subject.schema.column_names
+      assert_equal %w{language last_name hop age first_name}.sort, subject.schema.column_names.sort
       assert subject.has_role?(@class.schema)
     end
   end

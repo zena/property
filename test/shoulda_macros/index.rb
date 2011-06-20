@@ -3,7 +3,7 @@ module IndexMacros
   class Client < ActiveRecord::Base
     set_table_name :employees
     include Property
-    
+
     def muse
       'I am your muse'
     end
@@ -53,15 +53,15 @@ class Test::Unit::TestCase
           end
         end
       end
-      
+
       should 'build a group of indices' do
         assert_equal Hash['ml_string'=>[['poem', nil]], 'integer'=>[['year', nil]]], subject.schema.index_groups
       end
-      
+
       should 'build indices array' do
-        assert_equal [['integer', 'year', nil], ['ml_string', 'poem', nil]], @poet.defined_indices
+        assert_equal [['integer', 'year', nil], ['ml_string', 'poem', nil]], @poet.defined_indices.sort{|a,b| a[0] <=> b[0]}
       end
-      
+
       should 'only use defined propertys to build indices array' do
         assert_equal [], subject.schema.defined_indices
       end

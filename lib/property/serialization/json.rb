@@ -8,13 +8,25 @@ module Property
       module Validator
         NATIVE_TYPES = [Hash, Array, Integer, Float, String, TrueClass, FalseClass, NilClass]
 
-        # Should raise an exception if the type is not serializable.
-        def self.validate(klass)
-          if NATIVE_TYPES.include?(klass) ||
-             (klass.respond_to?('json_create') && klass.instance_methods.include?('to_json'))
-            true
-          else
-            raise TypeError.new("Cannot serialize #{klass}. Missing 'self.create_json' and 'to_json' methods.")
+        if RUBY_VERSION.to_f > 1.8
+          # Should raise an exception if the type is not serializable.
+          def self.validate(klass)
+            if NATIVE_TYPES.include?(klass) ||
+               (klass.respond_to?(:json_create) && klass.instance_methods.include?(:to_json))
+              true
+            else
+              raise TypeError.new("Cannot serialize #{klass}. Missing 'self.create_json' and 'to_json' methods.")
+            end
+          end
+        else
+          # Should raise an exception if the type is not serializable.
+          def self.validate(klass)
+            if NATIVE_TYPES.include?(klass) ||
+               (klass.respond_to?('json_create') && klass.instance_methods.include?('to_json'))
+              true
+            else
+              raise TypeError.new("Cannot serialize #{klass}. Missing 'self.create_json' and 'to_json' methods.")
+            end
           end
         end
       end

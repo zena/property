@@ -1,3 +1,4 @@
+# encoding: UTF-8
 class Test::Unit::TestCase
 
   def self.should_encode_and_decode_properties
@@ -40,8 +41,13 @@ class Test::Unit::TestCase
 
         context 'with ascii 18' do
           subject do
+            if RUBY_VERSION.to_f > 1.8
+              str = (1..255).to_a.map{|n| n.chr('utf-8')}.join('') # "AB"
+            else
+              str = (1..255).to_a.map{|n| n.chr}.join('') # "AB"
+            end
             Property::Properties[
-              'string' => (1..255).to_a.map{|n| n.chr}.join('') # "AB"
+              'string' => str
             ]
           end
 
@@ -49,7 +55,7 @@ class Test::Unit::TestCase
             string = @obj.encode_properties(subject)
             properties = @obj.decode_properties(string)
             assert_equal Property::Properties, properties.class
-            assert_equal subject, properties
+            assert_equal subject['string'], properties['string']
           end
         end # with ascii 18
 

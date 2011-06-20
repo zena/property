@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'test_helper'
 require 'fixtures'
 
@@ -35,7 +36,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
     should 'group indices by type' do
       assert_equal %w{integer special}, subject.index_groups.keys.map(&:to_s).sort
     end
-    
+
     should 'not contain duplicates' do
       assert_equal Hash["special"=>[["name", nil]], "integer"=>[["age", nil]]], subject.index_groups
     end
