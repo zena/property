@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{property}
-  s.version = "2.2.0"
+  s.version = "2.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Renaud Kern", "Gaspard Bucher"]
-  s.date = %q{2011-06-15}
+  s.date = %q{2012-05-23}
   s.description = %q{Wrap model properties into a single database column and declare properties from within the model.}
   s.email = %q{gaspard@teti.ch}
   s.extra_rdoc_files = [
@@ -72,32 +72,8 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://zenadmin.org/635}
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{property}
-  s.rubygems_version = %q{1.6.1}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{model properties wrap into a single database column}
-  s.test_files = [
-    "test/database.rb",
-    "test/fixtures.rb",
-    "test/shoulda_macros/index.rb",
-    "test/shoulda_macros/role.rb",
-    "test/shoulda_macros/serialization.rb",
-    "test/test_helper.rb",
-    "test/unit/property/attribute_test.rb",
-    "test/unit/property/base_test.rb",
-    "test/unit/property/column_test.rb",
-    "test/unit/property/declaration_test.rb",
-    "test/unit/property/dirty_test.rb",
-    "test/unit/property/index_complex_test.rb",
-    "test/unit/property/index_custom_test.rb",
-    "test/unit/property/index_field_test.rb",
-    "test/unit/property/index_foreign_test.rb",
-    "test/unit/property/index_simple_test.rb",
-    "test/unit/property/role_test.rb",
-    "test/unit/property/stored_role_test.rb",
-    "test/unit/property/validation_test.rb",
-    "test/unit/serialization/json_test.rb",
-    "test/unit/serialization/marshal_test.rb",
-    "test/unit/serialization/yaml_test.rb"
-  ]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

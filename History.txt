@@ -1,7 +1,8 @@
-== 2.3.0
+== 2.3.0 2012-05-23
 
 * Major enhancements
   * Fixed tests and sources for Ruby 1.9
+  * Enabled stored columns for serialized properties
 
 == 2.2.0 2011-06-06
 

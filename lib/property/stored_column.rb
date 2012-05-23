@@ -10,6 +10,11 @@ module Property
     def default
       nil
     end
+    
+    # Used to store serialized properties. Should return the class to serialize.
+    def klass
+      nil
+    end
 
     # No supported options yet.
     def options
