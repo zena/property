@@ -34,8 +34,9 @@ module Property
             delete(key)
           end
         elsif value.kind_of?(Hash) && column.klass <= Hash && column.caster.respond_to?(:merge_hash)
+          orig = self[key]
           # We *MUST* duplicate hash here or Dirty will not function correctly.
-          value = column.caster.merge_hash(self[key].dup, value)
+          value = column.caster.merge_hash(orig ? orig.dup : {}, value)
           if value.blank?
             if default = column.default_for(@owner)
               super(key, default)
