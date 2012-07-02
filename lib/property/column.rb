@@ -6,7 +6,7 @@ module Property
   # such as name, type and options. It is also used to typecast from strings to
   # the proper type (date, integer, float, etc).
   class Column < ::ActiveRecord::ConnectionAdapters::Column
-    attr_accessor :index
+    attr_accessor :index, :caster
 
     SAFE_NAMES_REGEXP = %r{\A[a-zA-Z_]+\Z}
 

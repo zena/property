@@ -54,7 +54,7 @@ module Property
     def changed
       changes.keys
     end
-
+    
     def changes
       return {} unless @original_hash
       changes = {}
