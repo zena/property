@@ -43,7 +43,7 @@ begin
 
     # Gem dependecies
     gemspec.add_development_dependency('shoulda')
-    gemspec.add_dependency('activerecord')
+    gemspec.add_dependency('activerecord', '~>2.3')
   end
 rescue LoadError
   puts "Jeweler not available. Gem packaging tasks not available."
