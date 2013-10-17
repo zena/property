@@ -42,7 +42,7 @@ module Property
           properties.to_json
         end
 
-        # Decode Marshal encoded properties
+        # Decode JSON encoded properties
         def decode_properties(string)
           ::JSON.parse(string)
         end

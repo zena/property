@@ -122,7 +122,6 @@ class AttributeTest < Test::Unit::TestCase
       assert_equal 'bar', subject.properties.delete('foo')
       assert_nil subject.properties['foo']
     end
-
   end
 
   context 'Retrieving' do
@@ -237,6 +236,65 @@ class AttributeTest < Test::Unit::TestCase
 
       should 'find same value' do
         assert_equal @cat, subject.prop['myserialized']
+      end
+    end
+    
+    context 'invalid encoded property' do
+      subject do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          invalid_property_failover 'error' => 'Property invalid!', 'myfloat' => 0.0
+          set_table_name :dummies
+          property.float 'myfloat'
+        end
+
+        obj = klass.create('myfloat' => 78.9)
+        obj = klass.find(obj)
+        obj.instance_eval do
+          @attributes['properties'] = '{aaa:'
+        end
+        obj
+      end
+
+      should 'find invalid default' do
+        assert_equal({'error' => 'Property invalid!', 'myfloat' => 0.0}, subject.prop)
+        assert_equal Property::Properties, subject.prop.class
+      end
+      
+      context 'without a default' do
+        subject do
+          klass = Class.new(ActiveRecord::Base) do
+            include Property
+            set_table_name :dummies
+            property.float 'myfloat'
+          end
+
+          obj = klass.create('myfloat' => 78.9)
+          obj = klass.find(obj)
+          obj.instance_eval do
+            @attributes['properties'] = '{aaa:'
+          end
+          obj
+        end
+        
+        should 'raise an error' do
+          assert_raise(Property::DecodingError) do
+            subject.prop
+          end
+        end
+      end
+    end
+    
+    context 'setting invalid failover' do
+      
+      should 'not allow non-hash values' do
+        klass = Class.new(ActiveRecord::Base) do
+          include Property
+          invalid_property_failover 'error' => 'Property invalid!', 'myfloat' => 0.0
+          set_table_name :dummies
+          property.float 'myfloat'
+        end
+      
       end
     end
   end

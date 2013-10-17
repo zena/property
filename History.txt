@@ -1,4 +1,10 @@
-== 2.3.3 2012-08-16
+== 2.3.4 2013-10-17
+
+* Minor enhancements
+  * Raising 'Property::DecodingError' in case of decoding failure.
+  * Added support for 'invalid_property_failover' to use as failover in case of decoding failure.
+
+== 2.3.3 2013-08-16
 
 * Minor enhancements
   * Specifying rails dependency to avoid ruby version clash.

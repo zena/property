@@ -5,7 +5,7 @@ module Property
   #
   # The properties are encoded et decoded with a serialization tool than you can change by including
   # a Serialization module that should implement 'encode_properties' and 'decode_properties'.
-  # The default is to use Marshal through Property::Serialization::Marshal.
+  # The default is to use JSON through Property::Serialization::JSON.
   #
   # The attributes= method filters native attributes and properties in order to store
   # them apart.
@@ -42,6 +42,8 @@ module Property
         end
         load_and_dump_methods =<<-EOF
           private
+            @@invalid_property_failover = nil
+            
             def load_properties
               raw_data = #{accessor}read_attribute('properties')
               prop = raw_data ? decode_properties(raw_data) : Properties.new
@@ -49,6 +51,12 @@ module Property
               # type casting on write.
               prop.owner = self
               prop
+            rescue => err
+              if @@invalid_property_failover
+                Properties[@@invalid_property_failover]
+              else
+                raise Property::DecodingError.new err.message
+              end
             end
 
             def dump_properties
@@ -61,6 +69,11 @@ module Property
                 @properties.clear_changes!
               end
               true
+            end
+            
+            def self.invalid_property_failover(failover)
+              raise "Invalid failover property value type: should be a Hash." unless failover.kind_of?(Hash) || failover == nil
+              @@invalid_property_failover = failover
             end
         EOF
         class_eval(load_and_dump_methods, __FILE__, __LINE__)
