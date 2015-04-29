@@ -1,3 +1,14 @@
+== 2.3.6 2015-04-29
+
+* Major change
+  * Refuses to execute JSON serialization with incompatible JSON version (prints warning and exits)
+  * Minor gemspec cleanup
+
+== 2.3.5 2015-04-29
+
+* Minor enhancement
+  * Using JSON.dump instead of 'to_json' (different behaviour on some environments)
+
 == 2.3.4 2013-10-17
 
 * Minor enhancements

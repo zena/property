@@ -40,10 +40,15 @@ begin
     gemspec.authors = ['Renaud Kern', 'Gaspard Bucher']
     gemspec.version = Property::VERSION
     gemspec.rubyforge_project = 'property'
+    gemspec.licenses    = ['MIT']
 
     # Gem dependecies
-    gemspec.add_development_dependency('shoulda')
     gemspec.add_dependency('activerecord', '~>2.3')
+    # Not adding this here since JSON serialization is optional.
+    # gemspec.add_dependency('json', '1.5.1')
+
+    gemspec.add_development_dependency('shoulda', '~>2.10')
+    gemspec.add_development_dependency('sqlite3', '1.3.5')
   end
 rescue LoadError
   puts "Jeweler not available. Gem packaging tasks not available."
