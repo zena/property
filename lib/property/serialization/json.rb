@@ -1,3 +1,11 @@
+unless ::JSON::VERSION == "1.5.1"
+  puts "###################################################################"
+  puts "ERROR:   --- property ---"
+  puts "         JSON serialization only works with JSON 1.5.1"
+  puts "         current JSON version is #{::JSON::VERSION}"
+  puts "###################################################################"
+end
+gem 'json', '=1.5.1'
 module Property
   module Serialization
     # Use JSON to encode properties. This is the serialization best option. It's
