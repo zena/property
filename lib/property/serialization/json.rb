@@ -39,7 +39,7 @@ module Property
       module Encoder
         # Encode properties with JSON
         def encode_properties(properties)
-          properties.to_json
+          ::JSON.dump(properties)
         end
 
         # Decode JSON encoded properties
