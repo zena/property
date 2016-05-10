@@ -368,7 +368,7 @@ class DeclarationTest < Test::Unit::TestCase
     subject { @contact }
 
     should 'store properties in the given instance' do
-      assert_equal Hash["famous"=>"no", "first_name"=>"Martin"], JSON.parse(subject.version['properties'])
+      assert_equal Hash["famous"=>"no", "first_name"=>"Martin"], JSON.load(subject.version['properties'])
     end
 
     should 'keep a properties cache in the the main instance' do
