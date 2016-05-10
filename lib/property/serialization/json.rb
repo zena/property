@@ -44,7 +44,7 @@ module Property
 
         # Decode JSON encoded properties
         def decode_properties(string)
-          ::JSON.parse(string)
+          ::JSON.load(string)
         end
       end # Encoder
       include Encoder
