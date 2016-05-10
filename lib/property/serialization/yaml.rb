@@ -1,3 +1,5 @@
+YAML::ENGINE.yamler = 'syck' # only for ruby 1.9.3
+
 module Property
   module Serialization
     # Use YAML to encode properties. This method is the slowest of all
