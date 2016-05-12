@@ -12,7 +12,7 @@ gem "activesupport", "3.2.22.2"
 gem "sqlite3", "1.3.11"
 gem 'yajl-ruby', require: 'yajl'
 
-# gem "psych", "2.0.17"
+gem "syck", "1.1.0"
 
 group :development do
 	gem "pry"
