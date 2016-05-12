@@ -2,10 +2,11 @@ module Property
   # The SchemaModule enables a class to act as a Schema.
   module SchemaModule
     def initialize_schema_module(opts)
+
       @klass = opts[:class]
 
       @roles = [self]
-
+      
       # Schema inheritance
       unless superschema = opts[:superschema]
         if @klass && @klass.superclass.respond_to?(:schema)

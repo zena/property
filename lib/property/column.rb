@@ -1,5 +1,4 @@
 require 'active_record'
-ActiveRecord.load_all!
 
 module Property
   # The Column class is used to hold information about a Property declaration,

@@ -1,7 +1,7 @@
 module IndexMacros
   # Simple class
   class Client < ActiveRecord::Base
-    set_table_name :employees
+    self.table_name = :employees
     include Property
 
     def muse

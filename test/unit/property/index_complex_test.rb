@@ -6,7 +6,7 @@ class IndexComplexTest < ActiveSupport::TestCase
   # Complex index definition class
   class Person < ActiveRecord::Base
     include Property
-    set_table_name :employees
+    self.table_name = :employees
 
     def save_with_raise
       if name == 'raise'

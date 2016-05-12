@@ -8,9 +8,9 @@ class IndexForeignTest < ActiveSupport::TestCase
   end
 
   class Contact < ActiveRecord::Base
-    set_table_name :employees
+    self.table_name = :employees
 
-    has_many :versions, :class_name => 'IndexForeignTest::Version'
+    has_many :versions, :class_name => 'IndexForeignTest::Version', :foreign_key => 'employee_id'
     def version
       @version ||= begin
         if new_record?

@@ -5,7 +5,7 @@ class IndexFieldTest < ActiveSupport::TestCase
 
   class Person < ActiveRecord::Base
     include Property
-    set_table_name :employees
+    self.table_name = :employees
     property.string 'name'
     property.float 'age', :index => '.idx_float1'
   end

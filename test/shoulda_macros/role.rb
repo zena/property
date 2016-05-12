@@ -1,8 +1,9 @@
 class Test::Unit::TestCase
   def self.should_store_property_definitions(klass)
-    subject { klass.new('Foobar') }
+    subject = klass.new('Foobar') 
 
     should 'allow string columns' do
+      subject = klass.new('Foobar') 
       subject.property.string('weapon')
       column = subject.columns['weapon']
       assert_equal 'weapon', column.name
@@ -11,6 +12,7 @@ class Test::Unit::TestCase
     end
 
     should 'treat symbol keys as strings' do
+      subject = klass.new('Foobar') 
       subject.property.string(:weapon)
       column = subject.columns['weapon']
       assert_equal 'weapon', column.name
@@ -83,7 +85,7 @@ class Test::Unit::TestCase
       context 'to a parent class' do
         setup do
           @parent = Class.new(ActiveRecord::Base) do
-            set_table_name :dummies
+            self.table_name = :dummies
             include Property
             property.string 'name'
 
@@ -122,7 +124,7 @@ class Test::Unit::TestCase
       context 'to a class' do
         setup do
           @klass = Class.new(ActiveRecord::Base) do
-            set_table_name :dummies
+            self.table_name = :dummies
             include Property
             property.string 'name'
 
@@ -168,7 +170,7 @@ class Test::Unit::TestCase
       context 'to a class' do
         setup do
           @klass = Class.new(ActiveRecord::Base) do
-            set_table_name :dummies
+            self.table_name = :dummies
             include Property
             property.string 'name'
 

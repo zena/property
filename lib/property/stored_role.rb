@@ -25,7 +25,7 @@ module Property
 
         extend ClassMethods
 
-        def self.new(arg, &block)
+        def self.new(arg,options={}, &block)
           unless arg.kind_of?(Hash)
             arg = {:name => arg}
           end

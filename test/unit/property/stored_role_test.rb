@@ -15,7 +15,9 @@ class StoredRoleTest < ActiveSupport::TestCase
     include Property::StoredSchema
   end
 
-  should_store_property_definitions(Role)
+  context 'A Role class' do
+    should_store_property_definitions(Role)
+  end
   
   context 'A Schema class' do
     should_store_property_definitions(Schema)

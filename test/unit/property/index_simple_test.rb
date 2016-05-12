@@ -7,7 +7,7 @@ class IndexSimpleTest < ActiveSupport::TestCase
   # Simple index definition class
   class Dog < ActiveRecord::Base
     include Property
-    set_table_name :employees
+    self.table_name = :employees
 
     def save_with_raise
       if name == 'raise'

@@ -1,3 +1,5 @@
+require  'yajl'
+
 module Property
   module Serialization
     # Use JSON to encode properties. This is the serialization best option. It's
@@ -39,12 +41,13 @@ module Property
       module Encoder
         # Encode properties with JSON
         def encode_properties(properties)
-          properties.to_json
+          # properties.to_json
+          ::Yajl::Encoder.encode(properties)
         end
 
         # Decode JSON encoded properties
         def decode_properties(string)
-          ::JSON.load(string)
+          Property::Properties[::JSON.load(string)]
         end
       end # Encoder
       include Encoder

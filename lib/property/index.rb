@@ -30,7 +30,7 @@ module Property
         property_field_index
 
         if changed_without_properties?
-          update_without_callbacks # no validation, no callbacks
+          save(:callbacks => false) # no validation, no callbacks
         end
 
         property_index

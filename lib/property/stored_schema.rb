@@ -10,8 +10,9 @@ module Property
     def self.included(base)
       base.class_eval do
         attr_writer :class, :superschema
+        after_initialize :load_superschema
         
-        def after_initialize
+        def load_superschema
           initialize_schema_module(:class => @class, :superschema => @superschema)
         end
       end

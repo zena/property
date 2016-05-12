@@ -3,7 +3,7 @@ require 'fixtures'
 
 class IndexCustomTest < ActiveSupport::TestCase
   class IndexedContact < ActiveRecord::Base
-    set_table_name :contacts
+    self.table_name = :contacts
 
     def self.set_property_index(person, indices)
       if index = first(:conditions => ['employee_id = ?', person.id])
@@ -21,7 +21,7 @@ class IndexCustomTest < ActiveSupport::TestCase
   # Index definition class with a legacy table for indices
   class Person < ActiveRecord::Base
     include Property
-    set_table_name :employees
+    self.table_name = :employees
 
     property do |p|
       p.string 'name'

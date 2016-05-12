@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'fixtures'
 
 # including Property::Base is like including Property but without hooks
 class BaseTest < Test::Unit::TestCase
@@ -15,8 +14,8 @@ class BaseTest < Test::Unit::TestCase
     end
 
     class Contact < ActiveRecord::Base
-      set_table_name :employees
-      has_many :versions, :class_name => 'BaseTest::Version'
+      self.table_name = :employees
+      has_many :versions, :class_name => 'BaseTest::Version', :foreign_key => 'employee_id'
 
       include Property
       store_properties_in :version

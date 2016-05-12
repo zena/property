@@ -85,7 +85,7 @@ class DeclarationTest < Test::Unit::TestCase
   context 'An instance' do
     subject do
       Class.new(ActiveRecord::Base) do
-        set_table_name :dummies
+        self.table_name = :dummies
         include Property
       end.new
     end
@@ -104,7 +104,7 @@ class DeclarationTest < Test::Unit::TestCase
 
   context 'Property declaration' do
     Superhero = Class.new(ActiveRecord::Base) do
-      set_table_name :dummies
+      self.table_name = :dummies
       include Property
     end
 
@@ -279,7 +279,7 @@ class DeclarationTest < Test::Unit::TestCase
 
   context 'Property columns' do
     Dummy = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
+      self.table_name = 'dummies'
       include Property
     end
 
@@ -327,8 +327,8 @@ class DeclarationTest < Test::Unit::TestCase
     class Contact < ActiveRecord::Base
       attr_accessor :assertion
       before_save :before_save_assertion
-      set_table_name :employees
-      has_many :versions, :class_name => 'DeclarationTest::Version'
+      self.table_name = :employees
+      has_many :versions, :class_name => 'DeclarationTest::Version', :foreign_key => 'employee_id'
 
       include Property
       store_properties_in :version

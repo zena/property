@@ -62,9 +62,9 @@ module Property
             def dump_properties
               if @properties && @properties.changed?
                 if !@properties.empty?
-                  #{accessor}write_attribute('properties', encode_properties(@properties))
+                  #{accessor}raw_write_attribute('properties', encode_properties(@properties))
                 else
-                  #{accessor}write_attribute('properties', nil)
+                  #{accessor}raw_write_attribute('properties', nil)
                 end
                 @properties.clear_changes!
               end

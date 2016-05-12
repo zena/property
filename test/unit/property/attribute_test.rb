@@ -129,7 +129,7 @@ class AttributeTest < Test::Unit::TestCase
       subject do
         klass = Class.new(ActiveRecord::Base) do
           include Property
-          set_table_name :dummies
+          self.table_name = :dummies
           property.string 'mystring'
         end
 
@@ -150,7 +150,7 @@ class AttributeTest < Test::Unit::TestCase
       subject do
         klass = Class.new(ActiveRecord::Base) do
           include Property
-          set_table_name :dummies
+          self.table_name = :dummies
           property.integer 'myinteger'
         end
 
@@ -171,7 +171,7 @@ class AttributeTest < Test::Unit::TestCase
       subject do
         klass = Class.new(ActiveRecord::Base) do
           include Property
-          set_table_name :dummies
+          self.table_name = :dummies
           property.float 'myfloat'
         end
 
@@ -196,7 +196,7 @@ class AttributeTest < Test::Unit::TestCase
       subject do
         klass = Class.new(ActiveRecord::Base) do
           include Property
-          set_table_name :dummies
+          self.table_name = :dummies
           property.datetime 'mydatetime'
         end
 
@@ -222,7 +222,7 @@ class AttributeTest < Test::Unit::TestCase
       subject do
         klass = Class.new(ActiveRecord::Base) do
           include Property
-          set_table_name :dummies
+          self.table_name = :dummies
           property.serialize 'myserialized', Cat
         end
 
@@ -244,7 +244,7 @@ class AttributeTest < Test::Unit::TestCase
         klass = Class.new(ActiveRecord::Base) do
           include Property
           invalid_property_failover 'error' => 'Property invalid!', 'myfloat' => 0.0
-          set_table_name :dummies
+          self.table_name = :dummies
           property.float 'myfloat'
         end
 
@@ -265,7 +265,7 @@ class AttributeTest < Test::Unit::TestCase
         subject do
           klass = Class.new(ActiveRecord::Base) do
             include Property
-            set_table_name :dummies
+            self.table_name = :dummies
             property.float 'myfloat'
           end
 
@@ -291,7 +291,7 @@ class AttributeTest < Test::Unit::TestCase
         klass = Class.new(ActiveRecord::Base) do
           include Property
           invalid_property_failover 'error' => 'Property invalid!', 'myfloat' => 0.0
-          set_table_name :dummies
+          self.table_name = :dummies
           property.float 'myfloat'
         end
       
@@ -442,7 +442,7 @@ class AttributeTest < Test::Unit::TestCase
 
   context 'Type cast' do
     DataType = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
+      self.table_name = 'dummies'
       include Property
       property do |p|
         p.string 'mystring'

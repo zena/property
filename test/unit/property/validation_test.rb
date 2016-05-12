@@ -5,7 +5,7 @@ class ValidationTest < Test::Unit::TestCase
 
   context 'When setting a property' do
     Pirate = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
+      self.table_name = 'dummies'
       include Property
       property.float 'boat'
       property.string 'bird_name'
@@ -20,28 +20,30 @@ class ValidationTest < Test::Unit::TestCase
 
     context 'without a property column' do
       context 'set with attributes=' do
-        should 'not raise an error' do
-          subject.update_attributes('infamous' => 'dictator')
+        should 'raise an error' do
+          assert_raise(ActiveRecord::UnknownAttributeError) do
+            subject.update_attributes('infamous' => 'dictator')
+          end
         end
 
-        should 'set an error message' do
-          subject.update_attributes('infamous' => 'dictator')
-          assert_equal subject.errors['infamous'], 'property not declared'
-        end
+        # should 'set an error message' do
+        #   subject.update_attributes('infamous' => 'dictator')
+        #   assert_equal subject.errors['infamous'], 'property not declared'
+        # end
       end # set with attributes=
 
       should 'set an error message' do
         subject.prop['infamous'] = 'dictator'
         assert !subject.save
-        assert_equal subject.errors['infamous'], 'property not declared'
+        assert_equal subject.errors['infamous'], ['property not declared']
       end
       
       should 'not send to get value in error message' do
         subject.prop['infamous'] = 'dictator'
         assert !subject.save
         assert_nothing_raised do
-          subject.errors.each_error do |key, error|
-            assert_equal 'Infamous property not declared', error.full_message
+          subject.errors.each do |key, error|
+            assert_equal 'property not declared', error
           end
         end
       end
@@ -52,8 +54,8 @@ class ValidationTest < Test::Unit::TestCase
           subject.prop['infamous'] = ''
           subject.prop['greedy']   = nil
           assert subject.save
-          assert_nil subject.errors['infamous']
-          assert_nil subject.errors['greedy']
+          assert_equal [], subject.errors['infamous']
+          assert_equal [], subject.errors['greedy']
         end
       end # with blank value
       
@@ -96,7 +98,7 @@ class ValidationTest < Test::Unit::TestCase
       should 'show an error for serialized types' do
         subject.update_attributes('cat' => 'Joann Sfar')
         assert !subject.valid?
-        assert_equal 'cannot cast String to Cat', subject.errors['cat']
+        assert_equal ['cannot cast String to Cat'], subject.errors['cat']
       end
     end
 
@@ -122,7 +124,7 @@ class ValidationTest < Test::Unit::TestCase
   context 'On a class with default property values' do
     class Cat < ActiveRecord::Base
       attr_accessor :encoding
-      set_table_name 'dummies'
+      self.table_name = 'dummies'
 
       include Property
       property do |p|
