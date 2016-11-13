@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/zena/rubyless.git
-  revision: 737f579e0ace2552e6066e5f02c8505d3401f327
-  branch: 1.9.3
+  revision: e52f307835d022013612cc7de00bbe320fba193d
+  branch: 2.2.1
   specs:
     rubyless (0.9.0)
       ruby_parser (~> 2.3.1)
@@ -9,8 +9,8 @@ GIT
 
 GIT
   remote: https://github.com/zena/yamltest.git
-  revision: 8a9a9d302848f33c959369d0ed94f8ae7d8df901
-  branch: 1.9.3
+  revision: 5b1e20406376634ac4f8c38d7df42e9f45fd3da7
+  branch: 2.2.1
   specs:
     yamltest (0.9.0)
 
@@ -49,6 +49,7 @@ GEM
     shoulda (2.10.3)
     slop (3.6.0)
     sqlite3 (1.3.11)
+    syck (1.2.0)
     test-unit (3.1.8)
       power_assert
     tzinfo (0.3.49)
@@ -66,9 +67,10 @@ DEPENDENCIES
   rubyless (= 0.9.0)!
   shoulda (= 2.10.3)
   sqlite3 (= 1.3.11)
+  syck
   test-unit (= 3.1.8)
   yajl-ruby
   yamltest (= 0.9.0)!
 
 BUNDLED WITH
-   1.13.3
+   1.13.6
