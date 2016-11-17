@@ -15,6 +15,23 @@ require 'property/base'
 require 'property/stored_role'
 require 'property/stored_schema'
 
+# Fix for ActiveRecord 2.3 on ruby 2.2
+# Not needed for AR3.2
+module ActiveRecord
+  module Associations
+    class AssociationProxy
+      def send(method, *args)
+        if proxy_respond_to?(method,true)
+          super
+        else
+          load_target
+          @target.send(method, *args)
+        end
+      end
+    end
+  end
+end
+
 module Property
   def self.included(base)
     base.class_eval do

@@ -5,7 +5,7 @@ require 'logger'
 require 'test/unit'
 require 'shoulda'
 require 'active_record'
-
+require "active_support"
 require 'database'
 require 'property'
 require 'shoulda_macros/serialization'

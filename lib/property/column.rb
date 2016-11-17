@@ -1,4 +1,5 @@
 require 'active_record'
+ActiveRecord.load_all! # remove for AR3.2
 
 module Property
   # The Column class is used to hold information about a Property declaration,

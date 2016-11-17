@@ -1,13 +1,28 @@
 module Property
+  # Remove for AR 3.2
+  class AttributeError < ActiveRecord::Error
+    def default_options
+      options.reverse_merge :scope => [:activerecord, :errors],
+                            :model => @base.class.human_name,
+                            :attribute => @base.class.human_attribute_name(attribute.to_s)
+    end
+
+    # SECURITY: MAKE SURE WE DO NOT SEND.
+    # Value is already in 'options'.
+    def value
+      nil
+    end
+  end
 
   class Properties < Hash
     attr_accessor :owner
     include Property::DirtyProperties
 
-    def initialize
-      @errors = ActiveModel::Errors.new(self)
-      super()
-    end
+    # Add for AR3.2
+    # def initialize
+    #   @errors = ActiveModel::Errors.new(self)
+    #   super()
+    # end
 
     def self.json_create(serialized)
       self[serialized['data']]

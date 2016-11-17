@@ -6,7 +6,7 @@ module Property
       @klass = opts[:class]
 
       @roles = [self]
-      
+
       # Schema inheritance
       unless superschema = opts[:superschema]
         if @klass && @klass.superclass.respond_to?(:schema)

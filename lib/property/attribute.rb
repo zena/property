@@ -1,3 +1,4 @@
+require "active_support" # Remove for AR3.2
 module Property
   # The Property::Attribute module is included in ActiveRecord model for CRUD operations
   # on properties. These ared stored in a table field called 'properties' and are accessed
@@ -43,7 +44,7 @@ module Property
         load_and_dump_methods =<<-EOF
           private
             @@invalid_property_failover = nil
-            
+
             def load_properties
               raw_data = #{accessor}read_attribute('properties')
               prop = raw_data ? decode_properties(raw_data) : Properties.new
@@ -62,15 +63,15 @@ module Property
             def dump_properties
               if @properties && @properties.changed?
                 if !@properties.empty?
-                  #{accessor}raw_write_attribute('properties', encode_properties(@properties))
+                  #{accessor}write_attribute('properties', encode_properties(@properties))
                 else
-                  #{accessor}raw_write_attribute('properties', nil)
+                  #{accessor}write_attribute('properties', nil)
                 end
                 @properties.clear_changes!
               end
               true
             end
-            
+
             def self.invalid_property_failover(failover)
               raise "Invalid failover property value type: should be a Hash." unless failover.kind_of?(Hash) || failover == nil
               @@invalid_property_failover = failover

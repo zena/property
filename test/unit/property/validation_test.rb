@@ -10,7 +10,7 @@ class ValidationTest < Test::Unit::TestCase
       property.float 'boat'
       property.string 'bird_name'
       property.serialize 'cat', Cat
-      
+
       def infamous
         raise Exception.new("Should not send!")
       end
@@ -20,24 +20,28 @@ class ValidationTest < Test::Unit::TestCase
 
     context 'without a property column' do
       context 'set with attributes=' do
-        should 'raise an error' do
-          assert_raise(ActiveRecord::UnknownAttributeError) do
-            subject.update_attributes('infamous' => 'dictator')
-          end
+        # should 'raise an error' do
+        #   assert_raise(ActiveRecord::UnknownAttributeError) do
+        #     subject.update_attributes('infamous' => 'dictator')
+        #   end
+        # end
+        should 'not raise an error' do
+          subject.update_attributes('infamous' => 'dictator')
         end
 
-        # should 'set an error message' do
-        #   subject.update_attributes('infamous' => 'dictator')
-        #   assert_equal subject.errors['infamous'], 'property not declared'
-        # end
+        should 'set an error message' do
+          subject.update_attributes('infamous' => 'dictator')
+          assert_equal subject.errors['infamous'], 'property not declared'
+        end
       end # set with attributes=
 
       should 'set an error message' do
         subject.prop['infamous'] = 'dictator'
         assert !subject.save
-        assert_equal subject.errors['infamous'], ['property not declared']
+        #assert_equal subject.errors['infamous'], ['property not declared']
+        assert_equal subject.errors['infamous'], 'property not declared'
       end
-      
+
       should 'not send to get value in error message' do
         subject.prop['infamous'] = 'dictator'
         assert !subject.save
@@ -47,18 +51,20 @@ class ValidationTest < Test::Unit::TestCase
           end
         end
       end
-      
+
       context 'with blank value' do
-        
+
         should 'not set an error message' do
           subject.prop['infamous'] = ''
           subject.prop['greedy']   = nil
           assert subject.save
-          assert_equal [], subject.errors['infamous']
-          assert_equal [], subject.errors['greedy']
+          #assert_equal [], subject.errors['infamous']
+          #assert_equal [], subject.errors['greedy']
+          assert_equal nil, subject.errors['infamous']
+          assert_equal nil, subject.errors['greedy']
         end
       end # with blank value
-      
+
       context 'with dirty' do
         should 'validate if property was not changed' do
           subject.prop.instance_eval do
@@ -98,7 +104,8 @@ class ValidationTest < Test::Unit::TestCase
       should 'show an error for serialized types' do
         subject.update_attributes('cat' => 'Joann Sfar')
         assert !subject.valid?
-        assert_equal ['cannot cast String to Cat'], subject.errors['cat']
+        #assert_equal ['cannot cast String to Cat'], subject.errors['cat']
+        assert_equal 'cannot cast String to Cat', subject.errors['cat']
       end
     end
 
